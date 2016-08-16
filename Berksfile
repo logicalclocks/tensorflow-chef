@@ -3,6 +3,10 @@ Encoding.default_external = "UTF-8"
 # End Bugfix
 
 source 'https://supermarket.chef.io'
+
 cookbook 'kagent', github: 'karamelchef/kagent-chef', branch: 'master'
 metadata
-cookbook 'kagent', github: 'karamelchef/kagent-chef', branch: 'master'
+
+cookbook 'java'
+cookbook 'bazel', github: 'gengo/cookbook-bazel', branch: 'master'
+cookbook 'magic_shell'

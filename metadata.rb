@@ -8,10 +8,13 @@ version          "0.1"
 recipe            "tensorflow::install", "Experiment setup for tensorflow"
 recipe            "tensorflow::default",  "configFile=; Experiment name: default"
 recipe            "tensorflow::distributed",  "configFile=; Experiment name: distributed"
+recipe            "tensorflow::purge",  "Uninstall tensorflow and cuda"
 
 
 depends "kagent"
-
+depends "java"
+depends "bazel"
+depends "magic_shell"
 
 
 %w{ ubuntu debian rhel centos }.each do |os|

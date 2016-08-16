@@ -1,14 +1,9 @@
 dependencies:
   - recipe: tensorflow::install
+    local:
+      - kagent::install
   - recipe: tensorflow::default
-    local:
-      - tensorflow::install
-    global:
-      - kagent::install
   - recipe: tensorflow::distributed
-    local:
-      - tensorflow::install
-    global:
-      - kagent::install
+
 
 
