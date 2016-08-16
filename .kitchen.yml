@@ -2,38 +2,44 @@
 driver:
   name: vagrant
   customize:
-    memory: 3000
+    memory: 9000
     cpuexecutioncap: 90
-    cpus: 2
+    cpus: 1
     natdnshostresolver1: "on"
     natdnsproxy1: "on"
     nictype1: "virtio"
+  network:
+  - ["forwarded_port", {guest: 8080, host: 28080}]
+  - ["forwarded_port", {guest: 8181, host: 28181}]
+  - ["forwarded_port", {guest: 4848, host: 24848}]
+  - ["forwarded_port", {guest: 50070, host: 40070}]
+  - ["forwarded_port", {guest: 50075, host: 41075}]
 
 provisioner:
   name: chef_solo
+  require_chef_omnibus: 12.4.3
+  chef_omnibus_url: "http://snurran.sics.se/hops/"
 
 platforms:
-  - name: centos-6.5
   - name: ubuntu-14.04
+#  - name: centos-7.0
 
-suites: 
+suites:
+  - name: default
+
+suites:
   - name: default
     run_list:
       - recipe[kagent::install]
       - recipe[tensorflow::install]
-      - recipe[tensorflow::experiment]
-
+      - recipe[tensorflow::default]
+      - recipe[tensorflow::distributed]
     attributes:
-         tensorflow:
-            experiment:
-                private_ips: ["10.0.2.15"]
-                public_ips: ["10.0.2.15"]
-            private_ips: ["10.0.2.15"]
-            public_ips: ["10.0.2.15"]
+         vagrant: "true"
          kagent:
             private_ips: ["10.0.2.15"]
             public_ips: ["10.0.2.15"]
-         private_ips: ["10.0.2.15"]
-         public_ips: ["10.0.2.15"]
-         vagrant: "enabled"
-
+            enabled: "false"
+         tensorflow:
+            private_ips: ["10.0.2.15"]
+            public_ips: ["10.0.2.15"]

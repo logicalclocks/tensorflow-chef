@@ -1,5 +1,5 @@
-name             'tensorflow'
-maintainer       "tensorflow"
+name             "tensorflow"
+maintainer       "Jim Dowling"
 maintainer_email "jdowling@kth.se"
 license          "Apache v2.0"
 description      'Installs/Configures/Runs tensorflow'

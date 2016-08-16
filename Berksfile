@@ -10,3 +10,9 @@ metadata
 cookbook 'java'
 cookbook 'bazel', github: 'gengo/cookbook-bazel', branch: 'master'
 cookbook 'magic_shell'
+cookbook 'build-essential'
+cookbook 'poise-python'
+cookbook 'zip'
+cookbook 'apt'
+cookbook 'homebrew'
+
