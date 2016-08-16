@@ -21,7 +21,8 @@ when "debian"
   execute 'apt-get update'
 
 #     freeglut3-dev g++-4.9 gcc-4.9 libglu1-mesa-dev libx11-dev libxi-dev libxmu-dev nvidia-modprobe python-dev python-pip python-virtualenv
-  packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic }
+  packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic openjdk-8-jdk }
+
   for script in packages do
     package script do
       action :install
@@ -49,12 +50,12 @@ end
 
 
 
-#node.default.java.jdk_version = 8
-#node.default.java.set_etc_environment = true
-#include_recipe "java"
+# node.default.java.jdk_version = 8
+# node.default.java.set_etc_environment = true
+# include_recipe "java"
 
 
-bazel_installation_package('bazel') do
+bazel_installation('bazel') do
   version '0.3.1'
   action :create
 end
@@ -81,13 +82,12 @@ bash "unpack_install_cuda" do
     mkdir -p #{cuda_dir}
     cd #{Chef::Config[:file_cache_path]}
     chmod +x #{base_cuda_file}
-#    ./#{base_cuda_file} --silent --driver --toolkit 
-    ./#{base_cuda_file} --extract=#{cuda_dir}
-
-    cd #{cuda_dir}
-    ./NVIDIA-Linux-x86_64-352.39.run
-    modprobe nvidia
-    ./cuda-linux64-rel-#{node.cuda.version}-19867135.run
+    ./#{base_cuda_file} --silent --driver --toolkit 
+#    ./#{base_cuda_file} --extract=#{cuda_dir}
+#    cd #{cuda_dir}
+#    ./NVIDIA-Linux-x86_64-352.39.run
+#    modprobe nvidia
+#    ./cuda-linux64-rel-#{node.cuda.version}-19867135.run
 #    ./cuda-samples-linux-#{node.cuda.version}-19867135.run
 
 

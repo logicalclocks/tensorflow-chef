@@ -16,4 +16,4 @@ default.cudnn.url                = "#{node.download_url}/cudnn-#{node.cuda.major
 
 default.cuda.dir                 = "/usr/local"
 default.cuda.base_dir            = "#{cuda.dir}/cuda"
-default.cuda.version_dir         = "#{cuda.dir}/cuda_#{node.cuda.version}"
+default.cuda.version_dir         = "#{cuda.dir}/cuda_#{node.cuda.major_version}"
