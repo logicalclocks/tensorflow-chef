@@ -21,8 +21,7 @@ when "debian"
   execute 'apt-get update'
 
 #     freeglut3-dev g++-4.9 gcc-4.9 libglu1-mesa-dev libx11-dev libxi-dev libxmu-dev nvidia-modprobe python-dev python-pip python-virtualenv
-  packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic openjdk-8-jdk }
-
+  packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic }
   for script in packages do
     package script do
       action :install
@@ -50,9 +49,10 @@ end
 
 
 
-# node.default.java.jdk_version = 8
-# node.default.java.set_etc_environment = true
-# include_recipe "java"
+ node.default.java.jdk_version = 8
+ node.default.java.set_etc_environment = true
+ node.default.java.oracle.accept_oracle_download_terms = true
+ include_recipe "java::oracle"
 
 
 bazel_installation('bazel') do
