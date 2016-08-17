@@ -62,8 +62,8 @@ end
 
 
 base_cuda_file =  File.basename(node.cuda.url)
-#base_cuda_dir =  File.basename(base_cuda_file, "_linux.run")
-#cuda_dir = "/tmp/#{base_cuda_dir}"
+base_cuda_dir =  File.basename(base_cuda_file, "_linux.run")
+cuda_dir = "/tmp/#{base_cuda_dir}"
 cached_file = "#{Chef::Config[:file_cache_path]}/#{base_cuda_file}"
 
 remote_file cached_file do
@@ -112,15 +112,28 @@ bash "validate_cuda" do
 EOF
 end
 
+
+base_cudnn_file =  File.basename(node.cudnn.url)
+base_cudnn_dir =  File.basename(base_cudnn_file, "-ga.tgz")
+cudnn_dir = "/tmp/#{base_cudnn_dir}"
+cached_cudnn_file = "#{Chef::Config[:file_cache_path]}/#{base_cudnn_file}"
+
+remote_file cached_cudnn_file do
+#  checksum node.cuda.md5sum
+  source node.cudnn.url
+  mode 0755
+  action :create
+  not_if { File.exist?(cached_cudnn_file) }
+end
+
+
 bash "unpack_install_cudnn" do
     user "root"
     code <<-EOF
     set -e
-    cd #{cuda_dir}  
-    rm -f cudnn-#{node.cuda.version}-linux-x64-v#{node.cudnn.version}-ga.tgz
-    wget #{node.cudnn.url}
+    cd #{Chef::Config[:file_cache_path]}
     tar -zxf cudnn-#{node.cuda.version}-linux-x64-v#{node.cudnn.version}-ga.tgz
-    cd cuda
+    cd #{base_cudnn_dir}
     cp -rf lib64/* #{node.cuda.base_dir}/lib64/
     cp -rf include/* #{node.cuda.base_dir}/include/
     chmod a+r #{node.cuda.base_dir}/lib64/libcudnn*
