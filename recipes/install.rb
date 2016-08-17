@@ -91,7 +91,6 @@ bash "unpack_install_cuda" do
 #    ./cuda-samples-linux-#{node.cuda.version}-19867135.run
 
 
-#    ln -s  #{node.cuda.version_dir} #{node.cuda.base_dir}
     chown -R #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.version_dir}
     chown #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.base_dir}
     touch #{node.cuda.version_dir}/.installed
@@ -100,13 +99,27 @@ EOF
 end
 
 
+
+magic_shell_environment 'PATH' do
+  value "$PATH:#{node.cuda.base_dir}/bin"
+end
+
+magic_shell_environment 'LD_LIBRARY_PATH' do
+  value "#{node.cuda.base_dir}/lib64:$LD_LIBRARY_PATH"
+end
+
+magic_shell_environment 'CUDA_HOME' do
+  value node.cuda.base_dir
+end
+
+
 bash "validate_cuda" do
-    user "root"
+    user node.tensorflow.user
     code <<-EOF
     set -e
-    export PATH=$PATH:#{node.cuda.base_dir}
-    export LD_LIBRARY_PATH=#{node.cuda.base_dir}/lib64:$LD_LIBRARY_PATH"
-    export CUDA_HOME==#{node.cuda.base_dir}
+#    export PATH=$PATH:#{node.cuda.base_dir}
+#    export LD_LIBRARY_PATH=#{node.cuda.base_dir}/lib64:$LD_LIBRARY_PATH
+#    export CUDA_HOME==#{node.cuda.base_dir}
 # test the cuda nvidia compiler
     nvcc -V
 EOF
@@ -150,26 +163,12 @@ bash "validate_cudnn" do
     user "root"
     code <<-EOF
     set -e
-    export PATH=$PATH:#{node.cuda.base_dir}
-    export LD_LIBRARY_PATH=#{node.cuda.base_dir}/lib64:$LD_LIBRARY_PATH"
-    export CUDA_HOME==#{node.cuda.base_dir}
+#    export PATH=$PATH:#{node.cuda.base_dir}
+#    export LD_LIBRARY_PATH=#{node.cuda.base_dir}/lib64:$LD_LIBRARY_PATH
+#    export CUDA_HOME==#{node.cuda.base_dir}
 
     nvidia-smi
 EOF
-end
-
-
-
-magic_shell_environment 'PATH' do
-  value "$PATH:#{node.cuda.base_dir}"
-end
-
-magic_shell_environment 'LD_LIBRARY_PATH' do
-  value "#{node.cuda.base_dir}/lib64:$LD_LIBRARY_PATH"
-end
-
-magic_shell_environment 'CUDA_HOME' do
-  value node.cuda.base_dir
 end
 
 
