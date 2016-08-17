@@ -62,8 +62,8 @@ end
 
 
 base_cuda_file =  File.basename(node.cuda.url)
-base_cuda_dir =  File.basename(base_cuda_file, "_linux.run")
-cuda_dir = "/tmp/#{base_cuda_dir}"
+#base_cuda_dir =  File.basename(base_cuda_file, "_linux.run")
+#cuda_dir = "/tmp/#{base_cuda_dir}"
 cached_file = "#{Chef::Config[:file_cache_path]}/#{base_cuda_file}"
 
 remote_file cached_file do
