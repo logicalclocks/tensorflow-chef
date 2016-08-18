@@ -90,6 +90,7 @@ bash "unpack_install_cuda" do
 #    ./cuda-linux64-rel-#{node.cuda.version}-19867135.run
 #    ./cuda-samples-linux-#{node.cuda.version}-19867135.run
 
+    pip install numpy
 
     chown -R #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.version_dir}
     chown #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.base_dir}
@@ -136,21 +137,11 @@ tensorflow_compile "cdnn" do
   action :cdnn
 end
 
-
-bash "unpack_install_tensorflow_server" do
-    user node.tensorflow.user
-    code <<-EOF
-    set -e
-    cd /home/#{node.tensorflow.user}
-    git clone –recurse-submodules https://github.com/tensorflow/tensorflow
-    cd tensorflow
-    ./configure
-    bazel build -c opt –config=cuda //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
-    bazel build -c opt –config=cuda //tensorflow/tools/pip_package:build_pip_package
-    bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-
-    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.version}-py2-none-linux_x86_64.whl
-    touch tensorflow/.installed
-EOF
-  not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
+package "expect" do
+ action :install
 end
+
+tensorflow_compile "tensorflow" do
+  action :tf
+end
+
