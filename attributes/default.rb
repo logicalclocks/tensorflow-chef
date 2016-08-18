@@ -11,8 +11,8 @@ default.cuda.url                 = "#{node.download_url}/cuda_#{node.cuda.versio
 default.cuda.url_backup     = "http://developer.download.nvidia.com/compute/cuda/#{node.cuda.major_version}/Prod/local_installers/cuda_#{node.cuda.version}_linux.run"
 default.cuda.md5sum              = "4b3bcecf0dfc35928a0898793cf3e4c6"
 
-default.cudnn.version            = "5.0"
-default.cudnn.url                = "#{node.download_url}/cudnn-#{node.cuda.major_version}-linux-x64-v#{node.cudnn.version}-ga.tgz"
+default.cudnn.version            = "5.1"
+default.cudnn.url                = "#{node.download_url}/cudnn-#{node.cuda.major_version}-linux-x64-v#{node.cudnn.version}.tgz"
 
 default.cuda.dir                 = "/usr/local"
 default.cuda.base_dir            = "#{cuda.dir}/cuda"
