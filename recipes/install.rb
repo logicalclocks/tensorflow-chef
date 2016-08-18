@@ -113,16 +113,8 @@ magic_shell_environment 'CUDA_HOME' do
 end
 
 
-bash "validate_cuda" do
-    user node.tensorflow.user
-    code <<-EOF
-    set -e
-#    export PATH=$PATH:#{node.cuda.base_dir}
-#    export LD_LIBRARY_PATH=#{node.cuda.base_dir}/lib64:$LD_LIBRARY_PATH
-#    export CUDA_HOME==#{node.cuda.base_dir}
-# test the cuda nvidia compiler
-    nvcc -V
-EOF
+tensorflow_compile "cuda" do
+  action :cuda
 end
 
 
@@ -140,35 +132,8 @@ remote_file cached_cudnn_file do
 end
 
 
-bash "unpack_install_cudnn" do
-    user "root"
-    code <<-EOF
-    set -e
-    cd #{Chef::Config[:file_cache_path]}
-    tar -zxf cudnn-#{node.cuda.version}-linux-x64-v#{node.cudnn.version}-ga.tgz
-    cd #{base_cudnn_dir}
-    cp -rf lib64/* #{node.cuda.base_dir}/lib64/
-    cp -rf include/* #{node.cuda.base_dir}/include/
-    chmod a+r #{node.cuda.base_dir}/lib64/libcudnn*
-
-    chown -R #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.version_dir}
-    chown #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.base_dir}
-    touch #{node.cuda.version_dir}/.cudnn_installed
-EOF
-  not_if { ::File.exists?( "#{node.cuda.version_dir}/.cudnn_installed" ) }
-end
-
-
-bash "validate_cudnn" do
-    user "root"
-    code <<-EOF
-    set -e
-#    export PATH=$PATH:#{node.cuda.base_dir}
-#    export LD_LIBRARY_PATH=#{node.cuda.base_dir}/lib64:$LD_LIBRARY_PATH
-#    export CUDA_HOME==#{node.cuda.base_dir}
-
-    nvidia-smi
-EOF
+tensorflow_compile "cdnn" do
+  action :cdnn
 end
 
 
