@@ -1,4 +1,3 @@
-# -*- coding: undecided -*-
 #
 # First, find out the compute capability of your GPU here: https://developer.nvidia.com/cuda-gpus
 # E.g., 
@@ -6,9 +5,6 @@
 # GeForce GTX 1080	6.1
 # GeForce GTX 970	5.2
 #
-
-
-# -*- coding: utf-8 -*-
 
 user node.tensorflow.user do
   action :create
