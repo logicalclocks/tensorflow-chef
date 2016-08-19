@@ -1,11 +1,11 @@
 action :cuda do
 
 bash "validate_cuda" do
-    user node.tensorflow.user
+    user "roo"
     code <<-EOF
     set -e
 # test the cuda nvidia compiler
-    nvcc -V
+    su #{node.tensorflow.user} -l -c "nvcc -V"
 EOF
 end
 
@@ -18,7 +18,8 @@ bash "validate_cudnn" do
     user "root"
     code <<-EOF
     set -e
-    nvidia-smi | grep NVID
+    
+    su #{node.tensorflow.user} -l -c "nvidia-smi | grep NVID"
 EOF
 end
 
