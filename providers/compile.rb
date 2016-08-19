@@ -1,7 +1,7 @@
 action :cuda do
 
 bash "validate_cuda" do
-    user "roo"
+    user "root"
     code <<-EOF
     set -e
 # test the cuda nvidia compiler
