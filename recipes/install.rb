@@ -75,13 +75,12 @@ base_cuda_dir =  File.basename(base_cuda_file, "_linux.run")
 cuda_dir = "/tmp/#{base_cuda_dir}"
 cached_file = "#{Chef::Config[:file_cache_path]}/#{base_cuda_file}"
 
-remote_file cached_file do
-#  checksum node.cuda.md5sum
-  source node.cuda.url, node.cuda.url_backup
-  mode 0755
-  action :create
-  not_if { File.exist?(cached_file) }
-end
+#remote_file cached_file do
+#  source node.cuda.url, node.cuda.url_backup
+#  mode 0755
+#  action :create
+#  not_if { File.exist?(cached_file) }
+#end
 
 bash "unpack_install_cuda" do
     user "root"
@@ -99,8 +98,8 @@ bash "unpack_install_cuda" do
 #     apt-get install nvidia-cuda-toolkit nvidia-cuda-dev -y
 
 
-     wget –quiet http://snurran.sics.se/hops/cuda_8.0.27_linux.run
-     wget –quiet http://snurran.sics.se/hops/cuda_8.0.27.1_linux.run
+     wget --quiet http://snurran.sics.se/hops/cuda_8.0.27_linux.run
+     wget --quiet http://snurran.sics.se/hops/cuda_8.0.27.1_linux.run
      chmod +x cuda*
      ./cuda_8.0.27_linux.run --override --silent --driver --toolkit --no-opengl-libs
      ./cuda_8.0.27.1_linux.run --silent 
@@ -123,6 +122,7 @@ bash "unpack_install_cuda" do
 #    touch #{node.cuda.version_dir}/.installed
 EOF
 #  not_if { ::File.exists?( "#{node.cuda.version_dir}/.installed" ) }
+  not_if { ::File.exists?( "#{Chef::Config[:file_cache_path]}/cuda_8.0.27.1_linux.run" ) }
 end
 
 
