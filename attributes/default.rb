@@ -13,7 +13,7 @@ default.cuda.md5sum              = "4b3bcecf0dfc35928a0898793cf3e4c6"
 
 default.cudnn.major_version            = "5"
 default.cudnn.minor_version            = "1"
-default.cudnn.version            = node.cdnn.major_version + "." + node.cdnn.minor_version
+default.cudnn.version            = node.cudnn.major_version + "." + node.cudnn.minor_version
 default.cudnn.url                = "#{node.download_url}/cudnn-#{node.cuda.major_version}-linux-x64-v#{node.cudnn.version}.tgz"
 
 default.cuda.dir                 = "/usr/local"
