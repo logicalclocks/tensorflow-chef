@@ -82,7 +82,9 @@ bash "unpack_install_cuda" do
     mkdir -p #{cuda_dir}
     cd #{Chef::Config[:file_cache_path]}
     chmod +x #{base_cuda_file}
-    ./#{base_cuda_file} --silent --driver --toolkit 
+    apt-get purge gcc -y
+    apt-get install gcc-4.9 -y
+    ./#{base_cuda_file} --silent --driver --toolkit --override
 #    ./#{base_cuda_file} --extract=#{cuda_dir}
 #    cd #{cuda_dir}
 #    ./NVIDIA-Linux-x86_64-352.39.run
