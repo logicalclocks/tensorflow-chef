@@ -27,7 +27,7 @@ end
 case node.platform_family
 when "debian"
 
-execute 'apt-get update'
+execute 'apt-get update -y'
 
 #     freeglut3-dev g++-4.9 gcc-4.9 libglu1-mesa-dev libx11-dev libxi-dev libxmu-dev nvidia-modprobe python-dev python-pip python-virtualenv
   packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic }
@@ -167,7 +167,7 @@ bash "unpack_install_cdnn" do
     chmod a+r /usr/include/cudnn.h /usr/lib64/libcudnn*
 # #{node.cuda.base_dir}
 
-    apt-get install python-pip python-dev python-virtualenv
+#    apt-get install python-pip python-dev python-virtualenv -y
 
 #    chown -R #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.base_dir}
 #    touch #{node.cuda.version_dir}/.cudnn_installed
