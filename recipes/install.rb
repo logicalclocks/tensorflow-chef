@@ -139,7 +139,7 @@ bash "unpack_install_cdnn" do
 
     cd #{Chef::Config[:file_cache_path]}
     tar zxf #{cached_cudnn_file}
-    mv cuda/* #{node.cuda.base_dir}/
+    cp -rf cuda/* #{node.cuda.base_dir}
     chown -R #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.base_dir}
     touch #{node.cuda.version_dir}/.cudnn_installed
 EOF
