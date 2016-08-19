@@ -18,7 +18,7 @@ end
 case node.platform_family
 when "debian"
 
-  execute 'apt-get update'
+execute 'apt-get update'
 
 #     freeglut3-dev g++-4.9 gcc-4.9 libglu1-mesa-dev libx11-dev libxi-dev libxmu-dev nvidia-modprobe python-dev python-pip python-virtualenv
   packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic }
@@ -82,8 +82,8 @@ bash "unpack_install_cuda" do
     mkdir -p #{cuda_dir}
     cd #{Chef::Config[:file_cache_path]}
     chmod +x #{base_cuda_file}
-    apt-get purge gcc -y
-    apt-get install gcc-4.9 -y
+#    apt-get purge gcc -y
+#    apt-get install gcc-4.9 -y
     ./#{base_cuda_file} --silent --driver --toolkit --override
 #    ./#{base_cuda_file} --extract=#{cuda_dir}
 #    cd #{cuda_dir}
