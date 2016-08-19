@@ -66,7 +66,7 @@ bash "configure_tensorflow_server" do
     expect "Refer to README.md for more details. [Default is /usr/local/cuda]: "
     send "\r"
     expect "[Default is: "3.5,5.2"]: "
-    send "\r"
+    send "6.1\r"
     expect eof'
     
     # Check if configure completed successfully

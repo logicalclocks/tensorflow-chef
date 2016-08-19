@@ -1,3 +1,4 @@
+# -*- coding: undecided -*-
 #
 # First, find out the compute capability of your GPU here: https://developer.nvidia.com/cuda-gpus
 # E.g., 
@@ -98,8 +99,8 @@ bash "unpack_install_cuda" do
 #     apt-get install nvidia-cuda-toolkit nvidia-cuda-dev -y
 
 
-     wget http://snurran.sics.se/hops/cuda_8.0.27_linux.run
-     wget http://snurran.sics.se/hops/cuda_8.0.27.1_linux.run
+     wget –quiet http://snurran.sics.se/hops/cuda_8.0.27_linux.run
+     wget –quiet http://snurran.sics.se/hops/cuda_8.0.27.1_linux.run
      chmod +x cuda*
      ./cuda_8.0.27_linux.run --override --silent --driver --toolkit --no-opengl-libs
      ./cuda_8.0.27.1_linux.run --silent 
