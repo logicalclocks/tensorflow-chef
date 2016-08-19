@@ -1,3 +1,12 @@
+#
+# First, find out the compute capability of your GPU here: https://developer.nvidia.com/cuda-gpus
+# E.g., 
+# NVIDIA TITAN X	6.1
+# GeForce GTX 1080	6.1
+# GeForce GTX 970	5.2
+#
+
+
 # -*- coding: utf-8 -*-
 
 user node.tensorflow.user do
@@ -36,12 +45,11 @@ end
 # On ec2 you need to disable the nouveau driver and reboot the machine
 # http://www.pyimagesearch.com/2016/07/04/how-to-install-cuda-toolkit-and-cudnn-for-deep-learning/
 #
-# template "/etc/modprobe.d/blacklist-nouveau.conf" do
-#   source "blacklist-nouveau.conf.erb"
-#   owner node.tensorflow.hdfs.user
-#   group node.tensorflow.group
-#    mode 0775
-# end
+template "/etc/modprobe.d/blacklist-nouveau.conf" do
+  source "blacklist-nouveau.conf.erb"
+  owner "root"
+  mode 0775
+end
 
 # echo options nouveau modeset=0 | sudo tee -a /etc/modprobe.d/nouveau-kms.conf
 # sudo update-initramfs -u
@@ -79,12 +87,23 @@ bash "unpack_install_cuda" do
     timeout 14400
     code <<-EOF
     set -e
-    mkdir -p #{cuda_dir}
+#    mkdir -p #{cuda_dir}
     cd #{Chef::Config[:file_cache_path]}
-    chmod +x #{base_cuda_file}
+
+#    apt-get install software-properties-common -y
+#    add-apt-repository ppa:graphics-drivers/ppa -y
+#    apt-get install libcudart7.5 libnvrtc7.5 -y
+
+     # installs into the /usr folder
+     apt-get install nvidia-cuda-toolkit nvidia-cuda-dev
+     
+
+
+#    chmod +x #{base_cuda_file}
 #    apt-get purge gcc -y
 #    apt-get install gcc-4.9 -y
-    ./#{base_cuda_file} --silent --driver --toolkit --override
+#    ./#{base_cuda_file} --silent --driver --toolkit --override
+
 #    ./#{base_cuda_file} --extract=#{cuda_dir}
 #    cd #{cuda_dir}
 #    ./NVIDIA-Linux-x86_64-352.39.run
@@ -94,25 +113,27 @@ bash "unpack_install_cuda" do
 
     pip install numpy
 
-    chown -R #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.version_dir}
-    chown #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.base_dir}
-    touch #{node.cuda.version_dir}/.installed
+#    chown -R #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.version_dir}
+#    chown #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.base_dir}
+#    touch #{node.cuda.version_dir}/.installed
 EOF
-  not_if { ::File.exists?( "#{node.cuda.version_dir}/.installed" ) }
+#  not_if { ::File.exists?( "#{node.cuda.version_dir}/.installed" ) }
 end
 
 
 
-magic_shell_environment 'PATH' do
-  value "$PATH:#{node.cuda.base_dir}/bin"
-end
+#magic_shell_environment 'PATH' do
+#  value "$PATH:#{node.cuda.base_dir}/bin"
+#end
 
 magic_shell_environment 'LD_LIBRARY_PATH' do
-  value "#{node.cuda.base_dir}/lib64:$LD_LIBRARY_PATH"
+#  value "#{node.cuda.base_dir}/lib64:$LD_LIBRARY_PATH"
+  value "/usr/lib64:$LD_LIBRARY_PATH"
 end
 
 magic_shell_environment 'CUDA_HOME' do
-  value node.cuda.base_dir
+#  value node.cuda.base_dir
+  value "/usr"
 end
 
 
@@ -141,11 +162,18 @@ bash "unpack_install_cdnn" do
 
     cd #{Chef::Config[:file_cache_path]}
     tar zxf #{cached_cudnn_file}
-    cp -rf cuda/* #{node.cuda.base_dir}
-    chown -R #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.base_dir}
-    touch #{node.cuda.version_dir}/.cudnn_installed
+    cp -rf cuda/lib64 /usr
+    cp -rf cuda/include/* /usr/include
+    chmod a+r /usr/include/cudnn.h /usr/lib64/libcudnn*
+# #{node.cuda.base_dir}
+
+    apt-get install python-pip python-dev python-virtualenv
+
+#    chown -R #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.base_dir}
+#    touch #{node.cuda.version_dir}/.cudnn_installed
 EOF
-  not_if { ::File.exists?( "#{node.cuda.version_dir}/.cudnn_installed" ) }
+#  not_if { ::File.exists?( "#{node.cuda.version_dir}/.cudnn_installed" ) }
+  not_if { ::File.exists?( "/usr/include/cudnn.h" ) }
 end
 
 

@@ -60,7 +60,7 @@ bash "configure_tensorflow_server" do
     expect "Please specify the Cuda SDK version you want to use, e.g. 7.0. [Leave empty to use system default]: "
     send "#{node.cuda.major_version}\r"
     expect "Please specify the location where CUDA #{node.cuda.major_version} toolkit is installed. Refer to README.md for more details. [Default is /usr/local/cuda]: "
-    send "\r"
+    send "/usr\r"
     expect "Please specify the Cudnn version you want to use. [Leave empty to use system default]: "
     send "#{node.cudnn.major_version}\r"
     expect "Refer to README.md for more details. [Default is /usr/local/cuda]: "
