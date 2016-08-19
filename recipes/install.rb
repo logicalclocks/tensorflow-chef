@@ -95,10 +95,14 @@ bash "unpack_install_cuda" do
 #    apt-get install libcudart7.5 libnvrtc7.5 -y
 
      # installs into the /usr folder
-     apt-get install nvidia-cuda-toolkit nvidia-cuda-dev -y
-     
+#     apt-get install nvidia-cuda-toolkit nvidia-cuda-dev -y
 
 
+     wget http://snurran.sics.se/hops/cuda_8.0.27_linux.run
+     wget http://snurran.sics.se/hops/cuda_8.0.27.1_linux.run
+     chmod +x cuda*
+     ./cuda_8.0.27_linux.run --override --silent --driver --toolkit --no-opengl-libs
+     ./cuda_8.0.27.1_linux.run --silent 
 #    chmod +x #{base_cuda_file}
 #    apt-get purge gcc -y
 #    apt-get install gcc-4.9 -y
@@ -122,17 +126,17 @@ end
 
 
 
-#magic_shell_environment 'PATH' do
-#  value "$PATH:#{node.cuda.base_dir}/bin"
-#end
+magic_shell_environment 'PATH' do
+  value "$PATH:#{node.cuda.base_dir}/bin"
+end
 
 magic_shell_environment 'LD_LIBRARY_PATH' do
-#  value "#{node.cuda.base_dir}/lib64:$LD_LIBRARY_PATH"
+  value "#{node.cuda.base_dir}/lib64:$LD_LIBRARY_PATH"
   value "/usr/lib64:$LD_LIBRARY_PATH"
 end
 
 magic_shell_environment 'CUDA_HOME' do
-#  value node.cuda.base_dir
+  value node.cuda.base_dir
   value "/usr"
 end
 
