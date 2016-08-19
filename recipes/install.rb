@@ -95,7 +95,7 @@ bash "unpack_install_cuda" do
 #    apt-get install libcudart7.5 libnvrtc7.5 -y
 
      # installs into the /usr folder
-     apt-get install nvidia-cuda-toolkit nvidia-cuda-dev
+     apt-get install nvidia-cuda-toolkit nvidia-cuda-dev -y
      
 
 
@@ -111,7 +111,7 @@ bash "unpack_install_cuda" do
 #    ./cuda-linux64-rel-#{node.cuda.version}-19867135.run
 #    ./cuda-samples-linux-#{node.cuda.version}-19867135.run
 
-    pip install numpy
+    pip install numpy -y
 
 #    chown -R #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.version_dir}
 #    chown #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.base_dir}
