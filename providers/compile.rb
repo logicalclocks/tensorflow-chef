@@ -18,7 +18,6 @@ bash "validate_cudnn" do
     user "root"
     code <<-EOF
     set -e
-    
     su #{node.tensorflow.user} -l -c "nvidia-smi | grep NVID"
 EOF
 end
@@ -52,7 +51,7 @@ bash "configure_tensorflow_server" do
     send "\r"
     expect "Do you wish to build TensorFlow with Google Cloud Platform support? [y/N] "
     send "N\r"
-    expect "Please input the desired Python library path to use.  Default is [/usr/local/lib/python2.7/dist-packages]\n"
+    expect "Please input the desired Python library path to use. \nFound possible Python library paths: \n/usr/local/lib/python2.7/dist-packages\n/usr/lib/python2.7/dist-packages"
     send "/usr/local/lib/python2.7/dist-packages\r"
     expect "Do you wish to build TensorFlow with GPU support? [y/N] "
     send "y\r"
