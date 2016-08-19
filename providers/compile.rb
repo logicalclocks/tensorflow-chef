@@ -47,8 +47,7 @@ bash "configure_tensorflow_server" do
     export LC_ALL=en_US.UTF-8
 
     cd /home/#{node.tensorflow.user}/tensorflow
-    ./configure
-    /usr/bin/expect -c 'spawn .configure
+    /usr/bin/expect -c 'spawn ./configure
     expect "Please specify the location of python. [Default is /usr/bin/python]: "
     send "\r"
     expect "Do you wish to build TensorFlow with Google Cloud Platform support? [y/N] "
