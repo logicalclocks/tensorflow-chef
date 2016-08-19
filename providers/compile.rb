@@ -62,13 +62,19 @@ bash "configure_tensorflow_server" do
     expect "Please specify the location where CUDA #{node.cuda.major_version} toolkit is installed. Refer to README.md for more details. [Default is /usr/local/cuda]: "
     send "\r"
     expect "Please specify the Cudnn version you want to use. [Leave empty to use system default]: "
-    send "#{node.cudnn.version}\r"
+    send "#{node.cudnn.major_version}\r"
     expect "Refer to README.md for more details. [Default is /usr/local/cuda]: "
     send "\r"
+    expect "[Default is: "3.5,5.2"]: "
+    send "\r"
     expect eof'
-    touch tensorflow/.configured
+    
+    # Check if configure completed successfully
+    if [ ! -f tools/bazel.rc ] ;
+      exit 1
+    fi
 EOF
-  not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.configured" ) }
+  not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/tools/bazel.rc" ) }
 end
 
 bash "build_install_tensorflow_server" do

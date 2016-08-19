@@ -1,5 +1,4 @@
 
-
 Vagrant.configure("2") do |c|
   if Vagrant.has_plugin?("vagrant-omnibus")
 #    require 'vagrant-omnibus'
@@ -13,9 +12,10 @@ Vagrant.configure("2") do |c|
     c.cache.enable :gem    
   end
 #  c.vm.synced_folder "/srv/hops-downloads", "/srv/hops-downloads"
-  c.vm.box = "opscode-ubuntu-14.04"
-  c.vm.box_url = "https://atlas.hashicorp.com/ubuntu/boxes/trusty64/versions/20150924.0.0/providers/virtualbox.box"
-  c.vm.hostname = "default-ubuntu-1404.vagrantup.com"
+#  c.vm.box = "opscode-ubuntu-16.04"
+  #c.vm.box_url = "https://atlas.hashicorp.com/ubuntu/boxes/trusty64/versions/20150924.0.0/providers/virtualbox.box"
+  c.vm.box = "bento/ubuntu-16.04"
+  #c.vm.hostname = "default-ubuntu-1604.vagrantup.com"
 
   c.vm.provider :virtualbox do |p|
     p.customize ["modifyvm", :id, "--memory", "8500"]
