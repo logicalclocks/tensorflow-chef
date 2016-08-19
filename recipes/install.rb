@@ -129,12 +129,10 @@ end
 
 magic_shell_environment 'LD_LIBRARY_PATH' do
   value "#{node.cuda.base_dir}/lib64:$LD_LIBRARY_PATH"
-  value "/usr/lib64:$LD_LIBRARY_PATH"
 end
 
 magic_shell_environment 'CUDA_HOME' do
   value node.cuda.base_dir
-  value "/usr"
 end
 
 
