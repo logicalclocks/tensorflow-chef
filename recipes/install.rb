@@ -118,7 +118,6 @@ tensorflow_compile "cuda" do
   action :cuda
 end
 
-
 base_cudnn_file =  File.basename(node.cudnn.url)
 base_cudnn_dir =  File.basename(base_cudnn_file, "-ga.tgz")
 cudnn_dir = "/tmp/#{base_cudnn_dir}"
@@ -130,6 +129,21 @@ remote_file cached_cudnn_file do
   mode 0755
   action :create
   not_if { File.exist?(cached_cudnn_file) }
+end
+
+bash "unpack_install_cdnn" do
+    user "root"
+    timeout 14400
+    code <<-EOF
+    set -e
+
+    cd #{Chef::Config[:file_cache_path]}
+    tar zxf #{cached_cudnn_file}
+    mv cuda/* #{node.cuda.base_dir}/
+    chown -R #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.base_dir}
+    touch #{node.cuda.version_dir}/.cudnn_installed
+EOF
+  not_if { ::File.exists?( "#{node.cuda.version_dir}/.cudnn_installed" ) }
 end
 
 
