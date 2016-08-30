@@ -74,19 +74,19 @@ end
 
 if node.cuda.enabled == "true"
 
-base_cuda_file =  File.basename(node.cuda.url)
-base_cuda_dir =  File.basename(base_cuda_file, "_linux.run")
-cuda_dir = "/tmp/#{base_cuda_dir}"
-cached_file = "#{Chef::Config[:file_cache_path]}/#{base_cuda_file}"
+  base_cuda_file =  File.basename(node.cuda.url)
+  base_cuda_dir =  File.basename(base_cuda_file, "_linux.run")
+  cuda_dir = "/tmp/#{base_cuda_dir}"
+  cached_file = "#{Chef::Config[:file_cache_path]}/#{base_cuda_file}"
 
-#remote_file cached_file do
-#  source node.cuda.url, node.cuda.url_backup
-#  mode 0755
-#  action :create
-#  not_if { File.exist?(cached_file) }
-#end
+  #remote_file cached_file do
+  #  source node.cuda.url, node.cuda.url_backup
+  #  mode 0755
+  #  action :create
+  #  not_if { File.exist?(cached_file) }
+  #end
 
-bash "unpack_install_cuda" do
+  bash "unpack_install_cuda" do
     user "root"
     timeout 14400
     code <<-EOF
@@ -129,37 +129,37 @@ end
 
 
 
-magic_shell_environment 'PATH' do
-  value "$PATH:#{node.cuda.base_dir}/bin"
-end
+  magic_shell_environment 'PATH' do
+    value "$PATH:#{node.cuda.base_dir}/bin"
+  end
 
-magic_shell_environment 'LD_LIBRARY_PATH' do
-  value "#{node.cuda.base_dir}/lib64:$LD_LIBRARY_PATH"
-end
+  magic_shell_environment 'LD_LIBRARY_PATH' do
+    value "#{node.cuda.base_dir}/lib64:$LD_LIBRARY_PATH"
+  end
 
-magic_shell_environment 'CUDA_HOME' do
-  value node.cuda.base_dir
-end
+  magic_shell_environment 'CUDA_HOME' do
+    value node.cuda.base_dir
+  end
 
 
-tensorflow_compile "cuda" do
-  action :cuda
-end
+  tensorflow_compile "cuda" do
+    action :cuda
+  end
 
-base_cudnn_file =  File.basename(node.cudnn.url)
-base_cudnn_dir =  File.basename(base_cudnn_file, "-ga.tgz")
-cudnn_dir = "/tmp/#{base_cudnn_dir}"
-cached_cudnn_file = "#{Chef::Config[:file_cache_path]}/#{base_cudnn_file}"
+  base_cudnn_file =  File.basename(node.cudnn.url)
+  base_cudnn_dir =  File.basename(base_cudnn_file, "-ga.tgz")
+  cudnn_dir = "/tmp/#{base_cudnn_dir}"
+  cached_cudnn_file = "#{Chef::Config[:file_cache_path]}/#{base_cudnn_file}"
 
-remote_file cached_cudnn_file do
-#  checksum node.cuda.md5sum
-  source node.cudnn.url
-  mode 0755
-  action :create
-  not_if { File.exist?(cached_cudnn_file) }
-end
+  remote_file cached_cudnn_file do
+    #  checksum node.cuda.md5sum
+    source node.cudnn.url
+    mode 0755
+    action :create
+    not_if { File.exist?(cached_cudnn_file) }
+  end
 
-bash "unpack_install_cdnn" do
+  bash "unpack_install_cdnn" do
     user "root"
     timeout 14400
     code <<-EOF
@@ -177,14 +177,14 @@ bash "unpack_install_cdnn" do
 #    chown -R #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.base_dir}
 #    touch #{node.cuda.version_dir}/.cudnn_installed
 EOF
-#  not_if { ::File.exists?( "#{node.cuda.version_dir}/.cudnn_installed" ) }
-  not_if { ::File.exists?( "/usr/include/cudnn.h" ) }
-end
+    #  not_if { ::File.exists?( "#{node.cuda.version_dir}/.cudnn_installed" ) }
+    not_if { ::File.exists?( "/usr/include/cudnn.h" ) }
+  end
 
 
-tensorflow_compile "cdnn" do
-  action :cdnn
-end
+  tensorflow_compile "cdnn" do
+    action :cdnn
+  end
 
 
 end

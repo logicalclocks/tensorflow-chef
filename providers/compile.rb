@@ -26,8 +26,6 @@ end
 
 action :tf do
 
-
-
 bash "git_clone_tensorflow_server" do
     user node.tensorflow.user
     code <<-EOF
@@ -39,9 +37,9 @@ EOF
 end
 
 if node.cuda.enabled == "true" 
-   config="configure-expect-no-gpu.sh"
-else
    config="configure-expect-with-gpu.sh"
+else
+   config="configure-expect-no-gpu.sh"
 end
 
 template "/home/#{node.tensorflow.user}/tensorflow/#{config}" do
