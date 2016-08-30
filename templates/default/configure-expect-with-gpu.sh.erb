@@ -1,0 +1,24 @@
+#!/usr/bin/expect
+
+spawn "./configure"
+expect '/usr/bin/python]: '
+send "\r"
+expect "Google Cloud Platform support?*"
+send "N\r"
+expect 'Default is [/usr/local/lib/python2.7/dist-packages]\n'
+send "\r"
+expect "Do you wish to build TensorFlow with GPU support?*"
+send "N\r"
+expect 'Please specify which gcc should be used by nvcc as the host compiler. [Default is /usr/bin/gcc]: '
+send "\r"
+expect 'Please specify the Cuda SDK version you want to use, e.g. 7.0. [Leave empty to use system default]: '
+send "#{node.cuda.major_version}\r"
+expect 'Please specify the location where CUDA #{node.cuda.major_version} toolkit is installed. Refer to README.md for more details. [Default is /usr/local/cuda]: '
+send "/usr\r"
+expect 'Please specify the Cudnn version you want to use. [Leave empty to use system default]: '
+send "#{node.cudnn.major_version}\r"
+expect 'Refer to README.md for more details. [Default is /usr/local/cuda]: '
+send "\r"
+expect '[Default is: "3.5,5.2"]: '
+send "6.1\r"
+expect eof

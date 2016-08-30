@@ -38,6 +38,21 @@ EOF
   not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/configure" ) }
 end
 
+if node.cuda.enabled == "true" 
+   config="configure-expect-no-gpu.sh"
+else
+   config="configure-expect-with-gpu.sh"
+end
+
+template "/home/#{node.tensorflow.user}/tensorflow/#{config}" do
+  source "#{config}.erb"
+  owner node.tensorflow.user
+  mode 0770
+end
+
+#
+# http://www.admin-magazine.com/Articles/Automating-with-Expect-Scripts
+#
 bash "configure_tensorflow_server" do
     user node.tensorflow.user
     code <<-EOF
@@ -46,28 +61,7 @@ bash "configure_tensorflow_server" do
     export LC_ALL=en_US.UTF-8
 
     cd /home/#{node.tensorflow.user}/tensorflow
-    /usr/bin/expect -c 'spawn ./configure
-    expect "Please specify the location of python. [Default is /usr/bin/python]: "
-    send "\r"
-    expect "Do you wish to build TensorFlow with Google Cloud Platform support? [y/N] "
-    send "N\r"
-    expect "Default is [/usr/local/lib/python2.7/dist-packages]\n"
-    send "\r"
-    expect "Do you wish to build TensorFlow with GPU support? [y/N] "
-    send "y\r"
-    expect "Please specify which gcc should be used by nvcc as the host compiler. [Default is /usr/bin/gcc]: "
-    send "\r"
-    expect "Please specify the Cuda SDK version you want to use, e.g. 7.0. [Leave empty to use system default]: "
-    send "#{node.cuda.major_version}\r"
-    expect "Please specify the location where CUDA #{node.cuda.major_version} toolkit is installed. Refer to README.md for more details. [Default is /usr/local/cuda]: "
-    send "/usr\r"
-    expect "Please specify the Cudnn version you want to use. [Leave empty to use system default]: "
-    send "#{node.cudnn.major_version}\r"
-    expect "Refer to README.md for more details. [Default is /usr/local/cuda]: "
-    send "\r"
-    expect "[Default is: "3.5,5.2"]: "
-    send "6.1\r"
-    expect eof'
+    ./#{config}
     
     # Check if configure completed successfully
     if [ ! -f tools/bazel.rc ] ;
@@ -77,20 +71,75 @@ EOF
   not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/tools/bazel.rc" ) }
 end
 
-bash "build_install_tensorflow_server" do
-    user node.tensorflow.user
-    code <<-EOF
+
+if node.cuda.enabled == "true" 
+
+    bash "build_install_tensorflow_server" do
+      user node.tensorflow.user
+      code <<-EOF
     set -e
     cd /home/#{node.tensorflow.user}/tensorflow
     bazel build -c opt --config=cuda //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
+
+
+# Create the pip package and install
+
     bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+
+#    bazel build -c opt --config=cuda //tensorflow/cc:tutorials_example_trainer
+#    bazel-bin/tensorflow/cc/tutorials_example_trainer --use_gpu
 
     pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.version}-py2-none-linux_x86_64.whl
     touch tensorflow/.installed
 EOF
-  not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
-end
+      not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
+    end
 
+
+  else
+    bash "build_install_tensorflow_server_no_cuda" do
+      user node.tensorflow.user
+      code <<-EOF
+    set -e
+    cd /home/#{node.tensorflow.user}/tensorflow
+    bazel build -c opt //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
+
+
+# Create the pip package and install
+
+    bazel build -c opt //tensorflow/tools/pip_package:build_pip_package
+    bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+
+#    bazel build -c opt //tensorflow/cc:tutorials_example_trainer
+#    bazel-bin/tensorflow/cc/tutorials_example_trainer
+
+    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.version}-py2-none-linux_x86_64.whl
+    touch tensorflow/.installed
+EOF
+      not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
+    end
+
+  end
+
+
+    bash "upgrade_protobufs" do
+      user node.tensorflow.user
+      code <<-EOF
+       set -e
+       pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/protobuf-3.0.0b2.post2-cp27-none-linux_x86_64.whl
+      EOF
+    end
+
+
+    bash "validate_tensorflow" do
+      user node.tensorflow.user
+      code <<-EOF
+       set -e
+       cd /home/#{node.tensorflow.user}/tensorflow
+       cd models/image/mnist
+       python convolutional.py
+      EOF
+    end
 
 end

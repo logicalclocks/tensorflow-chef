@@ -4,6 +4,9 @@ default.tensorflow.group         = node.kagent.user
 default.tensorflow.user          = node.kagent.group
 default.tensorflow.version       = "0.7.1"
 
+
+default.cuda.enabled             = "false"
+
 default.cuda.major_version       = "7.5"
 default.cuda.minor_version       = "18"
 default.cuda.version             = node.cuda.major_version + "." + node.cuda.minor_version

@@ -1,0 +1,12 @@
+#!/usr/bin/expect
+
+spawn "./configure"
+expect '/usr/bin/python]: '
+send "\r"
+expect "Google Cloud Platform support?*"
+send "N\r"
+expect 'Default is [/usr/local/lib/python2.7/dist-packages]\n'
+send "\r"
+expect "Do you wish to build TensorFlow with GPU support?*"
+send "N\r"
+expect eof

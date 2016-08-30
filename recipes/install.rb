@@ -54,10 +54,10 @@ end
 
 
 
- node.default.java.jdk_version = 8
- node.default.java.set_etc_environment = true
- node.default.java.oracle.accept_oracle_download_terms = true
- include_recipe "java::oracle"
+node.default.java.jdk_version = 8
+node.default.java.set_etc_environment = true
+node.default.java.oracle.accept_oracle_download_terms = true
+include_recipe "java::oracle"
 
 
 bazel_installation('bazel') do
@@ -65,6 +65,14 @@ bazel_installation('bazel') do
   action :create
 end
 
+bash "install_numpy" do
+    user "root"
+    code <<-EOF
+    pip install numpy 
+EOF
+end
+
+if node.cuda.enabled == "true"
 
 base_cuda_file =  File.basename(node.cuda.url)
 base_cuda_dir =  File.basename(base_cuda_file, "_linux.run")
@@ -110,8 +118,6 @@ bash "unpack_install_cuda" do
 #    modprobe nvidia
 #    ./cuda-linux64-rel-#{node.cuda.version}-19867135.run
 #    ./cuda-samples-linux-#{node.cuda.version}-19867135.run
-
-    pip install numpy 
 
 #    chown -R #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.version_dir}
 #    chown #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.base_dir}
@@ -180,6 +186,9 @@ tensorflow_compile "cdnn" do
   action :cdnn
 end
 
+
+end
+
 package "expect" do
  action :install
 end
@@ -187,4 +196,3 @@ end
 tensorflow_compile "tensorflow" do
   action :tf
 end
-
