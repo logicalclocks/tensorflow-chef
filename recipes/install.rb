@@ -65,6 +65,11 @@ bazel_installation('bazel') do
   action :create
 end
 
+magic_shell_environment 'PATH' do
+  value "$PATH:/usr/local/bin"
+end
+
+
 bash "install_numpy" do
     user "root"
     code <<-EOF
