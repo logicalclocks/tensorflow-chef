@@ -127,7 +127,8 @@ EOF
 #    bazel build -c opt //tensorflow/cc:tutorials_example_trainer
 #    bazel-bin/tensorflow/cc/tutorials_example_trainer
 
-    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.version}-py2-none-linux_x86_64.whl
+#    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.version}-py2-none-linux_x86_64.whl
+    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.version}-py2-none-any.whl
     touch .installed
     chown  #{node.tensorflow.user} .installed
     chown -R #{node.tensorflow.user} *
