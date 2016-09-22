@@ -2,7 +2,8 @@ include_attribute "kagent"
 
 default.tensorflow.group         = node.kagent.user
 default.tensorflow.user          = node.kagent.group
-default.tensorflow.version       = "0.10.0rc0"
+default.tensorflow.base_version  = "0.10.0"
+default.tensorflow.version       = node.tensorflow.base_version + "rc0"
 
 
 default.cuda.enabled             = "false"

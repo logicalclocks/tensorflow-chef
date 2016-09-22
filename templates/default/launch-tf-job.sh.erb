@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ $# -lt 2 ] ; then
+  echo "Usage: $0 $1 [tf-script.py [args]]"
+  exit 1
+fi
+
+logs_file=$1
+prog=$1
+
+source <%= node.apache_hadoop.base_dir %>/libexec/hadoop-config.sh
+
+
+nohup CLASSPATH=$(<%= node.apache_hadoop.base_dir %>/bin/hdfs classpath --glob) $@ & 2>&1 > /tmp/${logs_file}.log
+echo $! > /tmp/${prog}.pid

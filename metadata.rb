@@ -15,7 +15,9 @@ depends "kagent"
 depends "java"
 depends "bazel"
 depends "magic_shell"
-
+depends "ndb"
+depends "apache_hadoop"
+depends "hops"
 
 %w{ ubuntu debian rhel centos }.each do |os|
   supports os

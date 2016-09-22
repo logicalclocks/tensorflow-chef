@@ -1,6 +1,7 @@
 dependencies:
   - recipe: tensorflow::install
     local:
+      - hops::install
       - kagent::install
   - recipe: tensorflow::default
   - recipe: tensorflow::distributed

@@ -65,6 +65,19 @@ bazel_installation('bazel') do
   action :create
 end
 
+#
+#
+# HDFS support in tensorflow
+# https://github.com/tensorflow/tensorflow/issues/2218
+#
+magic_shell_environment 'HADOOP_HDFS_HOME' do
+  value "#{node.apache_hadoop.base_dir}"
+end
+
+magic_shell_environment 'LD_LIBRARY_PATH' do
+  value "$LD_LIBRARY_PATH:$JAVA_HOME/jre/lib/amd64/server"
+end
+
 magic_shell_environment 'PATH' do
   value "$PATH:/usr/local/bin"
 end
@@ -201,3 +214,6 @@ end
 tensorflow_compile "tensorflow" do
   action :tf
 end
+
+# source $HADOOP_HOME/libexec/hadoop-config.sh
+ # CLASSPATH=$($HADOOP_HDFS_HOME/bin/hdfs classpath --glob) python your_script.py

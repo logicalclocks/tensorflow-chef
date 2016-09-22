@@ -85,23 +85,20 @@ if node.cuda.enabled == "true"
     bash "build_install_tensorflow_server" do
 #      user 
       user "root"
+      timeout 10800
       code <<-EOF
     set -e
     cd /home/#{node.tensorflow.user}/tensorflow
     bazel build -c opt --config=cuda //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
-
-
 # Create the pip package and install
-
     bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 
 #    bazel build -c opt --config=cuda //tensorflow/cc:tutorials_example_trainer
 #    bazel-bin/tensorflow/cc/tutorials_example_trainer --use_gpu
 
-# tensorflow-0.10.0rc0-py2-none-any.whl
-#    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.version}-py2-none-linux_x86_64.whl
-    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.version}-py2-none-any.whl
+# tensorflow-0.10.0-py2-none-any.whl
+    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl
     touch .installed
     chown #{node.tensorflow.user} .installed
     chown -R #{node.tensorflow.user} *
@@ -113,22 +110,23 @@ EOF
   else
     bash "build_install_tensorflow_server_no_cuda" do
       user "root"
+      timeout 10800
       code <<-EOF
     set -e
     cd /home/#{node.tensorflow.user}/tensorflow
-    bazel build -c opt //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
-
 
 # Create the pip package and install
 
-    bazel build -c opt //tensorflow/tools/pip_package:build_pip_package
+     bazel build -c opt //tensorflow/tools/pip_package:build_pip_package
+#    bazel build -c opt //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
+
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 
-#    bazel build -c opt //tensorflow/cc:tutorials_example_trainer
+
+    bazel build -c opt //tensorflow/cc:tutorials_example_trainer
 #    bazel-bin/tensorflow/cc/tutorials_example_trainer
 
-#    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.version}-py2-none-linux_x86_64.whl
-    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.version}-py2-none-any.whl
+    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl
     touch .installed
     chown  #{node.tensorflow.user} .installed
     chown -R #{node.tensorflow.user} *

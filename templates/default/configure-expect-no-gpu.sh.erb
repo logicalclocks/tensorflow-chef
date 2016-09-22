@@ -4,7 +4,9 @@ spawn "./configure"
 expect '/usr/bin/python]: '
 send "\r"
 expect 'N] '
-send "N\r"
+send "\r"
+expect 'N] '
+send "y\r"
 expect "dist-packages\]\n"
 send "\r"
 expect "Do you wish to build TensorFlow with GPU support?*"

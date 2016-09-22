@@ -34,16 +34,68 @@ Vagrant.configure("2") do |c|
      },
      "public_ips" => ["10.0.2.15"],
      "private_ips" => ["10.0.2.15"],
+     "kagent" => {
+          "enabled" => "false",
+	  "default" =>      { 
+   	  	       "private_ips" => ["10.0.2.15"]
+	       },
+     },
      "tensorflow" => {
 	  "default" =>      { 
    	  	       "private_ips" => ["10.0.2.15"]
 	       },
      },
+     "hops"  =>    {
+		 "use_hopsworks" => "false",
+		 "rm" =>    { 
+       	  	      "private_ips" => ["10.0.2.15"]
+                 },
+		 "nn" =>    { 
+       	  	      "private_ips" => ["10.0.2.15"]
+                 },
+		 "dn" =>    { 
+       	  	      "private_ips" => ["10.0.2.15"]
+                 },
+		 "nm" =>    { 
+       	  	      "private_ips" => ["10.0.2.15"]
+                 },
+		 "jhs" =>    { 
+       	  	      "private_ips" => ["10.0.2.15"]
+                 }
+     },
+     "ndb" => {
+          "mgmd" => { 
+     	  	       "private_ips" => ["10.0.2.15"]
+	       },
+	  "ndbd" =>      { 
+   	  	       "private_ips" => ["10.0.2.15"]
+	       },
+	  "mysqld" =>      { 
+   	  	       "private_ips" => ["10.0.2.15"]
+	       },
+	  "memcached" =>      { 
+   	  	       "private_ips" => ["10.0.2.15"]
+	       },
+          "public_ips" => ["10.0.2.15"],
+          "private_ips" => ["10.0.2.15"],
+          "enabled" => "true",
+     },
      "vagrant" => "true",
-     }
+   }
 
      chef.add_recipe "kagent::install"
      chef.add_recipe "tensorflow::install"
+      chef.add_recipe "ndb::install"
+      chef.add_recipe "hops::install"
+      chef.add_recipe "ndb::mgmd"
+      chef.add_recipe "ndb::ndbd"
+      chef.add_recipe "ndb::mysqld"
+      chef.add_recipe "hops::ndb"
+      chef.add_recipe "hops::nn"
+      chef.add_recipe "hops::dn"
+      chef.add_recipe "hops::rm"
+      chef.add_recipe "hops::nm"
+      chef.add_recipe "hops::jhs"
      chef.add_recipe "tensorflow::default"
   end 
 
