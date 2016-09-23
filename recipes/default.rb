@@ -27,14 +27,14 @@ directory "#{node.tensorflow.home}/bin" do
   action :create
 end
 
-directory "#{node.tensorflow.home}/progs" do
+directory node.tensorflow.progs do
   owner node.kagent.user
   group node.kagent.group
   mode "755"
   action :create
 end
 
-directory "#{node.tensorflow.home}/logs" do
+directory node.tensorflow.logs do
   owner node.kagent.user
   group node.kagent.group
   mode "755"

@@ -8,8 +8,8 @@ fi
 logs_file=$1
 prog=$1
 
-source <%= node.apache_hadoop.base_dir %>/libexec/hadoop-config.sh
+#source <%= node.apache_hadoop.base_dir %>/libexec/hadoop-config.sh
 
-
-nohup CLASSPATH=$(<%= node.apache_hadoop.base_dir %>/bin/hdfs classpath --glob) $@ & 2>&1 > /tmp/${logs_file}.log
+. <%= node.apache_hadoop.base_dir %>/libexec/hadoop-config.sh
+nohup CLASSPATH=$(<%= node.apache_hadoop.base_dir %>/bin/hdfs classpath --glob) $@ & 2>&1 > <%= node.tensorflow.logs %>/${1}.log &
 echo $! > /tmp/${prog}.pid
