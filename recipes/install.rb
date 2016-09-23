@@ -217,3 +217,5 @@ end
 
 # source $HADOOP_HOME/libexec/hadoop-config.sh
  # CLASSPATH=$($HADOOP_HDFS_HOME/bin/hdfs classpath --glob) python your_script.py
+
+

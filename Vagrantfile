@@ -95,7 +95,7 @@ Vagrant.configure("2") do |c|
       chef.add_recipe "hops::dn"
       chef.add_recipe "hops::rm"
       chef.add_recipe "hops::nm"
-      chef.add_recipe "hops::jhs"
+      #chef.add_recipe "hops::jhs"
      chef.add_recipe "tensorflow::default"
   end 
 
