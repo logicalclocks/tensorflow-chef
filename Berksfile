@@ -18,3 +18,4 @@ cookbook 'homebrew'
 cookbook 'ndb', github: "hopshadoop/ndb-chef", branch: "master"
 cookbook 'apache_hadoop', github: "hopshadoop/apache-hadoop-chef", branch: "master"
 cookbook 'hops', github: "hopshadoop/hops-hadoop-chef", branch: "spark_2.0"
+cookbook 'poise-python', '~> 1.4.0'

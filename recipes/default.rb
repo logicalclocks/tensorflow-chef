@@ -59,3 +59,8 @@ template "#{node.tensorflow.base_dir}/bin/kill-process.sh" do
   mode "750"
   action :create_if_missing
 end
+
+# For apache zeppelin
+python_package 'py4j' do
+#  version '1.8'
+end

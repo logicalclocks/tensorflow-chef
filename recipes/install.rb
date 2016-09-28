@@ -59,7 +59,6 @@ node.default.java.set_etc_environment = true
 node.default.java.oracle.accept_oracle_download_terms = true
 include_recipe "java::oracle"
 
-
 bazel_installation('bazel') do
   version '0.3.1'
   action :create
