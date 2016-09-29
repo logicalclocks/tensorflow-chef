@@ -65,9 +65,6 @@ python_package 'py4j' do
 #  version '1.8'
 end
 
-python_package 'python-tk' do
-end
-
 python_package 'matplotlib' do
 end
 
