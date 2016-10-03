@@ -63,11 +63,17 @@ end
 # For apache zeppelin
 python_package 'py4j' do
 #  version '1.8'
+  action :install
 end
 
 python_package 'matplotlib' do
+  action :install
 end
 
 package "python-tk" do
+  action :install
+end
+
+python_package 'pandas' do
   action :install
 end
