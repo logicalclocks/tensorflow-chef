@@ -66,14 +66,33 @@ python_package 'py4j' do
   action :install
 end
 
-python_package 'matplotlib' do
-  action :install
-end
 
 package "python-tk" do
   action :install
 end
 
 python_package 'pandas' do
+  action :install
+end
+
+package "libpng-dev" do
+  action :install
+end
+
+package "libfreetype6-dev" do
+  action :install
+end
+
+
+# Depends on libpng-dev and libfreetype6-dev
+#python_package 'matplotlib' do
+#  action :install
+#end
+
+package "python-matplotlib" do
+  action :install
+end
+
+package "python-scipy" do
   action :install
 end
