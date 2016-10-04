@@ -82,7 +82,8 @@ end
 
 if node.cuda.enabled == "true" 
 
-    bash "build_install_tensorflow_server" do
+
+  bash "build_install_tensorflow_server" do
 #      user 
       user "root"
       timeout 10800

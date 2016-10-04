@@ -26,7 +26,6 @@ when "debian"
 
 execute 'apt-get update -y'
 
-#     freeglut3-dev g++-4.9 gcc-4.9 libglu1-mesa-dev libx11-dev libxi-dev libxmu-dev nvidia-modprobe python-dev python-pip python-virtualenv
   packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic }
   for script in packages do
     package script do
@@ -59,10 +58,10 @@ node.default.java.set_etc_environment = true
 node.default.java.oracle.accept_oracle_download_terms = true
 include_recipe "java::oracle"
 
-bazel_installation('bazel') do
-  version '0.3.1'
-  action :create
-end
+# bazel_installation('bazel') do
+#   version '0.3.1'
+#   action :create
+# end
 
 #
 #
@@ -210,11 +209,14 @@ package "expect" do
  action :install
 end
 
-tensorflow_compile "tensorflow" do
-  action :tf
-end
+# tensorflow_compile "tensorflow" do
+#   action :tf
+# end
 
 # source $HADOOP_HOME/libexec/hadoop-config.sh
  # CLASSPATH=$($HADOOP_HDFS_HOME/bin/hdfs classpath --glob) python your_script.py
 
 
+ tensorflow_install "cpu_install" do
+   action :cpu_only
+ end
