@@ -17,9 +17,15 @@ Install chefdk (https://downloads.chef.io/chef-dk)
 ## Karamel Usages
 
 
+1. Create a project "tf"
+2. upload tf.csv to tf/Resources in hdfs
+3.
+source $HADOOP_HOME/libexec/hadoop-config.sh
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$JAVA_HOME/jre/lib/amd64/server
+CLASSPATH=$($HADOOP_HDFS_HOME/bin/hdfs classpath --glob) python test-read.py
 
 
-To use HDFS with TensorFlow, change the file paths you use to read and write
+To HDFS with TensorFlow, change the file paths you use to read and write
 data to an HDFS path. For example:
 
 filename_queue = tf.train.string_input_producer([
