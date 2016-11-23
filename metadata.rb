@@ -34,4 +34,7 @@ attribute "tensorflow/user",
 :description => "user parameter value",
 :type => "string"
 
+attribute "cuda/enabled",
+:description => "Install tensorflow with cuda support. Default: 'false'. Change to 'true' to enable cuda.",
+:type => "string"
 

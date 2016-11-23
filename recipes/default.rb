@@ -67,20 +67,42 @@ python_package 'py4j' do
 end
 
 
-package "python-tk" do
+package "python-imaging" do
   action :install
 end
 
-python_package 'pandas' do
-  action :install
-end
+case node.platform_family
+when "debian"
+  package "python-tk" do
+    action :install
+  end
+  python_package 'pandas' do
+    action :install
+  end
+  package "libpng-dev" do
+    action :install
+  end
 
-package "libpng-dev" do
-  action :install
-end
+  package "libfreetype6-dev" do
+    action :install
+  end
+  package "python-matplotlib" do
+    action :install
+  end
+  package "python-scipy" do
+    action :install
+  end
 
-package "libfreetype6-dev" do
-  action :install
+when "rhel"
+  package "tkinter" do
+    action :install
+  end
+  package "python-devel" do
+    action :install
+  end
+  package "python-pandas" do
+    action :install
+  end
 end
 
 
@@ -89,10 +111,3 @@ end
 #  action :install
 #end
 
-package "python-matplotlib" do
-  action :install
-end
-
-package "python-scipy" do
-  action :install
-end
