@@ -25,6 +25,9 @@ depends "poise-python"
 end
 
 
+attribute "download_url",
+:description => "url for binaries",
+:type => "string"
 
 attribute "tensorflow/group",
 :description => "group parameter value",
