@@ -1,3 +1,26 @@
+action :kernel_initramfs do
+
+  case node.platform_family
+  when "debian"
+    bash "kernel_initramfs" do
+      user "root"
+      code <<-EOF
+      set -e
+      update-initramfs -u
+      EOF
+    end
+  when "rhel"
+      bash "kernel_initramfs" do
+        user "root"
+        code <<-EOF
+        set -e
+        sudo dracut --force
+        EOF
+      end
+  end
+
+end
+
 action :cuda do
 
 bash "validate_cuda" do

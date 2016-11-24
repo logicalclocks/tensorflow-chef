@@ -87,6 +87,10 @@ template "/etc/modprobe.d/blacklist-nouveau.conf" do
   mode 0775
 end
 
+tensorflow_compile "initram" do
+ action :kernel_initramfs
+end
+
 # echo options nouveau modeset=0 | sudo tee -a /etc/modprobe.d/nouveau-kms.conf
 # sudo update-initramfs -u
 # sudo reboot
@@ -144,65 +148,50 @@ bash "test_nvidia" do
     lspci | grep -i nvidia
 EOF
 end
-  base_cuda_file =  File.basename(node.cuda.url)
-  base_cuda_dir =  File.basename(base_cuda_file, "_linux.run")
+  cuda =  File.basename(node.cuda.url)
+  base_cuda_dir =  File.basename(cuda, "_linux.run")
   cuda_dir = "/tmp/#{base_cuda_dir}"
-  cached_file = "#{Chef::Config[:file_cache_path]}/#{base_cuda_file}"
+  cached_file = "#{Chef::Config[:file_cache_path]}/#{cuda}"
 
-  #remote_file cached_file do
-  #  source node.cuda.url, node.cuda.url_backup
-  #  mode 0755
-  #  action :create
-  #  not_if { File.exist?(cached_file) }
-  #end
 
-remote_file cached_package_filename do
-  checksum node.cuda.checksum
-  source package_url
-  mode 0755
-  action :create
-end
-  
+  remote_file cached_file do
+    source node.cuda.url
+    mode 0755
+    action :create
+    retries 2
+    ignore_failure :true
+    not_if { File.exist?(cached_file) }
+  end
 
-  cuda="cuda_#{node.cuda.version}_linux.run"
+  remote_file cached_file do
+    source node.cuda.url_backup
+    mode 0755
+    action :create
+    retries 2
+    not_if { File.exist?(cached_file) }
+  end
+
 
   bash "unpack_install_cuda" do
     user "root"
-    timeout 14400
+    timeout 72000
     code <<-EOF
     set -e
-#    mkdir -p #{cuda_dir}
+
     cd #{Chef::Config[:file_cache_path]}
-
-#    apt-get install software-properties-common -y
-#    add-apt-repository ppa:graphics-drivers/ppa -y
-#    apt-get install libcudart7.5 libnvrtc7.5 -y
-
-     # installs into the /usr folder
-#     apt-get install nvidia-cuda-toolkit nvidia-cuda-dev -y
+    ./#{cuda} --accept-eula --silent
+EOF
+    not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
+  end
 
 
-#     ./cuda_8.0.27_linux.run --override --silent --driver --toolkit --no-opengl-libs
-     ./#{cuda} --silent --accept-eula
-#    chmod +x #{base_cuda_file}
-#    apt-get purge gcc -y
-#    apt-get install gcc-4.9 -y
-#    ./#{base_cuda_file} --silent --driver --toolkit --override
-
-#    ./#{base_cuda_file} --extract=#{cuda_dir}
 #    cd #{cuda_dir}
 #    ./NVIDIA-Linux-x86_64-352.39.run
 #    modprobe nvidia
 #    ./cuda-linux64-rel-#{node.cuda.version}-19867135.run
 #    ./cuda-samples-linux-#{node.cuda.version}-19867135.run
 
-#    chown -R #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.version_dir}
-#    chown #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.base_dir}
-#    touch #{node.cuda.version_dir}/.installed
-EOF
-#  not_if { ::File.exists?( "#{node.cuda.version_dir}/.installed" ) }
-  not_if { ::File.exists?( "#{Chef::Config[:file_cache_path]}/cuda_8.0.27.1_linux.run" ) }
-end
+
 
 
 
@@ -227,30 +216,6 @@ end
   base_cudnn_dir =  File.basename(base_cudnn_file, ".tgz")
   cudnn_dir = "/tmp/#{base_cudnn_dir}"
   cached_cudnn_file = "#{Chef::Config[:file_cache_path]}/#{base_cudnn_file}"
-
-  base_cuda_file =  File.basename(node.cuda.url)
-  base_cuda_dir =  File.basename(base_cuda_file, ".run") 
-  cached_cuda_file = "#{Chef::Config[:file_cache_path]}/#{base_cudnn_file}"
-  
-  remote_file cuda_file do
-    #  checksum node.cuda.md5sum
-    source node.cuda.url
-    mode 0755
-    action :create
-    not_if { File.exist?(cached_cuda_file) }
-  end
-
-  bash "unpack_install_cuda" do
-    user "root"
-    timeout 72000
-    code <<-EOF
-    set -e
-
-    cd #{Chef::Config[:file_cache_path]}
-    ./#{base_cuda_file} --accept-eula --silent
-EOF
-    not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
-  end
 
 
   bash "unpack_install_cdnn" do
