@@ -15,8 +15,8 @@ default.cuda.enabled             = "true"
 default.cuda.major_version       = "8.0"
 default.cuda.minor_version       = "44"
 default.cuda.version             = node.cuda.major_version + "." + node.cuda.minor_version
-default.cuda.url                 = "#{node.download_url}/cuda_#{node.cuda.version}_linux.run"
-default.cuda.url_backup          = "http://developer.download.nvidia.com/compute/cuda/#{node.cuda.major_version}/Prod/local_installers/cuda_#{node.cuda.version}_linux.run"
+default.cuda.url                 = "#{node.download_url}/cuda_#{node.cuda.version}_linux-run"
+default.cuda.url_backup          = "http://developer.download.nvidia.com/compute/cuda/#{node.cuda.major_version}/Prod/local_installers/cuda_#{node.cuda.version}_linux-run"
 default.cuda.md5sum              = "6dca912f9b7e2b7569b0074a41713640"
 
 default.cudnn.major_version      = "5"
