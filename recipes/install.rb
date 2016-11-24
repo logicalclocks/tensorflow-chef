@@ -26,6 +26,10 @@ group node.tensorflow.group do
   append true
 end
 
+package "expect" do
+ action :install
+end
+
 # http://www.pyimagesearch.com/2016/07/04/how-to-install-cuda-toolkit-and-cudnn-for-deep-learning/
 case node.platform_family
 when "debian"
@@ -117,11 +121,15 @@ magic_shell_environment 'HADOOP_HDFS_HOME' do
 end
 
 magic_shell_environment 'LD_LIBRARY_PATH' do
-  value "$LD_LIBRARY_PATH:$JAVA_HOME/jre/lib/amd64/server"
+  value "$LD_LIBRARY_PATH:$JAVA_HOME/jre/lib/amd64/server::/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64"
 end
 
 magic_shell_environment 'PATH' do
   value "$PATH:/usr/local/bin"
+end
+
+magic_shell_environment 'CUDA_HOME' do
+  value "/usr/local/cuda"
 end
 
 
@@ -213,10 +221,15 @@ EOF
   end
 
   base_cudnn_file =  File.basename(node.cudnn.url)
-  base_cudnn_dir =  File.basename(base_cudnn_file, ".tgz")
-  cudnn_dir = "/tmp/#{base_cudnn_dir}"
   cached_cudnn_file = "#{Chef::Config[:file_cache_path]}/#{base_cudnn_file}"
 
+  remote_file cached_cudnn_file do
+    source node.cudnn.url
+    mode 0755
+    action :create
+    retries 2
+    not_if { File.exist?(cached_cudnn_file) }
+  end
 
   bash "unpack_install_cdnn" do
     user "root"
@@ -230,23 +243,25 @@ EOF
     cp -rf cuda/lib64 /usr
     cp -rf cuda/include/* /usr/include
     chmod a+r /usr/include/cudnn.h /usr/lib64/libcudnn*
-# #{node.cuda.base_dir}
-
 EOF
-    #  not_if { ::File.exists?( "#{node.cuda.version_dir}/.cudnn_installed" ) }
     not_if { ::File.exists?( "/usr/include/cudnn.h" ) }
   end
 
 
   tensorflow_compile "cdnn" do
-    action :cdnn
+    action :cudnn
   end
 
+ tensorflow_install "gpu_install" do
+   action :gpu
+ end
 
-end
+else
 
-package "expect" do
- action :install
+ tensorflow_install "cpu_install" do
+   action :cpu
+ end
+
 end
 
 # tensorflow_compile "tensorflow" do
@@ -257,6 +272,3 @@ end
  # CLASSPATH=$($HADOOP_HDFS_HOME/bin/hdfs classpath --glob) python your_script.py
 
 
- tensorflow_install "cpu_install" do
-   action :cpu_only
- end

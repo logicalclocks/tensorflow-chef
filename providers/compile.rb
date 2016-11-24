@@ -35,7 +35,7 @@ end
 
 end
 
-action :cdnn do
+action :cudnn do
 
 bash "validate_cudnn" do
     user "root"
