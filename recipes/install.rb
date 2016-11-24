@@ -179,8 +179,7 @@ end
     set -e
 
     cd #{Chef::Config[:file_cache_path]}
-    ./#{cuda} --silent 
-#--toolkit --driver
+    ./#{cuda} --silent --toolkit --driver --samples
 EOF
     not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
   end
