@@ -41,6 +41,37 @@ execute 'apt-get update -y'
 
 when "rhel"
 
+  package "gcc" do
+    action :install
+  end
+  package "gcc-c++" do
+    action :install
+  end
+  package "kernel-devel" do
+    action :install
+  end
+  package "openssl" do
+    action :install
+  end
+  package "openssl-devel" do
+    action :install
+  end
+  package "openssl-libs" do
+    action :install
+  end
+  package "python" do 
+    action :install
+  end
+  package "python-pip" do 
+    action :install
+  end
+  package "python-devel" do 
+    action :install
+  end
+  package "python-lxml" do 
+    action :install
+  end
+
 end
 
 
