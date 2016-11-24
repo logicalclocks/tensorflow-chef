@@ -159,7 +159,7 @@ end
     mode 0755
     action :create
     retries 2
-    ignore_failure :true
+    ignore_failure true
     not_if { File.exist?(cached_file) }
   end
 
