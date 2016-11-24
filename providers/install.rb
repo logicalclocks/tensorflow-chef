@@ -1,6 +1,6 @@
 action :cuda do
 
-  cuda =  File.basename(node.cuda.url)
+  cuda =  ::File.basename(node.cuda.url)
 
   bash "unpack_install_cuda" do
     user "root"
@@ -21,7 +21,7 @@ end
 
 action :cudnn do
 
-  base_cudnn_file =  File.basename(node.cudnn.url)
+  base_cudnn_file =  ::File.basename(node.cudnn.url)
   cached_cudnn_file = "#{Chef::Config[:file_cache_path]}/#{base_cudnn_file}"
 
 
