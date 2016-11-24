@@ -6,6 +6,12 @@
 # GeForce GTX 970	5.2
 #
 
+group node.tensorflow.group do
+  action :create
+  not_if "getent group #{node.tensorflow.group}"
+end
+
+
 user node.tensorflow.user do
   action :create
   supports :manage_home => true
