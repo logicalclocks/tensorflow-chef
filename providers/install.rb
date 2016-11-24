@@ -54,6 +54,7 @@ action :cpu do
 bash "install_tf" do
     user "root"
     code <<-EOF
+    set -e
     pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl
 
 EOF
@@ -68,6 +69,7 @@ action :gpu do
 bash "install_tf" do
     user "root"
     code <<-EOF
+    set -e
     pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl
 
 EOF
