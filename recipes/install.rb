@@ -156,6 +156,16 @@ end
   #  not_if { File.exist?(cached_file) }
   #end
 
+remote_file cached_package_filename do
+  checksum node.cuda.checksum
+  source package_url
+  mode 0755
+  action :create
+end
+  
+
+  cuda="cuda_#{node.cuda.version}_linux.run"
+
   bash "unpack_install_cuda" do
     user "root"
     timeout 14400
@@ -172,11 +182,8 @@ end
 #     apt-get install nvidia-cuda-toolkit nvidia-cuda-dev -y
 
 
-     wget --quiet http://snurran.sics.se/hops/cuda_8.0.27_linux.run
-     wget --quiet http://snurran.sics.se/hops/cuda_8.0.27.1_linux.run
-     chmod +x cuda*
-     ./cuda_8.0.27_linux.run --override --silent --driver --toolkit --no-opengl-libs
-     ./cuda_8.0.27.1_linux.run --silent 
+#     ./cuda_8.0.27_linux.run --override --silent --driver --toolkit --no-opengl-libs
+     ./#{cuda} --silent --accept-eula
 #    chmod +x #{base_cuda_file}
 #    apt-get purge gcc -y
 #    apt-get install gcc-4.9 -y
@@ -217,17 +224,34 @@ end
   end
 
   base_cudnn_file =  File.basename(node.cudnn.url)
-  base_cudnn_dir =  File.basename(base_cudnn_file, "-ga.tgz")
+  base_cudnn_dir =  File.basename(base_cudnn_file, ".tgz")
   cudnn_dir = "/tmp/#{base_cudnn_dir}"
   cached_cudnn_file = "#{Chef::Config[:file_cache_path]}/#{base_cudnn_file}"
 
-  remote_file cached_cudnn_file do
+  base_cuda_file =  File.basename(node.cuda.url)
+  base_cuda_dir =  File.basename(base_cuda_file, ".run") 
+  cached_cuda_file = "#{Chef::Config[:file_cache_path]}/#{base_cudnn_file}"
+  
+  remote_file cuda_file do
     #  checksum node.cuda.md5sum
-    source node.cudnn.url
+    source node.cuda.url
     mode 0755
     action :create
-    not_if { File.exist?(cached_cudnn_file) }
+    not_if { File.exist?(cached_cuda_file) }
   end
+
+  bash "unpack_install_cuda" do
+    user "root"
+    timeout 72000
+    code <<-EOF
+    set -e
+
+    cd #{Chef::Config[:file_cache_path]}
+    ./#{base_cuda_file} --accept-eula --silent
+EOF
+    not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
+  end
+
 
   bash "unpack_install_cdnn" do
     user "root"
@@ -236,16 +260,13 @@ end
     set -e
 
     cd #{Chef::Config[:file_cache_path]}
+
     tar zxf #{cached_cudnn_file}
     cp -rf cuda/lib64 /usr
     cp -rf cuda/include/* /usr/include
     chmod a+r /usr/include/cudnn.h /usr/lib64/libcudnn*
 # #{node.cuda.base_dir}
 
-#    apt-get install python-pip python-dev python-virtualenv -y
-
-#    chown -R #{node.tensorflow.user}:#{node.tensorflow.group} #{node.cuda.base_dir}
-#    touch #{node.cuda.version_dir}/.cudnn_installed
 EOF
     #  not_if { ::File.exists?( "#{node.cuda.version_dir}/.cudnn_installed" ) }
     not_if { ::File.exists?( "/usr/include/cudnn.h" ) }
