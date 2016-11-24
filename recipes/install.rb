@@ -1,4 +1,4 @@
-#
+
 # First, find out the compute capability of your GPU here: https://developer.nvidia.com/cuda-gpus
 # E.g., 
 # NVIDIA TITAN X	6.1
@@ -71,7 +71,10 @@ when "rhel"
   package "python-lxml" do 
     action :install
   end
-
+  package "python27-numpy" do
+    action :install
+  end
+    
 end
 
 
@@ -125,8 +128,22 @@ bash "install_numpy" do
 EOF
 end
 
+
+
+
 if node.cuda.enabled == "true"
 
+# Check to see if i can find a cuda card. If not, fail with an error
+
+
+
+bash "test_nvidia" do
+    user "root"
+    code <<-EOF
+    set -e
+    lspci | grep -i nvidia
+EOF
+end
   base_cuda_file =  File.basename(node.cuda.url)
   base_cuda_dir =  File.basename(base_cuda_file, "_linux.run")
   cuda_dir = "/tmp/#{base_cuda_dir}"

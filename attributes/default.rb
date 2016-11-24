@@ -10,7 +10,7 @@ default.tensorflow.base_dir      = node.kagent.dir + "/kagent-tensorflow"
 default.tensorflow.programs      = node.tensorflow.home + "/progs"
 default.tensorflow.logs          = node.tensorflow.home + "/logs"
 
-default.cuda.enabled             = "false"
+default.cuda.enabled             = "true"
 
 default.cuda.major_version       = "8.0"
 default.cuda.minor_version       = "44"
