@@ -179,18 +179,9 @@ end
     not_if { File.exist?(cached_file) }
   end
 
-
-  bash "unpack_install_cuda" do
-    user "root"
-    timeout 72000
-    code <<-EOF
-    set -e
-
-    cd #{Chef::Config[:file_cache_path]}
-    ./#{cuda} --silent --toolkit --driver --samples
-EOF
-    not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
-  end
+ tensorflow_install "cuda_install" do
+   action :cuda
+ end
 
 
 #    cd #{cuda_dir}
@@ -231,21 +222,10 @@ EOF
     not_if { File.exist?(cached_cudnn_file) }
   end
 
-  bash "unpack_install_cdnn" do
-    user "root"
-    timeout 14400
-    code <<-EOF
-    set -e
 
-    cd #{Chef::Config[:file_cache_path]}
-
-    tar zxf #{cached_cudnn_file}
-    cp -rf cuda/lib64 /usr
-    cp -rf cuda/include/* /usr/include
-    chmod a+r /usr/include/cudnn.h /usr/lib64/libcudnn*
-EOF
-    not_if { ::File.exists?( "/usr/include/cudnn.h" ) }
-  end
+ tensorflow_install "cuda_install" do
+   action :cudnn
+ end
 
 
   tensorflow_compile "cdnn" do
