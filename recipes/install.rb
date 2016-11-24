@@ -223,7 +223,7 @@ end
   end
 
 
- tensorflow_install "cuda_install" do
+ tensorflow_install "cudnn_install" do
    action :cudnn
  end
 
