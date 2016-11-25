@@ -78,6 +78,14 @@ when "rhel"
   package "python27-numpy" do
     action :install
   end
+
+bash "pip-upgrade" do
+    user "root"
+    code <<-EOF
+    set -e
+    pip install --upgrade pip
+EOF
+end
     
 end
 
