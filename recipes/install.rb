@@ -36,7 +36,7 @@ when "debian"
 
 execute 'apt-get update -y'
 
-  packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic }
+  packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic python python-numpy python-dev python-pip python-lxml }
   for script in packages do
     package script do
       action :install
@@ -130,14 +130,6 @@ end
 
 magic_shell_environment 'CUDA_HOME' do
   value "/usr/local/cuda"
-end
-
-
-bash "install_numpy" do
-    user "root"
-    code <<-EOF
-    pip install numpy 
-EOF
 end
 
 
