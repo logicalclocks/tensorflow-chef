@@ -23,6 +23,7 @@ group node.tensorflow.group do
   action :modify
   members ["#{node.tensorflow.user}"]
   append true
+  not_if "getent passwd #{node.tensorflow.user}"
 end
 
 package "expect" do
