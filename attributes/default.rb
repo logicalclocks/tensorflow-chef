@@ -1,7 +1,7 @@
 include_attribute "kagent"
 
-default.tensorflow.group         = "glassfish"
-default.tensorflow.user          = "hadoop"
+default.tensorflow.user          = "glassfish"
+default.tensorflow.group         = node.apache_hadoop.group
 default.tensorflow.base_version  = "0.11.0"
 default.tensorflow.version       = node.tensorflow.base_version
 

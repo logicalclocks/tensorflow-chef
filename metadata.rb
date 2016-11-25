@@ -29,12 +29,12 @@ attribute "download_url",
 :description => "url for binaries",
 :type => "string"
 
-attribute "tensorflow/group",
-:description => "group parameter value",
-:type => "string"
-
 attribute "tensorflow/user",
 :description => "user parameter value",
+:type => "string"
+
+attribute "tensorflow/group",
+:description => "group parameter value",
 :type => "string"
 
 attribute "cuda/enabled",
