@@ -60,15 +60,18 @@ template "#{node.tensorflow.base_dir}/bin/kill-process.sh" do
   action :create_if_missing
 end
 
+
 # For apache zeppelin
 # https://zeppelin.apache.org/docs/0.6.2/interpreter/python.html
 python_package 'py4j' do
-#  version '1.8'
   action :install
 end
 
-
 package "python-imaging" do
+  action :install
+end
+
+package "python-matplotlib" do
   action :install
 end
 
@@ -87,9 +90,6 @@ when "debian"
   package "libfreetype6-dev" do
     action :install
   end
-  package "python-matplotlib" do
-    action :install
-  end
   package "python-scipy" do
     action :install
   end
@@ -104,11 +104,8 @@ when "rhel"
   package "python-pandas" do
     action :install
   end
+  python_package 'tkinter' do
+    action :install
+  end
 end
-
-
-# Depends on libpng-dev and libfreetype6-dev
-#python_package 'matplotlib' do
-#  action :install
-#end
 
