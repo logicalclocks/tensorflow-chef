@@ -67,6 +67,11 @@ python_package 'py4j' do
   action :install
 end
 
+python_package 'snakebite' do
+  action :install
+end
+
+
 package "python-imaging" do
   action :install
 end
