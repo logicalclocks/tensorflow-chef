@@ -36,7 +36,7 @@ when "debian"
 
 execute 'apt-get update -y'
 
-  packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic python python-numpy python-dev python-pip python-lxml python-pillow }
+  packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic python python-numpy python-dev python-pip python-lxml python-pillow libcupti-dev libcurl3-dev}
   for script in packages do
     package script do
       action :install
@@ -81,6 +81,12 @@ when "rhel"
   package "python-pillow" do
     action :install
   end
+  package "libcupti-dev" do
+    action :install    
+  end
+  package "libcurl3-dev" do
+    action :install    
+  end
 
 bash "pip-upgrade" do
     user "root"
@@ -117,10 +123,25 @@ node.default.java.set_etc_environment = true
 node.default.java.oracle.accept_oracle_download_terms = true
 include_recipe "java::oracle"
 
-# bazel_installation('bazel') do
-#   version '0.3.1'
-#   action :create
-# end
+if node.tensorflow.install == "src"
+  # bazel_installation('bazel') do
+  #   version '0.4.1'
+  #   action :create
+  # end
+
+bash "bazel-install" do
+    user "root"
+    code <<-EOF
+    set -e
+    echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list  
+    curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add 
+    apt-get update -y
+    sudo apt-get install bazel -y
+#    apt-get upgrade bazel -y
+EOF
+end
+
+end     
 
 #
 #
@@ -247,9 +268,11 @@ else
 
 end
 
-# tensorflow_compile "tensorflow" do
-#   action :tf
-# end
+if node.tensorflow.install == "src"
+  tensorflow_compile "tensorflow" do
+    action :tf
+  end
+end
 
 # source $HADOOP_HOME/libexec/hadoop-config.sh
  # CLASSPATH=$($HADOOP_HDFS_HOME/bin/hdfs classpath --glob) python your_script.py

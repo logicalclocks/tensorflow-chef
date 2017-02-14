@@ -5,12 +5,14 @@ default.tensorflow.group         = node.apache_hadoop.group
 default.tensorflow.base_version  = "0.11.0"
 default.tensorflow.version       = node.tensorflow.base_version
 
+default.tensorflow.install       = "dist" # or 'src'
+
+default.tensorflow.git_url       = "https://github.com/tensorflow/tensorflow"
+
 default.tensorflow.home          = node.kagent.dir + "/kagent-tensorflow-" + node.tensorflow.version
 default.tensorflow.base_dir      = node.kagent.dir + "/kagent-tensorflow"
 default.tensorflow.programs      = node.tensorflow.home + "/progs"
 default.tensorflow.logs          = node.tensorflow.home + "/logs"
-
-default.cuda.enabled             = "true"
 
 default.cuda.major_version       = "8.0"
 default.cuda.minor_version       = "44"
@@ -27,3 +29,6 @@ default.cudnn.url                = "#{node.download_url}/cudnn-#{node.cuda.major
 default.cuda.dir                 = "/usr/local"
 default.cuda.base_dir            = "#{cuda.dir}/cuda"
 default.cuda.version_dir         = "#{cuda.dir}/cuda-#{node.cuda.major_version}"
+default.cuda.accept_nvidia_download_terms        = "false"
+
+default.cuda.enabled             = node.cuda.accept_nvidia_download_terms

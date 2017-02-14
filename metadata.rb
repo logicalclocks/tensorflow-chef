@@ -25,10 +25,6 @@ depends "poise-python"
 end
 
 
-attribute "download_url",
-:description => "url for binaries",
-:type => "string"
-
 attribute "tensorflow/user",
 :description => "user parameter value",
 :type => "string"
@@ -37,7 +33,19 @@ attribute "tensorflow/group",
 :description => "group parameter value",
 :type => "string"
 
-attribute "cuda/enabled",
-:description => "Install tensorflow with cuda support. Default: 'false'. Change to 'true' to enable cuda.",
+attribute "download_url",
+:description => "url for binaries",
+:type => "string"
+
+attribute "tensorflow/git_url",
+:description => "url for git sourcecode for tensorflow",
+:type => "string"
+
+attribute "cuda/accept_nvidia_download_terms",
+:description => "Accept cuda licensing terms and conditions. Default: 'false'. Change to 'true' to enable cuda.",
+:type => "string"
+
+attribute "tensorflow/install",
+:description => "'src' to compile/install from source code. 'dist' to install from binaries. ",
 :type => "string"
 

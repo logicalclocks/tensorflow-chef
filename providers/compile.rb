@@ -49,13 +49,13 @@ end
 
 action :tf do
 
-bash "install_bazel_again" do
-    user "root"
-    code <<-EOF
-    set -e
-    /var/chef/cache/bazel-0.3.1-installer-linux-x86_64.sh
-EOF
-end
+# bash "install_bazel_again" do
+#     user "root"
+#     code <<-EOF
+#     set -e
+#     /var/chef/cache/bazel-0.3.1-installer-linux-x86_64.sh
+# EOF
+# end
 
 
 bash "git_clone_tensorflow_server" do
@@ -64,7 +64,7 @@ bash "git_clone_tensorflow_server" do
     set -e
     cd /home/#{node.tensorflow.user}
 
-    git clone --recurse-submodules https://github.com/tensorflow/tensorflow
+    git clone --recurse-submodules #{node.tensorflow.git_url}
 EOF
   not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/configure" ) }
 end

@@ -2,7 +2,7 @@
 Vagrant.configure("2") do |c|
   if Vagrant.has_plugin?("vagrant-omnibus")
 #    require 'vagrant-omnibus'
-    c.omnibus.chef_version = "12.4.3"
+#    c.omnibus.chef_version = "12.4.3"
   end
   if Vagrant.has_plugin?("vagrant-cachier")
     c.omnibus.cache_packages = true        
@@ -18,11 +18,11 @@ Vagrant.configure("2") do |c|
   #c.vm.hostname = "default-ubuntu-1604.vagrantup.com"
 
   c.vm.provider :virtualbox do |p|
-    p.customize ["modifyvm", :id, "--memory", "8500"]
+    p.customize ["modifyvm", :id, "--memory", "7500"]
     p.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     p.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
     p.customize ["modifyvm", :id, "--nictype1", "virtio"]
-    p.customize ["modifyvm", :id, "--cpus", "2"]   
+    p.customize ["modifyvm", :id, "--cpus", "1"]   
   end
 
 
@@ -41,6 +41,7 @@ Vagrant.configure("2") do |c|
 	       },
      },
      "tensorflow" => {
+          "install" => "src",
 	  "default" =>      { 
    	  	       "private_ips" => ["10.0.2.15"]
 	       },

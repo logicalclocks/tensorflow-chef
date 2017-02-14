@@ -10,7 +10,7 @@ action :cuda do
 
     cd #{Chef::Config[:file_cache_path]}
     ./#{cuda} --silent --toolkit --driver --samples --verbose
-EOF
+    EOF
     not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
   end
 
@@ -37,7 +37,7 @@ action :cudnn do
     cp -rf cuda/lib64 /usr
     cp -rf cuda/include/* /usr/include
     chmod a+r /usr/include/cudnn.h /usr/lib64/libcudnn*
-EOF
+    EOF
     not_if { ::File.exists?( "/usr/include/cudnn.h" ) }
   end
 
@@ -50,28 +50,48 @@ end
 
 action :cpu do
 
-
-bash "install_tf_cpu" do
-    user "root"
-    code <<-EOF
+  if node.tensorflow.install == "dist"
+    bash "install_tf_cpu" do
+      user "root"
+      code <<-EOF
     set -e
     pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl
-EOF
-end
+    EOF
+    end
+  end
+  if node.tensorflow.install == "src"
+    bash "install_tf_cpu_from_src" do
+      user "root"
+      code <<-EOF
+    set -e
+    pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl
+    EOF
+    end
 
 
-
+  end
 end
 
 action :gpu do
 
-bash "install_tf_gpu" do
-    user "root"
-    code <<-EOF
+  if node.tensorflow.install == "dist"
+    
+    bash "install_tf_gpu" do
+      user "root"
+      code <<-EOF
     set -e
     pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl
-EOF
-end
+    EOF
+    end
+  end
+  if node.tensorflow.install == "src"
+    bash "install_tf_gpu_from_src" do
+      user "root"
+      code <<-EOF
+    set -e
+    pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl
+    EOF
+    end
 
-
+  end
 end
