@@ -41,7 +41,7 @@ Vagrant.configure("2") do |c|
 	       },
      },
      "tensorflow" => {
-          "install" => "src",
+#          "install" => "src",
 	  "default" =>      { 
    	  	       "private_ips" => ["10.0.2.15"]
 	       },
