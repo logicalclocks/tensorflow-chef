@@ -6,7 +6,7 @@ if [ $# -lt 2 ] ; then
 fi
 
 prog=$1
-log=<%= node.tensorflow.logs %>/${1}.log 
+log=<%= node.tensorflow.base_dir %>/${1}.log 
 pid_file=/tmp/${prog}.pid
 
 # libjvm.so
