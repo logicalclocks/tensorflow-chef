@@ -33,6 +33,10 @@ attribute "tensorflow/group",
 :description => "group parameter value",
 :type => "string"
 
+attribute "tensorflow/dir",
+:description => "Base installation directory",
+:type => "string"
+
 attribute "download_url",
 :description => "url for binaries",
 :type => "string"

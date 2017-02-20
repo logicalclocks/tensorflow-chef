@@ -10,10 +10,9 @@ default.tensorflow.install       = "dist" # or 'src'
 
 default.tensorflow.git_url       = "https://github.com/tensorflow/tensorflow"
 
-default.tensorflow.home          = node.kagent.dir + "/kagent-tensorflow-" + node.tensorflow.version
-default.tensorflow.base_dir      = node.kagent.dir + "/kagent-tensorflow"
-default.tensorflow.programs      = node.tensorflow.home + "/progs"
-default.tensorflow.logs          = node.tensorflow.home + "/logs"
+default.tensorflow.dir           = "/srv"
+default.tensorflow.home          = node.tensorflow.dir + "/tensorflow-" + node.tensorflow.version
+default.tensorflow.base_dir      = node.kagent.dir + "/tensorflow"
 
 default.cuda.major_version       = "8.0"
 default.cuda.minor_version       = "44"
