@@ -12,7 +12,7 @@ pid_file=/tmp/${prog}.pid
 # libjvm.so
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${JAVA_HOME}/jre/lib/amd64/server
 
-. <%= node.apache_hadoop.base_dir %>/libexec/hadoop-config.sh
-nohup CLASSPATH=$(<%= node.apache_hadoop.base_dir %>/bin/hdfs classpath --glob) $@ & 2>&1 > $log &
+. <%= node.hops.base_dir %>/libexec/hadoop-config.sh
+nohup CLASSPATH=$(<%= node.hops.base_dir %>/bin/hdfs classpath --glob) $@ & 2>&1 > $log &
 echo $! > $pid_file
 
