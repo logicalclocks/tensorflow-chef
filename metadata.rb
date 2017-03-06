@@ -16,7 +16,6 @@ depends "java"
 depends "bazel"
 depends "magic_shell"
 depends "ndb"
-depends "apache_hadoop"
 depends "hops"
 depends "poise-python"
 

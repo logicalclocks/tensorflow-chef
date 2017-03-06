@@ -144,7 +144,7 @@ end
 # https://github.com/tensorflow/tensorflow/issues/2218
 #
 magic_shell_environment 'HADOOP_HDFS_HOME' do
-  value "#{node.apache_hadoop.base_dir}"
+  value "#{node.hops.base_dir}"
 end
 
 magic_shell_environment 'LD_LIBRARY_PATH' do
