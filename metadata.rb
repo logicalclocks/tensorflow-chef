@@ -54,4 +54,3 @@ attribute "tensorflow/install",
 attribute "install/dir",
           :description => "Set to a base directory under which we will install.",
           :type => "string"
-

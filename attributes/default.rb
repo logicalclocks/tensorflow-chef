@@ -10,7 +10,7 @@ default.tensorflow.install       = "dist" # or 'src'
 
 default.tensorflow.git_url       = "https://github.com/tensorflow/tensorflow"
 
-default.tensorflow.dir           = "/srv"
+default.tensorflow.dir           = node.install.dir.empty? ? "/srv" : node.install.dir
 default.tensorflow.home          = node.tensorflow.dir + "/tensorflow-" + node.tensorflow.version
 default.tensorflow.base_dir      = node.kagent.dir + "/tensorflow"
 
@@ -29,6 +29,7 @@ default.cudnn.url                = "#{node.download_url}/cudnn-#{node.cuda.major
 default.cuda.dir                 = "/usr/local"
 default.cuda.base_dir            = "#{cuda.dir}/cuda"
 default.cuda.version_dir         = "#{cuda.dir}/cuda-#{node.cuda.major_version}"
-default.cuda.accept_nvidia_download_terms        = "false"
 
-default.cuda.enabled             = node.cuda.accept_nvidia_download_terms
+
+default.cuda.accept_nvidia_download_terms        = "false"
+default.cuda.enabled                             = node.cuda.accept_nvidia_download_terms
