@@ -8,7 +8,6 @@ metadata
 
 cookbook 'kagent', github: 'karamelchef/kagent-chef', branch: 'master'
 cookbook 'java'
-cookbook 'bazel', github: 'gengo/cookbook-bazel', branch: 'master'
 cookbook 'magic_shell'
 cookbook 'build-essential'
 cookbook 'poise-python'

@@ -13,7 +13,6 @@ recipe            "tensorflow::purge",  "Uninstall tensorflow and cuda"
 
 depends "kagent"
 depends "java"
-depends "bazel"
 depends "magic_shell"
 depends "ndb"
 depends "hops"

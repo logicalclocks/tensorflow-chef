@@ -119,10 +119,6 @@ node.default.java.oracle.accept_oracle_download_terms = true
 include_recipe "java::oracle"
 
 if node.tensorflow.install == "src"
-  # bazel_installation('bazel') do
-  #   version '0.4.1'
-  #   action :create
-  # end
 
 bash "bazel-install" do
     user "root"
