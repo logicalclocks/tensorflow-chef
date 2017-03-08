@@ -1,7 +1,7 @@
 include_attribute "kagent"
 
-default.tensorflow.user          = node.kagent.user
-default.tensorflow.group         = node.kagent.group
+default.tensorflow.user          = node.install.user.empty? ? node.kagent.user : node.install.user
+default.tensorflow.group         = node.install.user.empty? ? node.kagent.group : node.install.user
 #default.tensorflow.base_version  = "0.11.0"
 default.tensorflow.base_version  = "1.0.0"
 default.tensorflow.version       = node.tensorflow.base_version
