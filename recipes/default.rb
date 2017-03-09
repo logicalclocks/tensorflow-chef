@@ -6,7 +6,6 @@ directory node.tensorflow.home do
   group node.tensorflow.group
   mode "750"
   action :create
-  recursive true
 end
 
 link node.tensorflow.base_dir do
