@@ -82,10 +82,10 @@ when "rhel"
   package "python-pillow" do
     action :install
   end
-  package "libcupti-dev" do
-    action :install    
-  end
-  package "libcurl3-dev" do
+#  package "libcupti-dev" do
+#    action :install    
+#  end
+  package "libcurl-devel" do
     action :install    
   end
 
