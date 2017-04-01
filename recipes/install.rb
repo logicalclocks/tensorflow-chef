@@ -46,6 +46,15 @@ execute 'apt-get update -y'
 
 when "rhel"
 
+bash "pip-prepare-yum-epel-release-add" do
+    user "root"
+    code <<-EOF
+    set -e
+    yum install epel-release -y
+    yum install python-pip -y
+EOF
+end
+
   package "gcc" do
     action :install
   end
@@ -65,9 +74,6 @@ when "rhel"
     action :install
   end
   package "python" do 
-    action :install
-  end
-  package "python-pip" do 
     action :install
   end
   package "python-devel" do 
