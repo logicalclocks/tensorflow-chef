@@ -82,7 +82,7 @@ end
   package "python-lxml" do 
     action :install
   end
-  package "python27-numpy" do
+  package "python" do
     action :install
   end
   package "python-pillow" do
