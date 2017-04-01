@@ -61,7 +61,7 @@ hops_hdfs_directory cached_filename do
   owner node.hops.hdfs.user
   group node.hops.group
   mode "1755"
-  dest "#{home}/#{node.hops.hdfs.user}/#{base_filename}"
+  dest "/user/#{node.hops.hdfs.user}/#{base_filename}"
 end
 
 
@@ -81,5 +81,5 @@ hops_hdfs_directory cached_filename do
   owner node.hops.hdfs.user
   group node.hops.group
   mode "1755"
-  dest "#{home}/#{node.hops.hdfs.user}/#{base_filename}"
+  dest "/user/#{node.hops.hdfs.user}/#{base_filename}"
 end
