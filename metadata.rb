@@ -7,7 +7,6 @@ version          "0.1.0"
 
 recipe            "tensorflow::install", "Download and compile and install tensorflow"
 recipe            "tensorflow::default",  "Setup tensorflow"
-recipe            "tensorflow::distributed",  "Setup distributed tensorflow"
 recipe            "tensorflow::purge",  "Uninstall tensorflow and cuda"
 
 

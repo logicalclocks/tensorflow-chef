@@ -1,7 +1,9 @@
 dependencies:
   - recipe: tensorflow::install
   - recipe: tensorflow::default
-  - recipe: tensorflow::distributed
+    global:  
+      - hops::dn
+
 
 
 
