@@ -9,6 +9,8 @@ default.tensorflow.version       = node.tensorflow.base_version
 default.tensorflow.install       = "dist" # or 'src'
 
 default.tensorflow.git_url       = "https://github.com/tensorflow/tensorflow"
+default.tensorflow.python_url    = "http://snurran.sics.se/hops/Python.zip"
+default.tensorflow.tfspark_url   = "http://snurran.sics.se/hops/tfspark.zip"
 
 default.tensorflow.dir           = node.install.dir.empty? ? "/srv" : node.install.dir
 default.tensorflow.home          = node.tensorflow.dir + "/tensorflow-" + node.tensorflow.version
