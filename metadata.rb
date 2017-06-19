@@ -46,6 +46,11 @@ attribute "tensorflow/install",
           :description => "'src' to compile/install from source code. 'dist' to install from binaries. ",
           :type => "string"
 
+attribute "tensorflow/mpi",
+          :description => "'true' to install openmpi support, 'false' (default) for no MPI support. ",
+          :type => "string"
+
+
 attribute "install/dir",
           :description => "Set to a base directory under which we will install.",
           :type => "string"

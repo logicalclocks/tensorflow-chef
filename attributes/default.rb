@@ -15,6 +15,9 @@ default.tensorflow.dir           = node.install.dir.empty? ? "/srv" : node.insta
 default.tensorflow.home          = node.tensorflow.dir + "/tensorflow-" + node.tensorflow.version
 default.tensorflow.base_dir      = node.kagent.dir + "/tensorflow"
 
+
+default.tensorflow.mpi           = "false"
+
 default.cuda.major_version       = "8.0"
 default.cuda.minor_version       = "61"
 default.cuda.build_version       = "375.26"
@@ -34,5 +37,5 @@ default.cuda.version_dir         = "#{cuda.dir}/cuda-#{node.cuda.major_version}"
 
 
 default.cuda.accept_nvidia_download_terms        = "false"
-default.cuda.enabled                             = node.cuda.accept_nvidia_download_terms
+default.cuda.enabled             = node.cuda.accept_nvidia_download_terms
 default.cuda.skip_test           = "false"

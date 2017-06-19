@@ -167,6 +167,35 @@ magic_shell_environment 'CUDA_HOME' do
 end
 
 
+if node.tensorflow.mpi == "true"
+  case node.platform_family
+    when "debian"
+
+      package "openmpi-bin" do
+      end
+
+      package "libopenmpi-dev" do
+      end
+      
+    when "rhel"
+      # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
+
+      bash "test_nvidia" do
+        user "root"
+        code <<-EOF
+        set -e
+        cd /tmp
+        wget https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-2.1.1.tar.gz
+        tar zxf openmpi-2.1.1.tar.gz 
+        cd openmpi-2.1.1
+        ./configure --prefix=#{node["tensorflow"]["dir"]} --with-openib-libdir= --with-openib= 
+        make all install
+      EOF
+      end
+
+ end
+end  
+
 
 
 if node.cuda.enabled == "true"
