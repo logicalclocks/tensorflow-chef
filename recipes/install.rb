@@ -173,18 +173,18 @@ if node.cuda.enabled == "true"
 
 
 
-raise if "#{node.cuda.accept_nvidia_download_terms}" == "false"
+  raise if "#{node.cuda.accept_nvidia_download_terms}" == "false"
   
 # Check to see if i can find a cuda card. If not, fail with an error
 
-bash "test_nvidia" do
+  bash "test_nvidia" do
     user "root"
     code <<-EOF
     set -e
     lspci | grep -i nvidia
-EOF
-  not_if { node["cuda"]["skip_test"] == "true" }
-end
+  EOF
+    not_if { node["cuda"]["skip_test"] == "true" }
+  end
 
   cuda =  File.basename(node.cuda.url)
   base_cuda_dir =  File.basename(cuda, "_linux-run")
@@ -259,12 +259,11 @@ end
     action :cudnn
   end
 
- tensorflow_install "gpu_install" do
-   action :gpu
- end
+  tensorflow_install "gpu_install" do
+    action :gpu
+  end
 
 else
-
  tensorflow_install "cpu_install" do
    action :cpu
  end
