@@ -183,7 +183,9 @@ bash "test_nvidia" do
     set -e
     lspci | grep -i nvidia
 EOF
+  not_if node["cuda"]["skip_test"] == "true"
 end
+
   cuda =  File.basename(node.cuda.url)
   base_cuda_dir =  File.basename(cuda, "_linux-run")
   cuda_dir = "/tmp/#{base_cuda_dir}"

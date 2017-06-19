@@ -43,6 +43,7 @@ bash "validate_cudnn" do
     set -e
     su #{node.tensorflow.user} -l -c "nvidia-smi | grep NVID"
 EOF
+  not_if node["cuda"]["skip_test"] == "true"
 end
 
 end

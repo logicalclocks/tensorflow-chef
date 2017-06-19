@@ -42,10 +42,6 @@ attribute "tensorflow/git_url",
           :description => "url for git sourcecode for tensorflow",
           :type => "string"
 
-attribute "cuda/accept_nvidia_download_terms",
-          :description => "Accept cuda licensing terms and conditions. Default: 'false'. Change to 'true' to enable cuda.",
-          :type => "string"
-
 attribute "tensorflow/install",
           :description => "'src' to compile/install from source code. 'dist' to install from binaries. ",
           :type => "string"
@@ -56,4 +52,12 @@ attribute "install/dir",
 
 attribute "install/user",
           :description => "User to install the services as",
+          :type => "string"
+
+attribute "cuda/accept_nvidia_download_terms",
+          :description => "Accept cuda licensing terms and conditions. Default: 'false'. Change to 'true' to enable cuda.",
+          :type => "string"
+
+attribute "cuda/skip_test",
+          :description => "Dont check if there is a local nvidia card on this machine",
           :type => "string"

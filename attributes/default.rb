@@ -34,4 +34,5 @@ default.cuda.version_dir         = "#{cuda.dir}/cuda-#{node.cuda.major_version}"
 
 
 default.cuda.accept_nvidia_download_terms        = "false"
-default.cuda.enabled                             = node.cuda.accept_nvidia_download_terms
+default.cuda.enabled                             = node.cuda.accept_nvidia_download_term
+default.cuda.skip_test           = "false"
