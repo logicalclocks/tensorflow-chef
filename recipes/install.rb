@@ -140,7 +140,6 @@ bash "bazel-install" do
     curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add 
     apt-get update -y
     sudo apt-get install bazel -y
-#    apt-get upgrade bazel -y
 EOF
 end
 
@@ -172,9 +171,11 @@ end
 
 if node.cuda.enabled == "true"
 
+
+
+raise if "#{node.cuda.accept_nvidia_download_terms}" == "false"
+  
 # Check to see if i can find a cuda card. If not, fail with an error
-
-
 
 bash "test_nvidia" do
     user "root"
@@ -216,9 +217,6 @@ end
 #    modprobe nvidia
 #    ./cuda-linux64-rel-#{node.cuda.version}-19867135.run
 #    ./cuda-samples-linux-#{node.cuda.version}-19867135.run
-
-
-
 
 
   magic_shell_environment 'PATH' do
@@ -276,8 +274,5 @@ if node.tensorflow.install == "src"
     action :tf
   end
 end
-
-# source $HADOOP_HOME/libexec/hadoop-config.sh
- # CLASSPATH=$($HADOOP_HDFS_HOME/bin/hdfs classpath --glob) python your_script.py
 
 

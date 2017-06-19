@@ -2,8 +2,7 @@ include_attribute "kagent"
 
 default.tensorflow.user          = node.install.user.empty? ? node.kagent.user : node.install.user
 default.tensorflow.group         = node.install.user.empty? ? node.kagent.group : node.install.user
-#default.tensorflow.base_version  = "0.11.0"
-default.tensorflow.base_version  = "1.0.0"
+default.tensorflow.base_version  = "1.2.0"
 default.tensorflow.version       = node.tensorflow.base_version
 
 default.tensorflow.install       = "dist" # or 'src'
@@ -17,11 +16,12 @@ default.tensorflow.home          = node.tensorflow.dir + "/tensorflow-" + node.t
 default.tensorflow.base_dir      = node.kagent.dir + "/tensorflow"
 
 default.cuda.major_version       = "8.0"
-default.cuda.minor_version       = "44"
-default.cuda.version             = node.cuda.major_version + "." + node.cuda.minor_version
-default.cuda.url                 = "#{node.download_url}/cuda_#{node.cuda.version}_linux-run"
-default.cuda.url_backup          = "http://developer.download.nvidia.com/compute/cuda/#{node.cuda.major_version}/Prod/local_installers/cuda_#{node.cuda.version}_linux-run"
-default.cuda.md5sum              = "6dca912f9b7e2b7569b0074a41713640"
+default.cuda.minor_version       = "61"
+default.cuda.build_version       = "375.26"
+default.cuda.version             = node.cuda.major_version + "." + node.cuda.minor_version + "_" + node.cuda.build_version
+default.cuda.url                 = "#{node.download_url}/cuda_#{node.cuda.version}_linux.run"
+default.cuda.url_backup          = "http://developer.download.nvidia.com/compute/cuda/#{node.cuda.major_version}/Prod/local_installers/cuda_#{node.cuda.version}_linux.run"
+default.cuda.md5sum              = "33e1bd980e91af4e55f3ef835c103f9b"
 
 default.cudnn.major_version      = "5"
 default.cudnn.minor_version      = "1"
