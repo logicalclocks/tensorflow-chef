@@ -176,6 +176,9 @@ if node.tensorflow.mpi == "true"
 
       package "libopenmpi-dev" do
       end
+
+      package "mpi-default-bin" do
+      end
       
     when "rhel"
       # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
