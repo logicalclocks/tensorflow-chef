@@ -83,3 +83,6 @@ hops_hdfs_directory cached_filename do
   mode "1755"
   dest "/user/#{node.hops.hdfs.user}/#{base_filename}"
 end
+
+
+# libibverbs-devel
