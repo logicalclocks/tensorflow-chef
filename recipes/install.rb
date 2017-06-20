@@ -179,11 +179,26 @@ if node.tensorflow.mpi == "true"
 
       package "mpi-default-bin" do
       end
+
+      bash "compile_openmpi" do
+        user "root"
+        code <<-EOF
+        set -e
+        cd /tmp
+        wget https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-2.1.1.tar.gz
+        tar zxf openmpi-2.1.1.tar.gz 
+        cd openmpi-2.1.1
+        ./configure --prefix=#{node["tensorflow"]["dir"]}
+        make all install
+        chown -R #{node["tensorflow"]["user"]} #{node["tensorflow"]["dir"]}/openmpi-2.1.1
+      EOF
+      end
+
       
     when "rhel"
       # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
 
-      bash "test_nvidia" do
+      bash "compile_openmpi" do
         user "root"
         code <<-EOF
         set -e
