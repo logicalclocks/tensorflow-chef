@@ -117,6 +117,7 @@ if node.cuda.enabled == "true"
       code <<-EOF
     set -e
     cd /home/#{node.tensorflow.user}/tensorflow
+    chown -R #{node.tensorflow.user} /home/#{node.tensorflow.user}/.cache
     bazel build -c opt --config=cuda //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
 # Create the pip package and install
     bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package

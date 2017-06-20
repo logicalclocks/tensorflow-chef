@@ -2,7 +2,10 @@
 
 set -e
 cd /home/<%= node.tensorflow.user %>
-git clone --recurse-submodules <%= node.tensorflow.git_url %>
+
+if [ ! -d /home/<%= node.tensorflow.user %>/tensorflow ] ; then
+  git clone --recurse-submodules <%= node.tensorflow.git_url %>
+fi
 
 cd /home/<%= node.tensorflow.user %>/tensorflow
 
