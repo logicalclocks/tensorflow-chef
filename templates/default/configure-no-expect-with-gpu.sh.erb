@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -e
+cd /home/<%= node.tensorflow.user %>
+git clone --recurse-submodules <%= node.tensorflow.git_url %>
+
+cd /home/<%= node.tensorflow.user %>/tensorflow
+
+export LC_CTYPE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
+export TF_NEED_MKL=<%= node["tensorflow"]["need_tkl"] %>
+export TF_NEED_GCP=0
+export TF_NEED_JEMALLOC=0
+export TF_NEED_OPENCL=0
+export TF_CUDA_CLANG=0
+export TF_ENABLE_XLA=0
+export TF_NEED_CUDA=<%= node["tensorflow"]["need_cuda"] %>
+export TF_NEED_HDFS=1
+export TF_NEED_VERBS=1
+
+export PYTHON_BIN_PATH=/usr/bin/python
+export USE_DEFAULT_PYTHON_LIB_PATH=1
+export CC_OPT_FLAGS="-march=native"
+
+./configure
+    
+# Check if configure completed successfully
+if [ ! -f tools/bazel.rc ] ; then
+  exit 1
+fi
+
+
+
+
+

@@ -71,9 +71,11 @@ EOF
 end
 
 if node.cuda.enabled == "true" 
-   config="configure-expect-with-gpu.sh"
+#   config="configure-expect-with-gpu.sh"
+    config="configure-no-expect-with-gpu.sh"
 else
-   config="configure-expect-no-gpu.sh"
+  #   config="configure-expect-no-gpu.sh"
+  config="configure-no-expect.sh"
 end
 
 template "/home/#{node.tensorflow.user}/tensorflow/#{config}" do
@@ -81,6 +83,7 @@ template "/home/#{node.tensorflow.user}/tensorflow/#{config}" do
   owner node.tensorflow.user
   mode 0770
 end
+
 
 #
 # http://www.admin-magazine.com/Articles/Automating-with-Expect-Scripts
