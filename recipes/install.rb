@@ -180,6 +180,9 @@ if node.tensorflow.mpi == "true"
       package "mpi-default-bin" do
       end
 
+      package "libibverbs-dev" do
+      end
+
       bash "compile_openmpi" do
         user "root"
         code <<-EOF
@@ -198,6 +201,9 @@ if node.tensorflow.mpi == "true"
     when "rhel"
       # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
 
+      package "libibverbs-devel" do
+      done
+      
       bash "compile_openmpi" do
         user "root"
         code <<-EOF

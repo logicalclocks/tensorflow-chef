@@ -117,7 +117,6 @@ if node.cuda.enabled == "true"
       code <<-EOF
     set -e
     cd /home/#{node.tensorflow.user}/tensorflow
-    chown -R #{node.tensorflow.user} /home/#{node.tensorflow.user}/.cache
     bazel build -c opt --config=cuda //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
 # Create the pip package and install
     bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
@@ -131,12 +130,13 @@ if node.cuda.enabled == "true"
     touch .installed
     chown #{node.tensorflow.user} .installed
     chown -R #{node.tensorflow.user} *
+    chown -R #{node.tensorflow.user} /home/#{node.tensorflow.user}/.cache
 EOF
       not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
     end
 
 
-  else
+else
     bash "build_install_tensorflow_server_no_cuda" do
       user "root"
       timeout 10800
@@ -152,13 +152,14 @@ EOF
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 
 
-    bazel build -c opt //tensorflow/cc:tutorials_example_trainer
+#    bazel build -c opt //tensorflow/cc:tutorials_example_trainer
 #    bazel-bin/tensorflow/cc/tutorials_example_trainer
 
     pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl
     touch .installed
     chown  #{node.tensorflow.user} .installed
     chown -R #{node.tensorflow.user} *
+    chown -R #{node.tensorflow.user} /home/#{node.tensorflow.user}/.cache
 EOF
       not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
     end
