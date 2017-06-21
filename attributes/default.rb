@@ -43,5 +43,5 @@ default.cuda.skip_test           = "false"
 default["tensorflow"]["mpi"]     = "false"
 
 default.tensorflow.need_tkl      = 0
-default.tensorflow.need_cuda     = node["cuda"]["accept_nvidia_download_terms"].eql? "true" ? 1 : 0
-default.tensorflow.need_mpi      = node["tensorflow"]["mpi"].eql? "true" ? 1 : 0
+default.tensorflow.need_cuda     = 0
+default.tensorflow.need_mpi      = 0
