@@ -11,7 +11,7 @@ default.tensorflow.git_url       = "https://github.com/tensorflow/tensorflow"
 default.tensorflow.python_url    = "http://snurran.sics.se/hops/Python.zip"
 default.tensorflow.tfspark_url   = "http://snurran.sics.se/hops/tfspark.zip"
 
-default.tensorflow.dir           = node.install.dir.empty? ? "/srv" : node.install.dir
+default.tensorflow.dir           = node.install.dir.empty? ? "/srv/hops" : node.install.dir
 default.tensorflow.home          = node.tensorflow.dir + "/tensorflow-" + node.tensorflow.version
 default.tensorflow.base_dir      = node.kagent.dir + "/tensorflow"
 
@@ -42,4 +42,5 @@ default.cuda.enabled             = node.cuda.accept_nvidia_download_terms
 default.cuda.skip_test           = "false"
 
 default.tensorflow.need_tkl      = 0
-default.tensorflow.need_cuda     = node["cuda"]["enabled"] == "true" ? 0 : 1
+default.tensorflow.need_cuda     = node["cuda"]["enabled"].eql? "true" ? 1 : 0
+default.tensorflow.need_mpi      = node["tensorflow"]["mpi"].eql? "true" ? 1 : 0
