@@ -187,14 +187,16 @@ if node.tensorflow.mpi == "true"
       user "root"
       code <<-EOF
         set -e
+        mkdir -p #{node["tensorflow"]["dir"]}/openmpi-2.1.1
         cd /tmp
         wget https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-2.1.1.tar.gz
         tar zxf openmpi-2.1.1.tar.gz 
         cd openmpi-2.1.1
-        ./configure --prefix=#{node["tensorflow"]["dir"]}
+        ./configure --prefix=#{node["tensorflow"]["dir"]}/openmpi-2.1.1
         make all install
         chown -R #{node["tensorflow"]["user"]} #{node["tensorflow"]["dir"]}/openmpi-2.1.1
       EOF
+     not_if { "::File.directory?("#{node["tensorflow"]["dir"]}/openmpi-2.1.1") }
     end
 
   when "rhel"
