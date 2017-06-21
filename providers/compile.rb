@@ -71,10 +71,8 @@ EOF
 end
 
 if node.cuda.enabled == "true" 
-#   config="configure-expect-with-gpu.sh"
-    config="configure-no-expect-with-gpu.sh"
+  config="configure-no-expect-with-gpu.sh"
 else
-  #   config="configure-expect-no-gpu.sh"
   config="configure-no-expect.sh"
 end
 
@@ -150,15 +148,8 @@ else
     export LC_CTYPE=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
 
-     bazel build -c opt //tensorflow/tools/pip_package:build_pip_package
-#    bazel build -c opt //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
-
+    bazel build -c opt //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-
-
-#    bazel build -c opt //tensorflow/cc:tutorials_example_trainer
-#    bazel-bin/tensorflow/cc/tutorials_example_trainer
-
     pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl
     touch .installed
     chown  #{node.tensorflow.user} .installed

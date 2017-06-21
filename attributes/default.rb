@@ -38,9 +38,10 @@ default.cuda.version_dir         = "#{cuda.dir}/cuda-#{node.cuda.major_version}"
 
 
 default.cuda.accept_nvidia_download_terms        = "false"
-default.cuda.enabled             = node.cuda.accept_nvidia_download_terms
+default.cuda.enabled             = node["cuda"]["accept_nvidia_download_terms"]
 default.cuda.skip_test           = "false"
+default["tensorflow"]["mpi"]     = "false"
 
 default.tensorflow.need_tkl      = 0
-node["cuda"]["enabled"].eql? "true" ? node.default.tensorflow.need_cuda=1 : node.default.tensorflow.need_cuda=0
-node["tensorflow"]["mpi"].eql? "true" ? node.default.tensorflow.need_mpi=1 : node.default.tensorflow.need_mpi=0
+default.tensorflow.need_cuda     = node["cuda"]["accept_nvidia_download_terms"].eql? "true" ? 1 : 0
+default.tensorflow.need_mpi      = node["tensorflow"]["mpi"].eql? "true" ? 1 : 0
