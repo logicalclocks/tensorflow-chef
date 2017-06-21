@@ -196,7 +196,7 @@ if node.tensorflow.mpi == "true"
         make all install
         chown -R #{node["tensorflow"]["user"]} #{node["tensorflow"]["dir"]}/openmpi-2.1.1
       EOF
-     not_if { "::File.directory?("#{node["tensorflow"]["dir"]}/openmpi-2.1.1") }
+     not_if { ::File.directory?("#{node['tensorflow']['dir']}/openmpi-2.1.1") }
     end
 
   when "rhel"
