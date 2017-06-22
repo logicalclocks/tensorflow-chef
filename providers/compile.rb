@@ -157,7 +157,12 @@ else
       timeout 10800
       code <<-EOF
     set -e
+
+    export LC_CTYPE=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+
     cd /home/#{node.tensorflow.user}/tensorflow
+    ./#{config}
 
 # Create the pip package and install
     export LC_CTYPE=en_US.UTF-8
