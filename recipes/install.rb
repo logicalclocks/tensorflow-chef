@@ -6,9 +6,12 @@
 # GeForce GTX 970	5.2
 #
 
-
-node.override.tensorflow.need_cuda = node["cuda"]["accept_nvidia_download_terms"].eql? "true" ? 1 : 0
-node.override.tensorflow.need_mpi  = node["tensorflow"]["mpi"].eql? "true" ? 1 : 0
+if node["cuda"]["accept_nvidia_download_terms"].eql? "true"
+  node.override.tensorflow.need_cuda = 1
+end  
+if node["tensorflow"]["mpi"].eql? "true"
+  node.override.tensorflow.need_mpi = 1
+end
 
 
 group node.tensorflow.group do
