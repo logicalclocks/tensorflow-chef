@@ -237,7 +237,6 @@ if node.tensorflow.mpi == "true"
 
   end
 end
-end
 
 
 if node.cuda.enabled == "true"
