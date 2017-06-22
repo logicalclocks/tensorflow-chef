@@ -107,10 +107,19 @@ end
 
 if node.cuda.enabled == "true" 
 
+  # https://github.com/bazelbuild/bazel/issues/739
+    bash "workaround_bazel_build" do
+     user "root"
+      code <<-EOF
+    set -e
+     chown -R #{node.tensorflow.user} /home/#{node.tensorflow.user}/tensorflow
+     rm -rf /home/#{node.tensorflow.user}/.cache/bazel
+     EOF
+    end
+
 
   bash "build_install_tensorflow_server" do
-#      user 
-      user "root"
+     user node.tensorflow.user
       timeout 10800
       code <<-EOF
     set -e
@@ -122,23 +131,29 @@ if node.cuda.enabled == "true"
     bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 
-#    bazel build -c opt --config=cuda //tensorflow/cc:tutorials_example_trainer
-#    bazel-bin/tensorflow/cc/tutorials_example_trainer --use_gpu
-
 # tensorflow-0.10.0-py2-none-any.whl
     pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl
     touch .installed
-    chown #{node.tensorflow.user} .installed
-    chown -R #{node.tensorflow.user} *
-    chown -R #{node.tensorflow.user} /home/#{node.tensorflow.user}/.cache
 EOF
       not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
     end
 
 
 else
-    bash "build_install_tensorflow_server_no_cuda" do
-      user "root"
+
+  # https://github.com/bazelbuild/bazel/issues/739
+    bash "workaround_bazel_build" do
+     user "root"
+      code <<-EOF
+    set -e
+     chown -R #{node.tensorflow.user} /home/#{node.tensorflow.user}/tensorflow
+     rm -rf /home/#{node.tensorflow.user}/.cache/bazel
+     EOF
+    end
+
+
+  bash "build_install_tensorflow_server_no_cuda" do
+     user node.tensorflow.user    
       timeout 10800
       code <<-EOF
     set -e
@@ -152,13 +167,9 @@ else
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
     pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl
     touch .installed
-    chown  #{node.tensorflow.user} .installed
-    chown -R #{node.tensorflow.user} *
-    chown -R #{node.tensorflow.user} /home/#{node.tensorflow.user}/.cache
 EOF
       not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
     end
-
   end
 
 
