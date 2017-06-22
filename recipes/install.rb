@@ -16,13 +16,13 @@ if node["tensorflow"]["mpi"].eql? "true"
   node.override.tensorflow.need_mpi = 1
   node.override.tensorflow.install = "src"
 end
+
 if node["tensorflow"]["infiniband"].eql? "true"
   node.override.tensorflow.need_infiniband = 1
   node.override.tensorflow.install = "src"
-  case node.platform_family
-  when "debian"
+  if node.platform_family.eql? "debian"
     package "libibverbs-dev"
-  when "rhel"
+  else # "rhel"
     package "libibverbs-devel"
   end
 end
@@ -215,16 +215,16 @@ if node.tensorflow.mpi == "true"
         make all install
         chown -R #{node["tensorflow"]["user"]} #{node["tensorflow"]["dir"]}/openmpi-2.1.1
       EOF
-     not_if { ::File.directory?("#{node['tensorflow']['dir']}/openmpi-2.1.1") }
+      not_if { ::File.directory?("#{node['tensorflow']['dir']}/openmpi-2.1.1") }
     end
 
   when "rhel"
     # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
 
-      
-      bash "compile_openmpi" do
-        user "root"
-        code <<-EOF
+    
+    bash "compile_openmpi" do
+      user "root"
+      code <<-EOF
         set -e
         cd /tmp
         wget https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-2.1.1.tar.gz
@@ -233,120 +233,118 @@ if node.tensorflow.mpi == "true"
         ./configure --prefix=#{node["tensorflow"]["dir"]} --with-openib-libdir= --with-openib= 
         make all install
       EOF
-      end
-
     end
+
   end
+end
 end
 
 
-  if node.cuda.enabled == "true"
+if node.cuda.enabled == "true"
 
 
 
-    raise if "#{node.cuda.accept_nvidia_download_terms}" == "false"
-    
-    # Check to see if i can find a cuda card. If not, fail with an error
+  raise if "#{node.cuda.accept_nvidia_download_terms}" == "false"
+  
+  # Check to see if i can find a cuda card. If not, fail with an error
 
-    bash "test_nvidia" do
-      user "root"
-      code <<-EOF
+  bash "test_nvidia" do
+    user "root"
+    code <<-EOF
     set -e
     lspci | grep -i nvidia
   EOF
-      not_if { node["cuda"]["skip_test"] == "true" }
-    end
-
-    cuda =  File.basename(node.cuda.url)
-    base_cuda_dir =  File.basename(cuda, "_linux-run")
-    cuda_dir = "/tmp/#{base_cuda_dir}"
-    cached_file = "#{Chef::Config[:file_cache_path]}/#{cuda}"
-
-
-    remote_file cached_file do
-      source node.cuda.url
-      mode 0755
-      action :create
-      retries 2
-      ignore_failure true
-      not_if { File.exist?(cached_file) }
-    end
-
-    remote_file cached_file do
-      source node.cuda.url_backup
-      mode 0755
-      action :create
-      retries 2
-      not_if { File.exist?(cached_file) }
-    end
-
-    tensorflow_install "cuda_install" do
-      action :cuda
-    end
-
-
-    #    cd #{cuda_dir}
-    #    ./NVIDIA-Linux-x86_64-352.39.run
-    #    modprobe nvidia
-    #    ./cuda-linux64-rel-#{node.cuda.version}-19867135.run
-    #    ./cuda-samples-linux-#{node.cuda.version}-19867135.run
-
-
-    magic_shell_environment 'PATH' do
-      value "$PATH:#{node.cuda.base_dir}/bin"
-    end
-
-    magic_shell_environment 'LD_LIBRARY_PATH' do
-      value "#{node.cuda.base_dir}/lib64:$LD_LIBRARY_PATH"
-    end
-
-    magic_shell_environment 'CUDA_HOME' do
-      value node.cuda.base_dir
-    end
-
-
-    tensorflow_compile "cuda" do
-      action :cuda
-    end
-
-    base_cudnn_file =  File.basename(node.cudnn.url)
-    cached_cudnn_file = "#{Chef::Config[:file_cache_path]}/#{base_cudnn_file}"
-
-    remote_file cached_cudnn_file do
-      source node.cudnn.url
-      mode 0755
-      action :create
-      retries 2
-      not_if { File.exist?(cached_cudnn_file) }
-    end
-
-
-    tensorflow_install "cudnn_install" do
-      action :cudnn
-    end
-
-
-    tensorflow_compile "cdnn" do
-      action :cudnn
-    end
-
-    tensorflow_install "gpu_install" do
-      action :gpu
-    end
-
-  else
-    tensorflow_install "cpu_install" do
-      action :cpu
-    end
-
+    not_if { node["cuda"]["skip_test"] == "true" }
   end
 
-  if node.tensorflow.install == "src"
+  cuda =  File.basename(node.cuda.url)
+  base_cuda_dir =  File.basename(cuda, "_linux-run")
+  cuda_dir = "/tmp/#{base_cuda_dir}"
+  cached_file = "#{Chef::Config[:file_cache_path]}/#{cuda}"
 
-    tensorflow_compile "tensorflow" do
-      action :tf
-    end
 
+  remote_file cached_file do
+    source node.cuda.url
+    mode 0755
+    action :create
+    retries 2
+    ignore_failure true
+    not_if { File.exist?(cached_file) }
   end
 
+  remote_file cached_file do
+    source node.cuda.url_backup
+    mode 0755
+    action :create
+    retries 2
+    not_if { File.exist?(cached_file) }
+  end
+
+  tensorflow_install "cuda_install" do
+    action :cuda
+  end
+
+
+  #    cd #{cuda_dir}
+  #    ./NVIDIA-Linux-x86_64-352.39.run
+  #    modprobe nvidia
+  #    ./cuda-linux64-rel-#{node.cuda.version}-19867135.run
+  #    ./cuda-samples-linux-#{node.cuda.version}-19867135.run
+
+
+  magic_shell_environment 'PATH' do
+    value "$PATH:#{node.cuda.base_dir}/bin"
+  end
+
+  magic_shell_environment 'LD_LIBRARY_PATH' do
+    value "#{node.cuda.base_dir}/lib64:$LD_LIBRARY_PATH"
+  end
+
+  magic_shell_environment 'CUDA_HOME' do
+    value node.cuda.base_dir
+  end
+
+
+  tensorflow_compile "cuda" do
+    action :cuda
+  end
+
+  base_cudnn_file =  File.basename(node.cudnn.url)
+  cached_cudnn_file = "#{Chef::Config[:file_cache_path]}/#{base_cudnn_file}"
+
+  remote_file cached_cudnn_file do
+    source node.cudnn.url
+    mode 0755
+    action :create
+    retries 2
+    not_if { File.exist?(cached_cudnn_file) }
+  end
+
+
+  tensorflow_install "cudnn_install" do
+    action :cudnn
+  end
+
+
+  tensorflow_compile "cdnn" do
+    action :cudnn
+  end
+
+  tensorflow_install "gpu_install" do
+    action :gpu
+  end
+
+else
+  tensorflow_install "cpu_install" do
+    action :cpu
+  end
+end
+
+if node.tensorflow.install == "src"
+
+  tensorflow_compile "tensorflow" do
+    action :tf
+  end
+
+end
 
