@@ -18,7 +18,13 @@ if node["tensorflow"]["mpi"].eql? "true"
 end
 if node["tensorflow"]["infiniband"].eql? "true"
   node.override.tensorflow.need_infiniband = 1
-  node.override.tensorflow.install = "src"  
+  node.override.tensorflow.install = "src"
+  case node.platform_family
+  when "debian"
+    package "libibverbs-dev"
+  when "rhel"
+    package "libibverbs-devel"
+  end
 end
 
 
@@ -196,9 +202,6 @@ if node.tensorflow.mpi == "true"
     package "mpi-default-bin" do
     end
 
-    package "libibverbs-dev" do
-    end
-
     bash "compile_openmpi" do
       user "root"
       code <<-EOF
@@ -218,8 +221,6 @@ if node.tensorflow.mpi == "true"
   when "rhel"
     # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
 
-    package "libibverbs-devel" do
-      done
       
       bash "compile_openmpi" do
         user "root"
