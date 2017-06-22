@@ -126,6 +126,8 @@ if node.cuda.enabled == "true"
     export LC_CTYPE=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
     cd /home/#{node.tensorflow.user}/tensorflow
+    ./#{config}
+
     bazel build -c opt --config=cuda //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
 # Create the pip package and install
     bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
