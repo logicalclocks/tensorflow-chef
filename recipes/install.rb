@@ -8,12 +8,17 @@
 
 if node["cuda"]["accept_nvidia_download_terms"].eql? "true"
   node.override.tensorflow.need_cuda = 1
-end  
+end
+#
+# If either 'infinband' or 'mpi' are selected, we have to build tensorflow from source.
+#
 if node["tensorflow"]["mpi"].eql? "true"
   node.override.tensorflow.need_mpi = 1
+  node.override.tensorflow.install = "src"
 end
 if node["tensorflow"]["infiniband"].eql? "true"
   node.override.tensorflow.need_infiniband = 1
+  node.override.tensorflow.install = "src"  
 end
 
 
