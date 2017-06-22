@@ -50,6 +50,10 @@ attribute "tensorflow/mpi",
           :description => "'true' to install openmpi support, 'false' (default) for no MPI support. ",
           :type => "string"
 
+attribute "tensorflow/infiniband",
+          :description => "Used by TensorflowOnSpark. 'true' to install inifinband support, 'false' (default) for no infiniband support. ",
+          :type => "string"
+
 attribute "install/dir",
           :description => "Set to a base directory under which we will install.",
           :type => "string"

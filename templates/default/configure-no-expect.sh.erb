@@ -20,7 +20,7 @@ export TF_CUDA_CLANG=0
 export TF_ENABLE_XLA=0
 export TF_NEED_CUDA=<%= node["tensorflow"]["need_cuda"] %>
 export TF_NEED_HDFS=1
-export TF_NEED_VERBS=1
+export TF_NEED_VERBS=<%= node["tensorflow"]["need_infiniband"] %>
 export TF_NEED_MPI=<%= node["tensorflow"]["need_mpi"] %>
 
 export TF_CUDA_VERSION=8.0

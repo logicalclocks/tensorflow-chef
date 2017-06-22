@@ -17,8 +17,8 @@ export TF_CUDA_CLANG=1
 export TF_ENABLE_XLA=0
 export TF_NEED_CUDA=<%= node["tensorflow"]["need_cuda"] %>
 export TF_NEED_HDFS=1
-export TF_NEED_VERBS=1
-export TF_NEED_MPI=1
+export TF_NEED_VERBS=<%= node["tensorflow"]["need_infiniband"] %>
+export TF_NEED_MPI=<%= node["tensorflow"]["need_mpi"] %>
 
 export PYTHON_BIN_PATH=/usr/bin/python
 export USE_DEFAULT_PYTHON_LIB_PATH=1
@@ -34,7 +34,7 @@ export TF_CUDA_COMPUTE_CAPABILITIES="3.5,5.2"
 export GCC_HOST_COMPILER_PATH=$(which clang-3.6 || true)
 export HOST_CXX_COMPILER=$(which clang++-3.6 || true)
 
-#export MPI_HOME=
+export MPI_HOME=<%= node["tensorflow"]["dir"] %>/openmpi-2.1.1
 
 ./configure
     

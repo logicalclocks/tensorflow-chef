@@ -12,6 +12,9 @@ end
 if node["tensorflow"]["mpi"].eql? "true"
   node.override.tensorflow.need_mpi = 1
 end
+if node["tensorflow"]["infiniband"].eql? "true"
+  node.override.tensorflow.need_infiniband = 1
+end
 
 
 group node.tensorflow.group do
