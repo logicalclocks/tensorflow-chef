@@ -1,3 +1,4 @@
+# coding: utf-8
 action :kernel_initramfs do
 
   case node.platform_family
@@ -170,7 +171,8 @@ else
     export LC_CTYPE=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
 
-    bazel build -c opt //tensorflow/tools/pip_package:build_pip_package
+#    bazel build -c opt //tensorflow/tools/pip_package:build_pip_package
+    bazel build --config=mkl --copt=”-DEIGEN_USE_VML” -c opt //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
     pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-cp27-cp27mu-linux_x86_64.whl
     touch .installed
