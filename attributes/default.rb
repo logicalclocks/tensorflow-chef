@@ -18,6 +18,7 @@ default.tensorflow.base_dir      = node.kagent.dir + "/tensorflow"
 
 default.tensorflow.mpi           = "false"
 default.tensorflow.infiniband    = "false"
+default.tensorflow.mkl           = "false"
 
 default.cuda.major_version       = "8.0"
 default.cuda.minor_version       = "61"
@@ -42,7 +43,7 @@ default.cuda.enabled             = node["cuda"]["accept_nvidia_download_terms"]
 default.cuda.skip_test           = "false"
 default["tensorflow"]["mpi"]     = "false"
 
-default.tensorflow.need_tkl      = 0
 default.tensorflow.need_cuda     = 0
 default.tensorflow.need_mpi      = 0
+default.tensorflow.need_mkl      = 0
 default.tensorflow.need_infiniband  = 0

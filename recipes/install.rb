@@ -17,6 +17,11 @@ if node["tensorflow"]["mpi"].eql? "true"
   node.override.tensorflow.install = "src"
 end
 
+if node["tensorflow"]["mkl"].eql? "true"
+  node.override.tensorflow.need_mkl = 1
+  node.override.tensorflow.install = "src"
+end
+
 if node["tensorflow"]["infiniband"].eql? "true"
   node.override.tensorflow.need_infiniband = 1
   node.override.tensorflow.install = "src"
