@@ -6,6 +6,33 @@
 # GeForce GTX 970	5.2
 #
 
+if node["cuda"]["accept_nvidia_download_terms"].eql? "true"
+  node.override.tensorflow.need_cuda = 1
+end
+#
+# If either 'infinband' or 'mpi' are selected, we have to build tensorflow from source.
+#
+if node["tensorflow"]["mpi"].eql? "true"
+  node.override.tensorflow.need_mpi = 1
+  node.override.tensorflow.install = "src"
+end
+
+if node["tensorflow"]["mkl"].eql? "true"
+  node.override.tensorflow.need_mkl = 1
+  node.override.tensorflow.install = "src"
+end
+
+if node["tensorflow"]["infiniband"].eql? "true"
+  node.override.tensorflow.need_infiniband = 1
+  node.override.tensorflow.install = "src"
+  if node.platform_family.eql? "debian"
+    package "libibverbs-dev"
+  else # "rhel"
+    package "libibverbs-devel"
+  end
+end
+
+
 group node.tensorflow.group do
   action :create
   not_if "getent group #{node.tensorflow.group}"
@@ -28,14 +55,14 @@ group node.tensorflow.group do
 end
 
 package "expect" do
- action :install
+  action :install
 end
 
 # http://www.pyimagesearch.com/2016/07/04/how-to-install-cuda-toolkit-and-cudnn-for-deep-learning/
 case node.platform_family
 when "debian"
 
-execute 'apt-get update -y'
+  execute 'apt-get update -y'
 
   packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic python python-numpy python-dev python-pip python-lxml python-pillow libcupti-dev libcurl3-dev}
   for script in packages do
@@ -46,14 +73,14 @@ execute 'apt-get update -y'
 
 when "rhel"
 
-bash "pip-prepare-yum-epel-release-add" do
+  bash "pip-prepare-yum-epel-release-add" do
     user "root"
     code <<-EOF
     set -e
     yum install epel-release -y
     yum install python-pip -y
 EOF
-end
+  end
 
   package "gcc" do
     action :install
@@ -88,21 +115,21 @@ end
   package "python-pillow" do
     action :install
   end
-#  package "libcupti-dev" do
-#    action :install    
-#  end
+  #  package "libcupti-dev" do
+  #    action :install    
+  #  end
   package "libcurl-devel" do
     action :install    
   end
 
-bash "pip-upgrade" do
+  bash "pip-upgrade" do
     user "root"
     code <<-EOF
     set -e
     pip install --upgrade pip
 EOF
-end
-    
+  end
+  
 end
 
 
@@ -116,7 +143,7 @@ template "/etc/modprobe.d/blacklist-nouveau.conf" do
 end
 
 tensorflow_compile "initram" do
- action :kernel_initramfs
+  action :kernel_initramfs
 end
 
 # echo options nouveau modeset=0 | sudo tee -a /etc/modprobe.d/nouveau-kms.conf
@@ -132,7 +159,7 @@ include_recipe "java::oracle"
 
 if node.tensorflow.install == "src"
 
-bash "bazel-install" do
+  bash "bazel-install" do
     user "root"
     code <<-EOF
     set -e
@@ -140,9 +167,8 @@ bash "bazel-install" do
     curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add 
     apt-get update -y
     sudo apt-get install bazel -y
-#    apt-get upgrade bazel -y
 EOF
-end
+  end
 
 end     
 
@@ -168,21 +194,73 @@ magic_shell_environment 'CUDA_HOME' do
 end
 
 
+if node.tensorflow.mpi == "true"
+  case node.platform_family
+  when "debian"
+
+    package "openmpi-bin" do
+    end
+
+    package "libopenmpi-dev" do
+    end
+
+    package "mpi-default-bin" do
+    end
+
+    bash "compile_openmpi" do
+      user "root"
+      code <<-EOF
+        set -e
+        mkdir -p #{node["tensorflow"]["dir"]}/openmpi-2.1.1
+        cd /tmp
+        wget https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-2.1.1.tar.gz
+        tar zxf openmpi-2.1.1.tar.gz 
+        cd openmpi-2.1.1
+        ./configure --prefix=#{node["tensorflow"]["dir"]}/openmpi-2.1.1
+        make all install
+        chown -R #{node["tensorflow"]["user"]} #{node["tensorflow"]["dir"]}/openmpi-2.1.1
+      EOF
+      not_if { ::File.directory?("#{node['tensorflow']['dir']}/openmpi-2.1.1") }
+    end
+
+  when "rhel"
+    # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
+
+    
+    bash "compile_openmpi" do
+      user "root"
+      code <<-EOF
+        set -e
+        cd /tmp
+        wget https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-2.1.1.tar.gz
+        tar zxf openmpi-2.1.1.tar.gz 
+        cd openmpi-2.1.1
+        ./configure --prefix=#{node["tensorflow"]["dir"]} --with-openib-libdir= --with-openib= 
+        make all install
+      EOF
+    end
+
+  end
+end
 
 
 if node.cuda.enabled == "true"
 
-# Check to see if i can find a cuda card. If not, fail with an error
 
 
+  raise if "#{node.cuda.accept_nvidia_download_terms}" == "false"
+  
+  # Check to see if i can find a cuda card. If not, fail with an error
 
-bash "test_nvidia" do
+  bash "test_nvidia" do
     user "root"
     code <<-EOF
     set -e
     lspci | grep -i nvidia
-EOF
-end
+  EOF
+    not_if { node["cuda"]["skip_test"] == "true" }
+  end
+
   cuda =  File.basename(node.cuda.url)
   base_cuda_dir =  File.basename(cuda, "_linux-run")
   cuda_dir = "/tmp/#{base_cuda_dir}"
@@ -206,19 +284,16 @@ end
     not_if { File.exist?(cached_file) }
   end
 
- tensorflow_install "cuda_install" do
-   action :cuda
- end
+  tensorflow_install "cuda_install" do
+    action :cuda
+  end
 
 
-#    cd #{cuda_dir}
-#    ./NVIDIA-Linux-x86_64-352.39.run
-#    modprobe nvidia
-#    ./cuda-linux64-rel-#{node.cuda.version}-19867135.run
-#    ./cuda-samples-linux-#{node.cuda.version}-19867135.run
-
-
-
+  #    cd #{cuda_dir}
+  #    ./NVIDIA-Linux-x86_64-352.39.run
+  #    modprobe nvidia
+  #    ./cuda-linux64-rel-#{node.cuda.version}-19867135.run
+  #    ./cuda-samples-linux-#{node.cuda.version}-19867135.run
 
 
   magic_shell_environment 'PATH' do
@@ -250,34 +325,30 @@ end
   end
 
 
- tensorflow_install "cudnn_install" do
-   action :cudnn
- end
+  tensorflow_install "cudnn_install" do
+    action :cudnn
+  end
 
 
   tensorflow_compile "cdnn" do
     action :cudnn
   end
 
- tensorflow_install "gpu_install" do
-   action :gpu
- end
+  tensorflow_install "gpu_install" do
+    action :gpu
+  end
 
 else
-
- tensorflow_install "cpu_install" do
-   action :cpu
- end
-
-end
-
-if node.tensorflow.install == "src"
-  tensorflow_compile "tensorflow" do
-    action :tf
+  tensorflow_install "cpu_install" do
+    action :cpu
   end
 end
 
-# source $HADOOP_HOME/libexec/hadoop-config.sh
- # CLASSPATH=$($HADOOP_HDFS_HOME/bin/hdfs classpath --glob) python your_script.py
+if node.tensorflow.install == "src"
 
+  tensorflow_compile "tensorflow" do
+    action :tf
+  end
+
+end
 

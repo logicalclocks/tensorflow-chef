@@ -1,3 +1,4 @@
+# coding: utf-8
 action :kernel_initramfs do
 
   case node.platform_family
@@ -43,6 +44,7 @@ bash "validate_cudnn" do
     set -e
     su #{node.tensorflow.user} -l -c "nvidia-smi | grep NVID"
 EOF
+  not_if { node["cuda"]["skip_test"] == "true" }
 end
 
 end
@@ -70,9 +72,9 @@ EOF
 end
 
 if node.cuda.enabled == "true" 
-   config="configure-expect-with-gpu.sh"
+  config="configure-no-expect-with-gpu.sh"
 else
-   config="configure-expect-no-gpu.sh"
+  config="configure-no-expect.sh"
 end
 
 template "/home/#{node.tensorflow.user}/tensorflow/#{config}" do
@@ -80,6 +82,7 @@ template "/home/#{node.tensorflow.user}/tensorflow/#{config}" do
   owner node.tensorflow.user
   mode 0770
 end
+
 
 #
 # http://www.admin-magazine.com/Articles/Automating-with-Expect-Scripts
@@ -105,59 +108,77 @@ end
 
 if node.cuda.enabled == "true" 
 
+  # https://github.com/bazelbuild/bazel/issues/739
+    bash "workaround_bazel_build" do
+     user "root"
+      code <<-EOF
+    set -e
+     chown -R #{node.tensorflow.user} /home/#{node.tensorflow.user}/tensorflow
+     rm -rf /home/#{node.tensorflow.user}/.cache/bazel
+     EOF
+    end
+
 
   bash "build_install_tensorflow_server" do
-#      user 
-      user "root"
+     user node.tensorflow.user
       timeout 10800
       code <<-EOF
     set -e
+    export LC_CTYPE=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
     cd /home/#{node.tensorflow.user}/tensorflow
+    ./#{config}
+
     bazel build -c opt --config=cuda //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
 # Create the pip package and install
     bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 
-#    bazel build -c opt --config=cuda //tensorflow/cc:tutorials_example_trainer
-#    bazel-bin/tensorflow/cc/tutorials_example_trainer --use_gpu
-
 # tensorflow-0.10.0-py2-none-any.whl
     pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl
     touch .installed
-    chown #{node.tensorflow.user} .installed
-    chown -R #{node.tensorflow.user} *
 EOF
       not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
     end
 
 
-  else
-    bash "build_install_tensorflow_server_no_cuda" do
-      user "root"
+else
+
+  # https://github.com/bazelbuild/bazel/issues/739
+    bash "workaround_bazel_build" do
+     user "root"
+      code <<-EOF
+    set -e
+     chown -R #{node.tensorflow.user} /home/#{node.tensorflow.user}/tensorflow
+     rm -rf /home/#{node.tensorflow.user}/.cache/bazel
+     EOF
+    end
+
+
+  bash "build_install_tensorflow_server_no_cuda" do
+     user node.tensorflow.user    
       timeout 10800
       code <<-EOF
     set -e
+
+    export LC_CTYPE=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+
     cd /home/#{node.tensorflow.user}/tensorflow
+    ./#{config}
 
 # Create the pip package and install
+    export LC_CTYPE=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
 
-     bazel build -c opt //tensorflow/tools/pip_package:build_pip_package
-#    bazel build -c opt //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
-
+#    bazel build -c opt //tensorflow/tools/pip_package:build_pip_package
+    bazel build --config=mkl --copt="-DEIGEN_USE_VML" -c opt //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-
-
-    bazel build -c opt //tensorflow/cc:tutorials_example_trainer
-#    bazel-bin/tensorflow/cc/tutorials_example_trainer
-
-    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl
+    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-cp27-cp27mu-linux_x86_64.whl
     touch .installed
-    chown  #{node.tensorflow.user} .installed
-    chown -R #{node.tensorflow.user} *
 EOF
       not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
     end
-
   end
 
 
