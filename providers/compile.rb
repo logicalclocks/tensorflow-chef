@@ -66,7 +66,7 @@ bash "git_clone_tensorflow_server" do
     set -e
     cd /home/#{node.tensorflow.user}
 
-    git clone --recurse-submodules #{node.tensorflow.git_url}
+    git clone --recurse-submodules --branch v#{node.tensorflow.base_version} #{node.tensorflow.git_url}
 EOF
   not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/configure" ) }
 end
