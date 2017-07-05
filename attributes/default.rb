@@ -11,6 +11,7 @@ default.tensorflow.install       = "dist" # or 'src'
 default.tensorflow.git_url       = "https://github.com/tensorflow/tensorflow"
 default.tensorflow.python_url    = "http://snurran.sics.se/hops/Python.zip"
 default.tensorflow.tfspark_url   = "http://snurran.sics.se/hops/tfspark.zip"
+default.tensorflow.hopstf_url    = "http://snurran.sics.se/hops/hops-tensorflow-0.0.1.jar"
 
 default.tensorflow.dir           = node.install.dir.empty? ? "/srv/hops" : node.install.dir
 default.tensorflow.home          = node.tensorflow.dir + "/tensorflow-" + node.tensorflow.version
