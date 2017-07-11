@@ -103,4 +103,23 @@ hops_hdfs_directory cached_filename do
   dest "/user/#{node.hops.hdfs.user}/#{base_filename}"
 end
 
+url=node.tensorflow.hopstfdemo_url + "/*"
+
+base_filename =  "tensorflow_demo"
+cached_filename = "#{Chef::Config[:file_cache_path]}/mnist/*"
+
+remote_file cached_filename do
+  source url
+  mode 0755
+  action :create
+end
+
+hops_hdfs_directory cached_filename do
+  action :put_as_superuser
+  owner node.hops.hdfs.user
+  group node.hops.group
+  mode "1755"
+  dest "/user/#{node.hops.hdfs.user}/tensorflow_demo"
+end
+
 # libibverbs-devel
