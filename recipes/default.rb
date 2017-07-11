@@ -103,10 +103,16 @@ hops_hdfs_directory cached_filename do
   dest "/user/#{node.hops.hdfs.user}/#{base_filename}"
 end
 
-url=node.tensorflow.hopstfdemo_url + "/*"
 
-base_filename =  "tensorflow_demo"
-cached_filename = "#{Chef::Config[:file_cache_path]}/mnist/*"
+
+package "zip" do
+  action :install
+end
+
+url=node.tensorflow.hopstfdemo_url
+
+base_filename =  File.basename(url)
+cached_filename = "#{Chef::Config[:file_cache_path]}/#{base_filename}"
 
 remote_file cached_filename do
   source url
@@ -114,7 +120,17 @@ remote_file cached_filename do
   action :create
 end
 
-hops_hdfs_directory cached_filename do
+# Extract mnist
+bash 'extract_mnist' do
+        user node.tensorflow.user
+        code <<-EOH
+                set -e
+                unzip cached_filename
+        EOH
+     not_if { ::File.exists?( cached_filename ) }
+end
+
+hops_hdfs_directory "#{Chef::Config[:file_cache_path]}/mnist.zip" do
   action :put_as_superuser
   owner node.hops.hdfs.user
   group node.hops.group
