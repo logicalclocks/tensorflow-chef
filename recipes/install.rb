@@ -1,4 +1,4 @@
-
+w
 # First, find out the compute capability of your GPU here: https://developer.nvidia.com/cuda-gpus
 # E.g., 
 # NVIDIA TITAN X	6.1
@@ -139,6 +139,7 @@ bash "pip-upgrade" do
     EOF
   end
 end
+
 
 
 
