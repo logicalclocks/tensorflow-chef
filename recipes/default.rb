@@ -125,12 +125,13 @@ bash 'extract_mnist' do
         user node.tensorflow.user
         code <<-EOH
                 set -e
+		cd "#{Chef::Config[:file_cache_path]}"
                 unzip cached_filename
         EOH
      not_if { ::File.exists?( cached_filename ) }
 end
 
-hops_hdfs_directory "#{Chef::Config[:file_cache_path]}/mnist.zip" do
+hops_hdfs_directory "#{Chef::Config[:file_cache_path]}/mnist" do
   action :put_as_superuser
   owner node.hops.hdfs.user
   group node.hops.group
