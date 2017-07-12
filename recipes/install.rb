@@ -127,7 +127,16 @@ EOF
     code <<-EOF
     set -e
     pip install --upgrade pip
+
 EOF
+  bash "pip-yarntf" do
+    user "root"
+    code <<-EOF
+    set -e
+    pip install yarntf
+
+EOF
+
   end
   
 end
