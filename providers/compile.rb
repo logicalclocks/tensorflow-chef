@@ -202,3 +202,27 @@ EOF
     end
 
 end
+
+
+action :facets do
+
+
+  if node.tensorflow.install == "src"
+
+    bash "google-facets-install" do
+      user "root"
+      code <<-EOF
+       pip install protobuf
+       git clone https://github.com/PAIR-code/facets
+       cd facets
+       bazel build facets:facets_jupyter
+       if [ -d /home/#{node["tensorflow"]["user"]}/.local/share/jupyter/nbextensions ] ; then
+          cp -r facets-dist /home/#{node["tensorflow"]["user"]}/.local/share/jupyter/nbextensions
+          chown -R #{node["tensorflow"]["user"]} /home/#{node["tensorflow"]["user"]}/.local/share/jupyter/nbextensions
+       fi
+      EOF
+    end
+
+  end
+
+end  

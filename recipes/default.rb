@@ -144,3 +144,11 @@ hops_hdfs_directory "#{Chef::Config[:file_cache_path]}/#{node.tensorflow.base_di
 end
 
 # libibverbs-devel
+
+
+#
+# https://github.com/PAIR-code/facets
+#
+tensorflow_compile "facets" do
+  action :facets
+end
