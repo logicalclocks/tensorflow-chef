@@ -120,6 +120,7 @@ EOF
   package "libcurl-devel" do
     action :install    
   end
+end
 
 bash "pip-upgrade" do
     user "root"
@@ -128,18 +129,16 @@ bash "pip-upgrade" do
     pip install --upgrade pip
 
     EOF
-  end
-  bash "pip-yarntf" do
-    user "root"
-    code <<-EOF
+end
+
+bash "pip-yarntf" do
+  user "root"
+  code <<-EOF
     set -e
     pip install yarntf
 
     EOF
-  end
 end
-
-
 
 
 # On ec2 you need to disable the nouveau driver and reboot the machine
