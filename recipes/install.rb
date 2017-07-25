@@ -126,7 +126,7 @@ bash "pip-upgrade" do
     user "root"
     code <<-EOF
     set -e
-    pip install --upgrade pip
+    pip install --upgrade pip --user
 
     EOF
 end
@@ -135,8 +135,7 @@ bash "pip-yarntf" do
   user "root"
   code <<-EOF
     set -e
-    pip install yarntf
-
+    pip install yarntf --user
     EOF
 end
 

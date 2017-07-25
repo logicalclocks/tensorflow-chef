@@ -134,8 +134,7 @@ if node.cuda.enabled == "true"
     bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 
-# tensorflow-0.10.0-py2-none-any.whl
-    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl
+    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl --user
     touch .installed
 EOF
       not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
@@ -174,7 +173,7 @@ else
 #    bazel build -c opt //tensorflow/tools/pip_package:build_pip_package
     bazel build --config=mkl --copt="-DEIGEN_USE_VML" -c opt //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-cp27-cp27mu-linux_x86_64.whl
+    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-cp27-cp27mu-linux_x86_64.whl --user
     touch .installed
 EOF
       not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
@@ -186,7 +185,7 @@ EOF
       user "root"
       code <<-EOF
        set -e
-       pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/protobuf-3.0.0b2.post2-cp27-none-linux_x86_64.whl
+       pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/protobuf-3.0.0b2.post2-cp27-none-linux_x86_64.whl --user
       EOF
     end
 
