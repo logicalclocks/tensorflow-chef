@@ -188,6 +188,7 @@ if node.tensorflow.install == "src"
       user "root"
       code <<-EOF
       set -e
+      yum install patch -y
       yum -y install gcc gcc-c++ kernel-devel make automake autoconf swig git unzip libtool binutils
       yum -y install epel-release
       yum -y install numpy python-devel python-pip

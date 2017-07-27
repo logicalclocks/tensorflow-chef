@@ -112,7 +112,8 @@ if node.cuda.enabled == "true"
 
 
   bash "build_install_tensorflow_server" do
-     user node.tensorflow.user
+    #    user node.tensorflow.user
+      user "root"
       timeout 10800
       code <<-EOF
     set -e
@@ -128,7 +129,8 @@ if node.cuda.enabled == "true"
     bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 
-    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl --user
+    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl
+# --user
     touch .installed
 EOF
       not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
@@ -149,7 +151,8 @@ else
 
 
   bash "build_install_tensorflow_server_no_cuda" do
-     user node.tensorflow.user    
+    #     user node.tensorflow.user
+      user "root"
       timeout 10800
       code <<-EOF
     set -e
@@ -169,7 +172,8 @@ else
 #    bazel build -c opt //tensorflow/tools/pip_package:build_pip_package
     bazel build --config=mkl --copt="-DEIGEN_USE_VML" -c opt //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-cp27-cp27mu-linux_x86_64.whl --user
+    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-cp27-cp27mu-linux_x86_64.whl  
+    #--user
     touch .installed
 EOF
       not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
@@ -181,7 +185,8 @@ EOF
       user "root"
       code <<-EOF
        set -e
-       pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/protobuf-3.0.0b2.post2-cp27-none-linux_x86_64.whl --user
+       pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/protobuf-3.0.0b2.post2-cp27-none-linux_x86_64.whl 
+       #--user
       EOF
     end
 
