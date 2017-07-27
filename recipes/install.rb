@@ -194,7 +194,7 @@ if node.tensorflow.install == "src"
       cd #{Chef::Config[:file_cache_path]}
       wget https://github.com/bazelbuild/bazel/releases/download/0.5.2/bazel-0.5.2-installer-linux-x86_64.sh
       chmod +x bazel-*
-      ./bazel-*
+      ./bazel-0.5.2-installer-linux-x86_64.sh
       /usr/local/bin/bazel
     EOF
     end
