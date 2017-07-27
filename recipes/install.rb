@@ -78,6 +78,8 @@ when "rhel"
     set -e
     yum install epel-release -y
     yum install python-pip -y
+    yum install mlocate -y
+    updatedb
 EOF
   end
 
