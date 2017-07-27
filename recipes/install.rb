@@ -166,16 +166,41 @@ include_recipe "java::oracle"
 
 if node.tensorflow.install == "src"
 
-  bash "bazel-install" do
-    user "root"
-    code <<-EOF
-    set -e
-    echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list  
-    curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add 
-    apt-get update -y
-    sudo apt-get install bazel -y
-EOF
-  end
+  case node["platform_family"]
+  when "debian"
+    bash "bazel-install" do
+      user "root"
+      code <<-EOF
+      set -e
+      echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list  
+      curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add 
+      apt-get update -y
+      sudo apt-get install bazel -y
+    EOF
+    end
+  
+  when "rhel"
+
+    # https://gist.github.com/jarutis/6c2934705298720ff92a1c10f6a009d4
+    bash "bazel-install-centos" do
+      user "root"
+      code <<-EOF
+      set -e
+      yum -y install gcc gcc-c++ kernel-devel make automake autoconf swig git unzip libtool binutils
+      yum -y install epel-release
+      yum -y install numpy python-devel python-pip
+      yum -y install freetype-devel libpng12-devel zip zlib-devel giflib-devel zeromq3-devel
+      pip install grpcio_tools mock
+      cd #{Chef::Config[:file_cache_path]}
+      wget https://github.com/bazelbuild/bazel/releases/download/0.5.2/bazel-0.5.2-installer-linux-x86_64.sh
+      chmod +x bazel-*
+      ./bazel-*
+      /usr/local/bin/bazel
+    EOF
+    end
+
+    
+  end  
 
 end     
 

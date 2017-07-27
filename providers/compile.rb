@@ -51,14 +51,6 @@ end
 
 action :tf do
 
-# bash "install_bazel_again" do
-#     user "root"
-#     code <<-EOF
-#     set -e
-#     /var/chef/cache/bazel-0.3.1-installer-linux-x86_64.sh
-# EOF
-# end
-
 
 bash "git_clone_tensorflow_server" do
     user node.tensorflow.user
@@ -129,6 +121,8 @@ if node.cuda.enabled == "true"
     cd /home/#{node.tensorflow.user}/tensorflow
     ./#{config}
 
+# PATH change needed for Centos
+    export PATH=$PATH:/usr/local/bin
     bazel build -c opt --config=cuda //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
 # Create the pip package and install
     bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
@@ -170,6 +164,8 @@ else
     export LC_CTYPE=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
 
+# Needed for Centos
+    export PATH=$PATH:/usr/local/bin
 #    bazel build -c opt //tensorflow/tools/pip_package:build_pip_package
     bazel build --config=mkl --copt="-DEIGEN_USE_VML" -c opt //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
