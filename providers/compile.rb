@@ -31,6 +31,7 @@ bash "validate_cuda" do
 # test the cuda nvidia compiler
     su #{node.tensorflow.user} -l -c "nvcc -V"
 EOF
+    not_if { node["cuda"]["skip_test"] == "true" }
 end
 
 
