@@ -2,7 +2,9 @@
 
 set -e
 cd /home/<%= node.tensorflow.user %>
-git clone --recurse-submodules --branch v<%= node.tensorflow.base_version %> <%= node.tensorflow.git_url %>
+if [ ! -d /home/<%= node.tensorflow.user %>/tensorflow ] ; then
+  git clone --recurse-submodules --branch v<%= node.tensorflow.base_version %> <%= node.tensorflow.git_url %>
+fi
 
 cd /home/<%= node.tensorflow.user %>/tensorflow
 
@@ -25,6 +27,12 @@ export PYTHON_BIN_PATH=/usr/bin/python
 export USE_DEFAULT_PYTHON_LIB_PATH=1
 export CC_OPT_FLAGS="-march=native"
 
+case node.platform_family
+when "debian"
+export CLANG_CUDA_COMPILER_PATH="/usr/bin/clang"
+when "rhel"
+export CLANG_CUDA_COMPILER_PATH="/bin/clang"
+end
 export TF_CUDA_VERSION=<%= node["cuda"]["major_version"] %>
 export CUDA_TOOLKIT_PATH=/usr/local/cuda
 

@@ -28,10 +28,15 @@ default.tensorflow.mkl           = "false"
 default.cuda.major_version       = "8.0"
 default.cuda.minor_version       = "61"
 default.cuda.build_version       = "375.26"
+default.cuda.patch_version       = "2"
 default.cuda.version             = node.cuda.major_version + "." + node.cuda.minor_version + "_" + node.cuda.build_version
 default.cuda.url                 = "#{node.download_url}/cuda_#{node.cuda.version}_linux.run"
 default.cuda.url_backup          = "http://developer.download.nvidia.com/compute/cuda/#{node.cuda.major_version}/Prod/local_installers/cuda_#{node.cuda.version}_linux.run"
 default.cuda.md5sum              = "33e1bd980e91af4e55f3ef835c103f9b"
+
+default.cuda.version_patch       = node.cuda.major_version + "." + node.cuda.minor_version + "." + node.cuda.patch_version
+default.cuda.url_patch           = "#{node.download_url}/cuda_#{node.cuda.version_patch}_linux.run"
+
 
 default.cudnn.major_version      = "5"
 default.cudnn.minor_version      = "1"

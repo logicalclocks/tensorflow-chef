@@ -2,7 +2,21 @@ action :cuda do
 
   cuda =  ::File.basename(node.cuda.url)
 
-  bash "unpack_install_cuda" do
+case node.platform_family
+#when "debian"
+
+when "rhel"
+  bash "install_cuda_preliminaries" do
+    user "root"
+    timeout 72000
+    code <<-EOF
+     set -e
+      yum install kernel-devel-$(uname -r) kernel-headers-$(uname -r)
+    EOF
+  end
+end  
+
+  bash "install_cuda" do
     user "root"
     timeout 72000
     code <<-EOF
@@ -14,8 +28,18 @@ action :cuda do
     not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
   end
 
-
-
+  patch =  ::File.basename(node.cuda.url_patch)  
+  bash "install_cuda_patch" do
+    user "root"
+    timeout 72000
+    code <<-EOF
+    set -e
+    cd #{Chef::Config[:file_cache_path]}
+    ./#{patch} --silent --accept-eula --verbose
+    EOF
+    not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
+  end
+  
 end
 
 

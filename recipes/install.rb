@@ -281,12 +281,12 @@ end
 
 if node.cuda.enabled == "true"
 
-
-
   raise if "#{node.cuda.accept_nvidia_download_terms}" == "false"
   
   # Check to see if i can find a cuda card. If not, fail with an error
 
+  package "clang"
+  
   bash "test_nvidia" do
     user "root"
     code <<-EOF
@@ -301,7 +301,7 @@ if node.cuda.enabled == "true"
   cuda_dir = "/tmp/#{base_cuda_dir}"
   cached_file = "#{Chef::Config[:file_cache_path]}/#{cuda}"
 
-
+  
   remote_file cached_file do
     source node.cuda.url
     mode 0755
@@ -319,6 +319,21 @@ if node.cuda.enabled == "true"
     not_if { File.exist?(cached_file) }
   end
 
+  patch =  File.basename(node.cuda.url_patch)
+  base_patch_dir =  File.basename(patch, "_linux-run")
+  patch_dir = "/tmp/#{base_patch_dir}"
+  patch_file = "#{Chef::Config[:file_cache_path]}/#{patch}"
+  
+  remote_file patch_file do
+    source node.cuda.url_patch
+    mode 0755
+    action :create
+    retries 2
+    ignore_failure true
+    not_if { File.exist?(patch_file) }
+  end
+
+  
   tensorflow_install "cuda_install" do
     action :cuda
   end
