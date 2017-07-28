@@ -65,15 +65,12 @@ action :cudnn do
     not_if { ::File.exists?( "/usr/include/cudnn.h" ) }
   end
 
-
-
 end
 
 
 
 
 action :cpu do
-0
   if node.tensorflow.install == "dist"
     bash "install_tf_cpu" do
       user "root"
