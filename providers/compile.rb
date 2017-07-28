@@ -64,16 +64,26 @@ EOF
   not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/configure" ) }
 end
 
+clang_path=""
 if node.cuda.enabled == "true" 
   config="configure-no-expect-with-gpu.sh"
+  case node.platform_family
+  when "debian"
+   clang_path="/usr/bin/clang"
+  when "rhel"
+   clang_path="/bin/clang"
+  end
 else
   config="configure-no-expect.sh"
 end
+
+
 
 template "/home/#{node.tensorflow.user}/tensorflow/#{config}" do
   source "#{config}.erb"
   owner node.tensorflow.user
   mode 0770
+ variables({ :clang_path => clang_path })  
 end
 
 
