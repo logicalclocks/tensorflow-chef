@@ -11,7 +11,8 @@ when "rhel"
     timeout 72000
     code <<-EOF
      set -e
-      yum install kernel-devel-$(uname -r) kernel-headers-$(uname -r)
+      #yum install kernel-devel-$(uname -r) kernel-headers-$(uname -r) -y
+      yum install kernel-devel -y
     EOF
   end
 end  
