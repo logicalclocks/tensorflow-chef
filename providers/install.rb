@@ -36,7 +36,7 @@ end
     code <<-EOF
     set -e
     cd #{Chef::Config[:file_cache_path]}
-    ./#{patch} --silent --accept-eula --verbose
+    ./#{patch} --silent --accept-eula 
     EOF
     not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
   end
