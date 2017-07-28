@@ -69,9 +69,9 @@ if node.cuda.enabled == "true"
   config="configure-no-expect-with-gpu.sh"
   case node.platform_family
   when "debian"
-   clang_path="/usr/bin/clang"
-  when "rhel"
    clang_path="/bin/clang"
+  when "rhel"
+   clang_path="/usr/bin/clang"
   end
 else
   config="configure-no-expect.sh"
