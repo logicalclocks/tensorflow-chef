@@ -174,10 +174,16 @@ if node.tensorflow.install == "src"
       user "root"
       code <<-EOF
       set -e
-      echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list  
-      curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add 
-      apt-get update -y
-      sudo apt-get install bazel -y
+#      echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list  
+#      curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
+#      apt-get update -y
+#      sudo apt-get install bazel -y
+       apt-get install pkg-config zip g++ zlib1g-dev unzip -y
+       cd #{Chef::Config[:file_cache_path]}
+       wget #{node['bazel']['url']}
+       chmod +x bazel-*
+       ./bazel-0.5.2-installer-linux-x86_64.sh
+       /usr/local/bin/bazel
     EOF
     end
   
@@ -195,7 +201,7 @@ if node.tensorflow.install == "src"
       yum -y install freetype-devel libpng12-devel zip zlib-devel giflib-devel zeromq3-devel
       pip install grpcio_tools mock
       cd #{Chef::Config[:file_cache_path]}
-      wget https://github.com/bazelbuild/bazel/releases/download/0.5.2/bazel-0.5.2-installer-linux-x86_64.sh
+      wget #{node['bazel']['url']}
       chmod +x bazel-*
       ./bazel-0.5.2-installer-linux-x86_64.sh
       /usr/local/bin/bazel

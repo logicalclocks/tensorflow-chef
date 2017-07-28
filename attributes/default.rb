@@ -52,3 +52,9 @@ default.tensorflow.need_cuda     = 0
 default.tensorflow.need_mpi      = 0
 default.tensorflow.need_mkl      = 0
 default.tensorflow.need_infiniband  = 0
+
+# https://github.com/bazelbuild/bazel/releases/download/0.5.2/bazel-0.5.2-installer-linux-x86_64.sh
+default.bazel.major_version      = "0.5"
+default.bazel.minor_version      = "2"
+default.bazel.version            = node.bazel.major_version + "." + node.bazel.minor_version
+default.bazel.url                = "#{node.download_url}/bazel_#{node.baze.version}-installer-linux-x86_64.sh"
