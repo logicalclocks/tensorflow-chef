@@ -36,8 +36,8 @@ export TF_CUDNN_VERSION=<%= node["cudnn"]["version"] %>
 export CUDNN_INSTALL_PATH=/usr/local/cuda
 export TF_CUDA_COMPUTE_CAPABILITIES="3.5,5.2"
 
-export GCC_HOST_COMPILER_PATH=$(which clang-3.6 || true)
-export HOST_CXX_COMPILER=$(which clang++-3.6 || true)
+export GCC_HOST_COMPILER_PATH=$(which clang || true)
+export HOST_CXX_COMPILER=$(which clang++ || true)
 
 export MPI_HOME=<%= node["tensorflow"]["dir"] %>/openmpi-2.1.1
 
