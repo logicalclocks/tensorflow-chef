@@ -59,9 +59,9 @@ action :cudnn do
     cd #{Chef::Config[:file_cache_path]}
 
     tar zxf #{cached_cudnn_file}
-    cp -rf cuda/lib64 /usr
+    cp -rf cuda/lib64/* /usr/local/cuda/lib64/
     cp -rf cuda/include/* /usr/include
-    chmod a+r /usr/include/cudnn.h /usr/lib64/libcudnn*
+    chmod a+r /usr/include/cudnn.h /usr/local/cuda/lib64/libcudnn*
     EOF
     not_if { ::File.exists?( "/usr/include/cudnn.h" ) }
   end

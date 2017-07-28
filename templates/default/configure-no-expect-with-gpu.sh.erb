@@ -23,7 +23,7 @@ export TF_NEED_VERBS=<%= node["tensorflow"]["need_infiniband"] %>
 export TF_NEED_MPI=<%= node["tensorflow"]["need_mpi"] %>
 export TF_DOWNLOAD_MKL=1
 
-export PYTHON_BIN_PATH=/usr/bin/python
+export PYTHON_BIN_PATH=$(which python)
 export USE_DEFAULT_PYTHON_LIB_PATH=1
 export CC_OPT_FLAGS="-march=native"
 
@@ -32,7 +32,7 @@ export CLANG_CUDA_COMPILER_PATH=<%= @clang_path %>
 export TF_CUDA_VERSION=<%= node["cuda"]["major_version"] %>
 export CUDA_TOOLKIT_PATH=/usr/local/cuda
 
-export TF_CUDNN_VERSION=<%= node["cudnn"]["version"] %>
+export TF_CUDNN_VERSION=<%= node["cudnn"]["major_version"] %>
 export CUDNN_INSTALL_PATH=/usr/local/cuda
 export TF_CUDA_COMPUTE_CAPABILITIES="3.5,5.2"
 
@@ -47,7 +47,6 @@ export MPI_HOME=<%= node["tensorflow"]["dir"] %>/openmpi-2.1.1
 if [ ! -f tools/bazel.rc ] ; then
   exit 1
 fi
-
 
 
 
