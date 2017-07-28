@@ -62,4 +62,4 @@ default.tensorflow.need_infiniband  = 0
 default.bazel.major_version      = "0.5"
 default.bazel.minor_version      = "2"
 default.bazel.version            = node.bazel.major_version + "." + node.bazel.minor_version
-default.bazel.url                = "#{node.download_url}/bazel_#{node.bazel.version}-installer-linux-x86_64.sh"
+default.bazel.url                = "#{node.download_url}/bazel-#{node.bazel.version}-installer-linux-x86_64.sh"
