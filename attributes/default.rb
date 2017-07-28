@@ -38,8 +38,8 @@ default.cuda.version_patch       = node.cuda.major_version + "." + node.cuda.min
 default.cuda.url_patch           = "#{node.download_url}/cuda_#{node.cuda.version_patch}_linux.run"
 
 
-default.cudnn.major_version      = "5"
-default.cudnn.minor_version      = "1"
+default.cudnn.major_version      = "6"
+default.cudnn.minor_version      = "0"
 default.cudnn.version            = node.cudnn.major_version + "." + node.cudnn.minor_version
 default.cudnn.url                = "#{node.download_url}/cudnn-#{node.cuda.major_version}-linux-x64-v#{node.cudnn.version}.tgz"
 
