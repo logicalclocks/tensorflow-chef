@@ -127,7 +127,7 @@ if node.cuda.enabled == "true"
   bash "build_install_tensorflow_server" do
     #    user node.tensorflow.user
       user "root"
-      timeout 10800
+      timeout 30800
       code <<-EOF
     set -e
     export LC_CTYPE=en_US.UTF-8
