@@ -36,8 +36,8 @@ export TF_CUDNN_VERSION=<%= node["cudnn"]["major_version"] %>
 export CUDNN_INSTALL_PATH=/usr/local/cuda
 export TF_CUDA_COMPUTE_CAPABILITIES="3.5,5.2"
 
-export GCC_HOST_COMPILER_PATH=$(which clang || true)
-export HOST_CXX_COMPILER=$(which clang++ || true)
+export GCC_HOST_COMPILER_PATH=$(which gcc || true)
+export HOST_CXX_COMPILER=$(which g++ || true)
 
 export MPI_HOME=<%= node["tensorflow"]["dir"] %>/openmpi-2.1.1
 
@@ -47,7 +47,3 @@ export MPI_HOME=<%= node["tensorflow"]["dir"] %>/openmpi-2.1.1
 if [ ! -f tools/bazel.rc ] ; then
   exit 1
 fi
-
-
-
-
