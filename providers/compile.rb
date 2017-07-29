@@ -138,21 +138,33 @@ if node.cuda.enabled == "true"
 # PATH change needed for Centos
     export PATH=$PATH:/usr/local/bin
     bazel build -c opt --config=cuda //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
-# Create the pip package and install
 # See here - https://stackoverflow.com/questions/41293077/how-to-compile-tensorflow-with-sse4-2-and-avx-instructions
 #    bazel build -c opt --copt=-mavx --copt=-msse4.1 --copt=-msse4.2 -k --config=cuda //tensorflow/tools/pip_package:build_pip_package
     bazel build -c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 --config=cuda -k //tensorflow/tools/pip_package:build_pip_package
 #-c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.2 --config=cuda -k //tensorflow/tools/pip_package:build_pip_package
 #    bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
-    bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-
-    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl
-# --user
     touch .installed
 EOF
       not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
     end
 
+
+  bash "pip_install_tensorflow" do
+    #    user node.tensorflow.user
+      user "root"
+      timeout 30800
+      code <<-EOF
+    set -e
+    export LC_CTYPE=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+    cd /home/#{node.tensorflow.user}/tensorflow
+    bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl
+    touch .installed_pip
+EOF
+      not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed_pip" ) }
+    end
+  
 
 else
 
