@@ -6,6 +6,8 @@ if [ ! -d /home/<%= node.tensorflow.user %>/tensorflow ] ; then
   git clone --recurse-submodules --branch v<%= node.tensorflow.base_version %> <%= node.tensorflow.git_url %>
 fi
 
+# http://stackoverflow.com/questions/41293077/how-to-compile-tensorflow-with-sse4-2-and-avx-instructions
+# https://gist.github.com/kmhofmann/e368a2ebba05f807fa1a90b3bf9a1e03
 # https://georgesterpu.github.io/compile_tensorflow.html
 
 cd /home/<%= node.tensorflow.user %>/tensorflow

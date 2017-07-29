@@ -60,6 +60,8 @@ bash "git_clone_tensorflow_server" do
     cd /home/#{node.tensorflow.user}
 
     git clone --recurse-submodules --branch v#{node.tensorflow.base_version} #{node.tensorflow.git_url}
+#    cd tensorflow
+#    git checkout v#{node.tensorflow.base_version}
 EOF
   not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/configure" ) }
 end
@@ -137,7 +139,10 @@ if node.cuda.enabled == "true"
     export PATH=$PATH:/usr/local/bin
     bazel build -c opt --config=cuda //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
 # Create the pip package and install
-    bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
+# See here - https://stackoverflow.com/questions/41293077/how-to-compile-tensorflow-with-sse4-2-and-avx-instructions
+    bazel build -c opt --copt=-mavx --copt=-msse4.1 --copt=-msse4.2 -k --config=cuda //tensorflow/tools/pip_package:build_pip_package
+#-c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.2 --config=cuda -k //tensorflow/tools/pip_package:build_pip_package
+#    bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 
     pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl
