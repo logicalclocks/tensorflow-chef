@@ -63,7 +63,7 @@ when "debian"
 
   execute 'apt-get update -y'
 
-  packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic python python-numpy python-dev python-pip python-lxml python-pillow libcupti-dev libcurl3-dev}
+  packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic python python-numpy python-dev python-pip python-lxml python-pillow libcupti-dev libcurl3-dev six wheel }
   for script in packages do
     package script do
       action :install

@@ -140,8 +140,11 @@ if node.cuda.enabled == "true"
     bazel build -c opt --config=cuda //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
 # See here - https://stackoverflow.com/questions/41293077/how-to-compile-tensorflow-with-sse4-2-and-avx-instructions
 #    bazel build -c opt --copt=-mavx --copt=-msse4.1 --copt=-msse4.2 -k --config=cuda //tensorflow/tools/pip_package:build_pip_package
-    bazel build -c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 --config=cuda -k //tensorflow/tools/pip_package:build_pip_package
+#    bazel build -c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 --config=cuda -k //tensorflow/tools/pip_package:build_pip_package
 #-c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.2 --config=cuda -k //tensorflow/tools/pip_package:build_pip_package
+
+    bazel build --config=opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
+
 #    bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
     touch .installed
 EOF
@@ -199,7 +202,8 @@ else
 # Needed for Centos
     export PATH=$PATH:/usr/local/bin
 #    bazel build -c opt //tensorflow/tools/pip_package:build_pip_package
-    bazel build --config=mkl --copt="-DEIGEN_USE_VML" -c opt //tensorflow/tools/pip_package:build_pip_package
+#    bazel build --config=mkl --copt="-DEIGEN_USE_VML" -c opt //tensorflow/tools/pip_package:build_pip_package
+    bazel build -c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
     pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-cp27-cp27mu-linux_x86_64.whl  
     #--user
