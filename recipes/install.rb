@@ -63,9 +63,9 @@ when "debian"
 
   execute 'apt-get update -y'
 
-  packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic python python-numpy python-dev python-pip python-lxml python-pillow libcupti-dev libcurl3-dev six wheel }
-  for script in packages do
-    package script do
+  packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic python python-numpy python-dev python-pip python-lxml python-pillow libcupti-dev libcurl3-dev python-wheel python-six }
+  for lib in packages do
+    package lib do
       action :install
     end
   end
@@ -83,52 +83,21 @@ when "rhel"
 EOF
   end
 
-  package "gcc" do
-    action :install
+  packages = %w{gcc gcc-c++ kernel-devel openssl openssl-devel python python-devel python-lxml python-pillow libcurl-devel python-wheel python-six }
+  for lib in packages do
+    package lib do
+      action :install
+    end
   end
-  package "gcc-c++" do
-    action :install
-  end
-  package "kernel-devel" do
-    action :install
-  end
-  package "openssl" do
-    action :install
-  end
-  package "openssl-devel" do
-    action :install
-  end
-  package "openssl-libs" do
-    action :install
-  end
-  package "python" do 
-    action :install
-  end
-  package "python-devel" do 
-    action :install
-  end
-  package "python-lxml" do 
-    action :install
-  end
-  package "python" do
-    action :install
-  end
-  package "python-pillow" do
-    action :install
-  end
-  #  package "libcupti-dev" do
-  #    action :install    
-  #  end
-  package "libcurl-devel" do
-    action :install    
-  end
+
 end
 
 bash "pip-upgrade" do
     user "root"
     code <<-EOF
     set -e
-    pip install --upgrade pip --user
+    pip install --upgrade pip
+# --user
 
     EOF
 end
@@ -137,7 +106,8 @@ bash "pip-yarntf" do
   user "root"
   code <<-EOF
     set -e
-    pip install yarntf --user
+    pip install yarntf
+# --user
     EOF
 end
 
