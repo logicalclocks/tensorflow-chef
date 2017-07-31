@@ -80,6 +80,9 @@ when "rhel"
     yum install python-pip -y
     yum install mlocate -y
     updatedb
+
+# For yum repo for Nvidia
+#   yum-config-manager --add-repo=https://negativo17.org/repos/epel-nvidia.repo
 EOF
   end
 
@@ -90,6 +93,15 @@ EOF
     end
   end
 
+  # https://negativo17.org/nvidia-driver/
+ # nvidia_packages = %w{ nvidia-driver nvidia-driver-libs.x86_64 dkms-nvidia cuda-devel cuda-libs cuda-cudnn cuda-cudnn-devel cuda-cli-tools cuda-cupti-devel cuda-extra-libs }
+ #  for driver in nvidia_packages do
+ #    package driver do
+ #      action :install
+ #    end
+ #  end
+
+  
 end
 
 bash "pip-upgrade" do
@@ -140,6 +152,7 @@ if node.tensorflow.install == "src"
 
   case node["platform_family"]
   when "debian"
+
     bash "bazel-install" do
       user "root"
       code <<-EOF

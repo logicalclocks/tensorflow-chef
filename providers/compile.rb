@@ -53,6 +53,9 @@ end
 action :tf do
 
 
+  # https://github.com/lakshayg/tensorflow-build
+  
+
 bash "git_clone_tensorflow_server" do
     user node.tensorflow.user
     code <<-EOF
@@ -113,13 +116,37 @@ end
 
 if node.cuda.enabled == "true" 
 
+  # Try and download+install a custom python wheel first. If that fails, build from source
+  begin
+    wheel = File.basename("#{node['tensorflow']['custom_url']}")
+    remote_file "#{Chef::Config[:file_cache_path]}/#{wheel}" do
+      source node['tensorflow']['custom_url']
+      owner node['tensorflow']['user']
+      group node['tensorflow']['group']
+      mode "0755"
+     action :create_if_missing
+    end
+
+    bash "pip_install_custom_tensorflow" do
+     user "root"
+     code <<-EOF
+      set -e
+      export LC_CTYPE=en_US.UTF-8
+      export LC_ALL=en_US.UTF-8
+      pip install --ignore-installed --upgrade #{Chef::Config[:file_cache_path]}/#{wheel}
+     EOF
+    end
+    
+  rescue 
+
+  
   # https://github.com/bazelbuild/bazel/issues/739
     bash "workaround_bazel_build" do
      user "root"
       code <<-EOF
     set -e
      chown -R #{node.tensorflow.user} /home/#{node.tensorflow.user}/tensorflow
-     rm -rf /home/#{node.tensorflow.user}/.cache/bazel
+#     rm -rf /home/#{node.tensorflow.user}/.cache/bazel
      EOF
     end
 
@@ -135,17 +162,14 @@ if node.cuda.enabled == "true"
     cd /home/#{node.tensorflow.user}/tensorflow
     ./#{config}
 
-# PATH change needed for Centos
+# Compile instructions - https://stackoverflow.com/questions/41293077/how-to-compile-tensorflow-with-sse4-2-and-avx-instructions
     export PATH=$PATH:/usr/local/bin
-    bazel build -c opt --config=cuda //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
-# See here - https://stackoverflow.com/questions/41293077/how-to-compile-tensorflow-with-sse4-2-and-avx-instructions
-#    bazel build -c opt --copt=-mavx --copt=-msse4.1 --copt=-msse4.2 -k --config=cuda //tensorflow/tools/pip_package:build_pip_package
-#    bazel build -c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 --config=cuda -k //tensorflow/tools/pip_package:build_pip_package
-#-c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.2 --config=cuda -k //tensorflow/tools/pip_package:build_pip_package
+#    bazel build -c opt --config=cuda //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
 
-    bazel build --config=opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
+    bazel build -c opt  --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" --config=cuda --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 //tensorflow/tools/pip_package:build_pip_package
 
-#    bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
+#    bazel build -c opt --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0"  --config=cuda //tensorflow/tools/pip_package:build_pip_package
+
     touch .installed
 EOF
       not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
@@ -160,15 +184,23 @@ EOF
     set -e
     export LC_CTYPE=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
+    export PATH=$PATH:/usr/local/bin
     cd /home/#{node.tensorflow.user}/tensorflow
+
+    install -Dm755 bazel-bin/tensorflow/libtensorflow.so /usr/lib/
+    install -Dm644 tensorflow/c/c_api.h /usr/include/tensorflow-cuda/c_api.h
+
+
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl
+
+    pip install --ignore-installed --upgrade /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl
     touch .installed_pip
 EOF
       not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed_pip" ) }
     end
-  
 
+  end   # End rescue
+  
 else
 
   # https://github.com/bazelbuild/bazel/issues/739
@@ -201,8 +233,6 @@ else
 
 # Needed for Centos
     export PATH=$PATH:/usr/local/bin
-#    bazel build -c opt //tensorflow/tools/pip_package:build_pip_package
-#    bazel build --config=mkl --copt="-DEIGEN_USE_VML" -c opt //tensorflow/tools/pip_package:build_pip_package
     bazel build -c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
     pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-cp27-cp27mu-linux_x86_64.whl  

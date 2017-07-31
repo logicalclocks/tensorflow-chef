@@ -5,8 +5,10 @@ default.tensorflow.group         = node.install.user.empty? ? node.kagent.group 
 default.tensorflow.base_version  = "1.2.0"
 default.tensorflow.version       = node.tensorflow.base_version
 
-#default.tensorflow.install       = "src" # or 'dist'
-default.tensorflow.install       = "dist" # or 'src'
+default.tensorflow.install       = "dist" # or 'src' or 'custom'
+
+# tensorflow-1.2.1-debian-gcc_version-python_version.whl
+default.tensorflow.custom_url    = "#{download_url}/tensorflow-#{node['tensorflow']['version']}-#{node['platform']}-5.4-2.7.whl"
 
 default.tensorflow.git_url       = "https://github.com/tensorflow/tensorflow"
 default.tensorflow.python_url    = "http://snurran.sics.se/hops/Python.zip"
