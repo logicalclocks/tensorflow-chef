@@ -3,19 +3,8 @@ action :cuda do
   cuda =  ::File.basename(node.cuda.url)
 
 case node.platform_family
-#when "debian"
+when "debian"
 
-when "rhel"
-  bash "install_cuda_preliminaries" do
-    user "root"
-    timeout 72000
-    code <<-EOF
-     set -e
-      #yum install kernel-devel-$(uname -r) kernel-headers-$(uname -r) -y
-      yum install kernel-devel -y
-    EOF
-  end
-end  
 
   bash "install_cuda" do
     user "root"
@@ -40,6 +29,38 @@ end
     EOF
     not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
   end
+
+  
+when "rhel"
+  bash "install_cuda_preliminaries" do
+    user "root"
+    code <<-EOF
+     set -e
+      yum install -y kernel-devel-$(uname -r)
+      yum install -y kernel-headers-$(uname -r)
+#      yum install kernel-devel -y
+    EOF
+    not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
+  end
+
+  bash "install_cuda_rpm" do
+    user "root"
+    timeout 72000
+    code <<-EOF
+     set -e
+      wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-ga2-8.0.61-1.x86_64.rpm
+      wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-cublas-performance-update-8.0.61-1.x86_64.rpm
+      rpm -i cuda-repo-rhel7-8-0-local-ga2-8.0.61-1.x86_64.rpm
+      rpm -i cuda-repo-rhel7-8-0-local-cublas-performance-update-8.0.61-1.x86_64.rpm
+      yum clean expire-cache
+      yum install cuda
+      ln -s /usr/lib64/nvidia/libcuda.so /usr/lib64
+    EOF
+  end
+  
+
+end  
+
   
 end
 
