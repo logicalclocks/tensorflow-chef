@@ -36,9 +36,11 @@ when "rhel"
     user "root"
     code <<-EOF
      set -e
-      yum install -y kernel-devel-$(uname -r)
-      yum install -y kernel-headers-$(uname -r)
-#      yum install kernel-devel -y
+# versioned header install doesnt work
+#      yum install -y kernel-devel-$(uname -r)
+#      yum install -y kernel-headers-$(uname -r)
+      yum install kernel-devel -y
+      yum install kernel-headers -y
     EOF
     not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
   end
@@ -54,11 +56,13 @@ when "rhel"
       rpm -ivh --replacepkgs cuda-repo-rhel7-8-0-local-cublas-performance-update-8.0.61-1.x86_64.rpm
       yum clean expire-cache
       yum install cuda
-      ln -s /usr/lib64/nvidia/libcuda.so /usr/lib64
+      if [ ! -f /usr/lib64/libcuda.so ] ; then
+          ln -s /usr/lib64/nvidia/libcuda.so /usr/lib64
+      fi
     EOF
+    not_if { ::File.exists?( "/usr/lib64/libcuda.so" ) }
   end
   
-
 end  
 
   
