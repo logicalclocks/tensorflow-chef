@@ -50,8 +50,8 @@ when "rhel"
      set -e
       wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-ga2-8.0.61-1.x86_64.rpm
       wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-cublas-performance-update-8.0.61-1.x86_64.rpm
-      rpm -i cuda-repo-rhel7-8-0-local-ga2-8.0.61-1.x86_64.rpm
-      rpm -i cuda-repo-rhel7-8-0-local-cublas-performance-update-8.0.61-1.x86_64.rpm
+      rpm -ivh --replacepkgs cuda-repo-rhel7-8-0-local-ga2-8.0.61-1.x86_64.rpm
+      rpm -ivh --replacepkgs cuda-repo-rhel7-8-0-local-cublas-performance-update-8.0.61-1.x86_64.rpm
       yum clean expire-cache
       yum install cuda
       ln -s /usr/lib64/nvidia/libcuda.so /usr/lib64
