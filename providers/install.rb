@@ -50,6 +50,7 @@ when "rhel"
     timeout 72000
     code <<-EOF
      set -e
+      cd #{Chef::Config[:file_cache_path]}
       wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-ga2-8.0.61-1.x86_64.rpm
       wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-cublas-performance-update-8.0.61-1.x86_64.rpm
       rpm -ivh --replacepkgs cuda-repo-rhel7-8-0-local-ga2-8.0.61-1.x86_64.rpm
@@ -59,6 +60,7 @@ when "rhel"
       if [ ! -f /usr/lib64/libcuda.so ] ; then
           ln -s /usr/lib64/nvidia/libcuda.so /usr/lib64
       fi
+      rm -f cuda-repo-rhel*
     EOF
     not_if { ::File.exists?( "/usr/lib64/libcuda.so" ) }
   end
