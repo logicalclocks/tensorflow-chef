@@ -187,8 +187,8 @@ EOF
     export PATH=$PATH:/usr/local/bin
     cd /home/#{node.tensorflow.user}/tensorflow
 
-    install -Dm755 bazel-bin/tensorflow/libtensorflow.so /usr/lib/
-    install -Dm644 tensorflow/c/c_api.h /usr/include/tensorflow-cuda/c_api.h
+    #install -Dm755 bazel-bin/tensorflow/libtensorflow.so /usr/lib/
+    #install -Dm644 tensorflow/c/c_api.h /usr/include/tensorflow-cuda/c_api.h
 
 
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
