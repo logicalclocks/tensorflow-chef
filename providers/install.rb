@@ -41,7 +41,7 @@ when "rhel"
 #      yum install -y kernel-headers-$(uname -r)
       yum install kernel-devel -y
       yum install kernel-headers -y
-      yum insall libglvnd-glx -y
+      yum install libglvnd-glx -y
     EOF
     not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
   end
