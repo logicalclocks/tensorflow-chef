@@ -54,8 +54,8 @@ attribute "tensorflow/mkl",
           :description => "'true' to install Intel MKL support, 'false' (default) for no support. ",
           :type => "string"
 
-attribute "tensorflow/infiniband",
-          :description => "Used by TensorflowOnSpark. 'true' to install inifinband support, 'false' (default) for no infiniband support. ",
+attribute "tensorflow/rdma",
+          :description => "Used by TensorflowOnSpark. 'true' to install rdma (infiniband) support, 'false' (default) for no rdma support. ",
           :type => "string"
 
 attribute "install/dir",

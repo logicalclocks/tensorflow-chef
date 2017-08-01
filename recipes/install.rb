@@ -21,8 +21,8 @@ if node["tensorflow"]["mkl"].eql? "true"
   node.override.tensorflow.install = "src"
 end
 
-if node["tensorflow"]["infiniband"].eql? "true"
-  node.override.tensorflow.need_infiniband = 1
+if node["tensorflow"]["rdma"].eql? "true"
+  node.override.tensorflow.need_rdma = 1
   node.override.tensorflow.install = "src"
   if node.platform_family.eql? "debian"
     package "libibverbs-dev"
@@ -63,9 +63,9 @@ when "debian"
 
   execute 'apt-get update -y'
 
-  packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic python python-numpy python-dev python-pip python-lxml python-pillow libcupti-dev libcurl3-dev}
-  for script in packages do
-    package script do
+  packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic python python-numpy python-dev python-pip python-lxml python-pillow libcupti-dev libcurl3-dev python-wheel python-six }
+  for lib in packages do
+    package lib do
       action :install
     end
   end
@@ -80,55 +80,36 @@ when "rhel"
     yum install python-pip -y
     yum install mlocate -y
     updatedb
+
+# For yum repo for Nvidia
+#   yum-config-manager --add-repo=https://negativo17.org/repos/epel-nvidia.repo
 EOF
   end
 
-  package "gcc" do
-    action :install
+  packages = %w{gcc gcc-c++ kernel-devel openssl openssl-devel python python-devel python-lxml python-pillow libcurl-devel python-wheel python-six }
+  for lib in packages do
+    package lib do
+      action :install
+    end
   end
-  package "gcc-c++" do
-    action :install
-  end
-  package "kernel-devel" do
-    action :install
-  end
-  package "openssl" do
-    action :install
-  end
-  package "openssl-devel" do
-    action :install
-  end
-  package "openssl-libs" do
-    action :install
-  end
-  package "python" do 
-    action :install
-  end
-  package "python-devel" do 
-    action :install
-  end
-  package "python-lxml" do 
-    action :install
-  end
-  package "python" do
-    action :install
-  end
-  package "python-pillow" do
-    action :install
-  end
-  #  package "libcupti-dev" do
-  #    action :install    
-  #  end
-  package "libcurl-devel" do
-    action :install    
-  end
+
+  # https://negativo17.org/nvidia-driver/
+ # nvidia_packages = %w{ nvidia-driver nvidia-driver-libs.x86_64 dkms-nvidia cuda-devel cuda-libs cuda-cudnn cuda-cudnn-devel cuda-cli-tools cuda-cupti-devel cuda-extra-libs }
+ #  for driver in nvidia_packages do
+ #    package driver do
+ #      action :install
+ #    end
+ #  end
+
+  
 end
 
 bash "pip-upgrade" do
     user "root"
     code <<-EOF
     set -e
-    pip install --upgrade pip --user
+    pip install --upgrade pip
+# --user
 
     EOF
 end
@@ -137,7 +118,8 @@ bash "pip-yarntf" do
   user "root"
   code <<-EOF
     set -e
-    pip install yarntf --user
+    pip install yarntf
+# --user
     EOF
 end
 
@@ -170,6 +152,7 @@ if node.tensorflow.install == "src"
 
   case node["platform_family"]
   when "debian"
+
     bash "bazel-install" do
       user "root"
       code <<-EOF
@@ -302,6 +285,10 @@ if node.cuda.enabled == "true"
     not_if { node["cuda"]["skip_test"] == "true" }
   end
 
+
+case node.platform_family
+  when "debian"
+
   cuda =  File.basename(node.cuda.url)
   base_cuda_dir =  File.basename(cuda, "_linux-run")
   cuda_dir = "/tmp/#{base_cuda_dir}"
@@ -339,7 +326,7 @@ if node.cuda.enabled == "true"
     not_if { File.exist?(patch_file) }
   end
 
-  
+end
   tensorflow_install "cuda_install" do
     action :cuda
   end

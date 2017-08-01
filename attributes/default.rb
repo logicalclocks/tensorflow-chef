@@ -5,8 +5,10 @@ default.tensorflow.group         = node.install.user.empty? ? node.kagent.group 
 default.tensorflow.base_version  = "1.2.0"
 default.tensorflow.version       = node.tensorflow.base_version
 
-#default.tensorflow.install       = "src" # or 'dist'
-default.tensorflow.install       = "dist" # or 'src'
+default.tensorflow.install       = "dist" # or 'src' or 'custom'
+
+# tensorflow-1.2.1-debian-gcc_version-python_version.whl
+default.tensorflow.custom_url    = "#{download_url}/tensorflow-#{node['tensorflow']['version']}-#{node['platform']}-5.4-2.7.whl"
 
 default.tensorflow.git_url       = "https://github.com/tensorflow/tensorflow"
 default.tensorflow.python_url    = "http://snurran.sics.se/hops/Python.zip"
@@ -22,7 +24,7 @@ default.tensorflow.base_dir      = node.kagent.dir + "/tensorflow"
 
 
 default.tensorflow.mpi           = "false"
-default.tensorflow.infiniband    = "false"
+default.tensorflow.rdma          = "false"
 default.tensorflow.mkl           = "false"
 
 default.cuda.major_version       = "8.0"
@@ -38,8 +40,8 @@ default.cuda.version_patch       = node.cuda.major_version + "." + node.cuda.min
 default.cuda.url_patch           = "#{node.download_url}/cuda_#{node.cuda.version_patch}_linux.run"
 
 
-default.cudnn.major_version      = "5"
-default.cudnn.minor_version      = "1"
+default.cudnn.major_version      = "6"
+default.cudnn.minor_version      = "0"
 default.cudnn.version            = node.cudnn.major_version + "." + node.cudnn.minor_version
 default.cudnn.url                = "#{node.download_url}/cudnn-#{node.cuda.major_version}-linux-x64-v#{node.cudnn.version}.tgz"
 
@@ -56,7 +58,7 @@ default["tensorflow"]["mpi"]     = "false"
 default.tensorflow.need_cuda     = 0
 default.tensorflow.need_mpi      = 0
 default.tensorflow.need_mkl      = 0
-default.tensorflow.need_infiniband  = 0
+default.tensorflow.need_rdma     = 0
 
 # https://github.com/bazelbuild/bazel/releases/download/0.5.2/bazel-0.5.2-installer-linux-x86_64.sh
 default.bazel.major_version      = "0.5"
