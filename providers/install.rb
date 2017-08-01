@@ -32,6 +32,7 @@ when "debian"
 
   
 when "rhel"
+  
   bash "install_cuda_preliminaries" do
     user "root"
     code <<-EOF
