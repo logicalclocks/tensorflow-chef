@@ -41,6 +41,7 @@ when "rhel"
 #      yum install -y kernel-headers-$(uname -r)
       yum install kernel-devel -y
       yum install kernel-headers -y
+      yum insall libglvnd-glx -y
     EOF
     not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
   end
@@ -52,9 +53,7 @@ when "rhel"
      set -e
       cd #{Chef::Config[:file_cache_path]}
       wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-ga2-8.0.61-1.x86_64.rpm
-      wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-cublas-performance-update-8.0.61-1.x86_64.rpm
       rpm -ivh --replacepkgs cuda-repo-rhel7-8-0-local-ga2-8.0.61-1.x86_64.rpm
-      rpm -ivh --replacepkgs cuda-repo-rhel7-8-0-local-cublas-performance-update-8.0.61-1.x86_64.rpm
       yum clean expire-cache
       yum install cuda
       if [ ! -f /usr/lib64/libcuda.so ] ; then
@@ -64,6 +63,22 @@ when "rhel"
     EOF
     not_if { ::File.exists?( "/usr/lib64/libcuda.so" ) }
   end
+
+  bash "install_cuda_rpm_patch" do
+    user "root"
+    timeout 72000
+    code <<-EOF
+     set -e
+      cd #{Chef::Config[:file_cache_path]}
+      wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-cublas-performance-update-8.0.61-1.x86_64.rpm
+      rpm -ivh --replacepkgs cuda-repo-rhel7-8-0-local-cublas-performance-update-8.0.61-1.x86_64.rpm
+      yum clean expire-cache
+      yum upgrade cuda
+      rm -f cuda-repo-rhel*
+    EOF
+    not_if { ::File.exists?( "/usr/lib64/libcuda.so" ) }
+  end
+
   
 end  
 

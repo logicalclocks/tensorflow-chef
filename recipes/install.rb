@@ -285,6 +285,10 @@ if node.cuda.enabled == "true"
     not_if { node["cuda"]["skip_test"] == "true" }
   end
 
+
+case node.platform_family
+  when "debian"
+
   cuda =  File.basename(node.cuda.url)
   base_cuda_dir =  File.basename(cuda, "_linux-run")
   cuda_dir = "/tmp/#{base_cuda_dir}"
@@ -322,7 +326,7 @@ if node.cuda.enabled == "true"
     not_if { File.exist?(patch_file) }
   end
 
-  
+end
   tensorflow_install "cuda_install" do
     action :cuda
   end
