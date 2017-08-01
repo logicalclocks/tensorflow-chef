@@ -24,7 +24,7 @@ default.tensorflow.base_dir      = node.kagent.dir + "/tensorflow"
 
 
 default.tensorflow.mpi           = "false"
-default.tensorflow.infiniband    = "false"
+default.tensorflow.rdma          = "false"
 default.tensorflow.mkl           = "false"
 
 default.cuda.major_version       = "8.0"
@@ -58,7 +58,7 @@ default["tensorflow"]["mpi"]     = "false"
 default.tensorflow.need_cuda     = 0
 default.tensorflow.need_mpi      = 0
 default.tensorflow.need_mkl      = 0
-default.tensorflow.need_infiniband  = 0
+default.tensorflow.need_rdma     = 0
 
 # https://github.com/bazelbuild/bazel/releases/download/0.5.2/bazel-0.5.2-installer-linux-x86_64.sh
 default.bazel.major_version      = "0.5"

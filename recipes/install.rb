@@ -21,8 +21,8 @@ if node["tensorflow"]["mkl"].eql? "true"
   node.override.tensorflow.install = "src"
 end
 
-if node["tensorflow"]["infiniband"].eql? "true"
-  node.override.tensorflow.need_infiniband = 1
+if node["tensorflow"]["rdma"].eql? "true"
+  node.override.tensorflow.need_rdma = 1
   node.override.tensorflow.install = "src"
   if node.platform_family.eql? "debian"
     package "libibverbs-dev"
