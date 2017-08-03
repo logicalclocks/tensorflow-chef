@@ -120,7 +120,7 @@ action :cpu do
       user "root"
       code <<-EOF
     set -e
-    pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl --user
+    pip install --upgrade http://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl --user
     EOF
     end
   end
@@ -129,7 +129,7 @@ action :cpu do
       user "root"
       code <<-EOF
     set -e
-    pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl --user
+    pip install --upgrade http://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl --user
     EOF
     end
 
@@ -145,7 +145,7 @@ action :gpu do
       user "root"
       code <<-EOF
     set -e
-    pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl --user
+    pip install --upgrade http://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl --user
     EOF
     end
   end
@@ -154,7 +154,7 @@ action :gpu do
       user "root"
       code <<-EOF
     set -e
-    pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl --user
+    pip install --upgrade http://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl --user
     EOF
     end
 
