@@ -1,3 +1,5 @@
+case node.platform_family
+when "debian"
 bash "uninstall_cuda" do
     user "root"
     code <<-EOF
@@ -7,4 +9,19 @@ bash "uninstall_cuda" do
     rm -f #{node.cuda.base_dir}
 EOF
   only_if { ::File.exists?( "#{node.cuda.version_dir}" ) }
+end
+
+  
+when "rhel"  
+
+bash "uninstall_cuda_yum" do
+    user "root"
+    code <<-EOF
+    yum remove cuda
+    rm -f #{node.cuda.base_dir}
+EOF
+  only_if { ::File.exists?( "#{node.cuda.version_dir}" ) }
+end
+
+  
 end
