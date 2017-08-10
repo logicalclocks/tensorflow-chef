@@ -53,8 +53,8 @@ when "rhel"
     code <<-EOF
      set -e
       cd #{Chef::Config[:file_cache_path]}
-      wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-ga2-8.0.61-1.x86_64.rpm
-      rpm -ivh --replacepkgs cuda-repo-rhel7-8-0-local-ga2-8.0.61-1.x86_64.rpm
+      wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-ga2-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
+      rpm -ivh --replacepkgs cuda-repo-rhel7-8-0-local-ga2-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
       yum clean expire-cache
       yum install cuda -y
       if [ ! -f /usr/lib64/libcuda.so ] ; then
@@ -71,16 +71,16 @@ when "rhel"
     code <<-EOF
      set -e
       cd #{Chef::Config[:file_cache_path]}
-      wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-cublas-performance-update-8.0.61-1.x86_64.rpm
-      rpm -ivh --replacepkgs cuda-repo-rhel7-8-0-local-cublas-performance-update-8.0.61-1.x86_64.rpm
-      #yum clean expire-cache
-      #yum inst cuda -y
+      wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-cublas-performance-update-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
+      rpm -ivh --replacepkgs cuda-repo-rhel7-8-0-local-cublas-performance-update-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
+      yum clean expire-cache
+      yum update cuda -y
+      yum upgrade 
       rm -f cuda-repo-rhel*
     EOF
     #not_if { ::File.exists?( "/usr/lib64/libcuda.so" ) }
   end
 
-  
 end  
 
   
