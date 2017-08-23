@@ -6,7 +6,7 @@ source 'https://supermarket.chef.io'
 
 metadata
 
-cookbook 'kagent', github: 'karamelchef/kagent-chef', branch: 'master'
+cookbook 'kagent', github: 'hopshadoop/kagent-chef', branch: 'master'
 cookbook 'java'
 cookbook 'magic_shell'
 cookbook 'build-essential'
