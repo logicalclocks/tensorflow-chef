@@ -53,9 +53,9 @@ group node.tensorflow.group do
   not_if "getent passwd #{node.tensorflow.user}"
 end
 
-package "expect" do
-  action :install
-end
+# package "expect" do
+#   action :install
+# end
 
 # http://www.pyimagesearch.com/2016/07/04/how-to-install-cuda-toolkit-and-cudnn-for-deep-learning/
 case node.platform_family
