@@ -1,8 +1,8 @@
 include_attribute "kagent"
 
-default.tensorflow.user          = node['ndb'].attribute?('user') ? node.install.user : node.kagent.user
+default.tensorflow.user          = node['tensorflow'].attribute?('user') ? node.install.user : node.kagent.user
 default.tensorflow.group         = node.install.user.empty? ? node.kagent.group : node.install.user
-default.tensorflow.base_version  = "1.2.0"
+default.tensorflow.base_version  = "1.3.0"
 default.tensorflow.version       = node.tensorflow.base_version
 
 default.tensorflow.install       = "dist" # or 'src' or 'custom'
