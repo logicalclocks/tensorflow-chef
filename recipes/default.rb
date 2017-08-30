@@ -46,6 +46,22 @@ template "#{node.tensorflow.base_dir}/bin/kill-process.sh" do
 end
 
 
+
+
+directory "#{node['tensorflow']['home']}/hops-channel/linux-64" do
+  owner node.tensorflow.user
+  group node.tensorflow.group
+  mode "755"
+  recursive true
+  action :create
+  not_if { File.directory?("#{node['tensorflow']['home']}/hops-channel/linux-64") }
+end
+
+
+
+conda index /tmp/my-conda-channel/linux-64/                       
+
+
 url=node.tensorflow.python_url
 base_filename =  File.basename(url)
 cached_filename = "#{Chef::Config[:file_cache_path]}/#{base_filename}"

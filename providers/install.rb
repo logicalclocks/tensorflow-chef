@@ -105,6 +105,7 @@ action :cudnn do
     cp -rf cuda/lib64/* /usr/local/cuda/lib64/
     cp -rf cuda/include/* /usr/include
     chmod a+r /usr/include/cudnn.h /usr/local/cuda/lib64/libcudnn*
+    ldconfig
     EOF
     not_if { ::File.exists?( "/usr/include/cudnn.h" ) }
   end
@@ -157,6 +158,30 @@ action :gpu do
     pip install --upgrade http://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl --user
     EOF
     end
-
   end
+
+  bash "refresh_libs" do
+      user "root"
+      code <<-EOF
+      ldconfig
+    EOF
+  end
+  
 end
+
+
+action :conda_private do
+
+# http://conda-test.pydata.org/docs/custom-channels.html
+      bash "install_tfonspark_local_conda_repo" do
+      user "root"
+      code <<-EOF
+        set -e
+        conda index #{node['tensorflow']['base_dir']}/hopsconda/linux64
+        conda -c hopsconda install hopstfonspark
+        conda -c hopsconda install hopsutil
+      EOF
+    end
+
+
+end  
