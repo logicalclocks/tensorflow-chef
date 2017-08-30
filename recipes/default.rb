@@ -59,7 +59,7 @@ end
 
 
 
-conda index /tmp/my-conda-channel/linux-64/                       
+# conda index /tmp/my-conda-channel/linux-64/                       
 
 
 url=node.tensorflow.python_url
