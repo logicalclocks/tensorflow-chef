@@ -152,8 +152,10 @@ if node.cuda.enabled == "true"
 
 
 
+  case node.platform_family
+  when "debian"
 
-  bash "build_install_tensorflow_server" do
+  bash "build_install_tensorflow_server_debian" do
     #    user node.tensorflow.user
       user "root"
       timeout 30800
@@ -174,11 +176,45 @@ if node.cuda.enabled == "true"
 
 # This works
     bazel build -c opt --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0"  --config=cuda //tensorflow/tools/pip_package:build_pip_package
+    touch .installed
+EOF
+      not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
+    end
+
+    
+  when "rhel"
+
+  bash "build_install_tensorflow_server_rhel" do
+    #    user node.tensorflow.user
+      user "root"
+      timeout 30800
+      code <<-EOF
+    set -e
+    export LC_CTYPE=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+    cd /home/#{node.tensorflow.user}/tensorflow
+    ./#{config}
+
+# Compile instructions - https://stackoverflow.com/questions/41293077/how-to-compile-tensorflow-with-sse4-2-and-avx-instructions
+    export PATH=$PATH:/usr/local/bin
+#    bazel build -c opt --config=cuda //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
+
+# This works for ubuntu but not for centos
+# Build fails for centos: https://github.com/tensorflow/tensorflow/issues/10665
+#    bazel build -c opt  --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" --config=cuda --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 //tensorflow/tools/pip_package:build_pip_package
+
+# This works
+    bazel build -c opt --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0 -I/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/*.h" --config=cuda //tensorflow/tools/pip_package:build_pip_package
 
     touch .installed
 EOF
       not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
     end
+
+    
+  end
+
+    
 
 
   bash "pip_install_tensorflow" do
