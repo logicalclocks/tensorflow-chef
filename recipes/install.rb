@@ -318,23 +318,8 @@ if node.tensorflow.mpi == "true"
     package "mpi-default-bin" do
     end
 
-    bash "compile_openmpi" do
-      user "root"
-      code <<-EOF
-        set -e
-        cd #{Chef::Config[:file_cache_path]}
-        mkdir -p #{node["tensorflow"]["dir"]}/openmpi-2.1.1
-        wget #{node['download_url']}/openmpi-2.1.1.tar.gz
-        tar zxf openmpi-2.1.1.tar.gz 
-        cd openmpi-2.1.1
-        ./configure --prefix=#{node["tensorflow"]["dir"]}/openmpi-2.1.1 --with-cuda=#{node['cuda']['version_dir']} --with-verbs
-        make all install
-        chown -R #{node["tensorflow"]["user"]} #{node["tensorflow"]["dir"]}/openmpi-2.1.1
-      EOF
-      not_if { ::File.directory?("#{node['tensorflow']['dir']}/openmpi-2.1.1") }
     end
-
-  when "rhel"
+  end
     # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
     # compile openmpi on centos 7
     # https://bitsanddragons.wordpress.com/2017/05/08/install-openmpi-2-1-0-on-centos-7/
@@ -344,16 +329,18 @@ if node.tensorflow.mpi == "true"
       code <<-EOF
         set -e
         cd #{Chef::Config[:file_cache_path]}
-        wget https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-2.1.1.tar.gz
+        wget #{node['download_url']}/openmpi-2.1.1.tar.gz
         tar zxf openmpi-2.1.1.tar.gz 
         cd openmpi-2.1.1
-        ./configure --prefix=#{node["tensorflow"]["dir"]} --with-cuda=#{node['cuda']['version_dir']} --with-verbs
-        make all install
+        ./configure --prefix=#{node["tensorflow"]["dir"]}/openmpi-2.1.1 --with-cuda=#{node['cuda']['version_dir']} --with-verbs
+        make all
+        mkdir -p #{node["tensorflow"]["dir"]}/openmpi-2.1.1     
+        make install
         chown -R #{node["tensorflow"]["user"]} #{node["tensorflow"]["dir"]}/openmpi-2.1.1
       EOF
+      not_if { ::File.directory?("#{node['tensorflow']['dir']}/openmpi-2.1.1") }
     end
 
-  end
 end
 
 
