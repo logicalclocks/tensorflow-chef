@@ -308,17 +308,9 @@ end
 if node.tensorflow.mpi == "true"
   case node.platform_family
   when "debian"
-
-    package "openmpi-bin" do
-    end
-
-    package "libopenmpi-dev" do
-    end
-
-    package "mpi-default-bin" do
-    end
-
-    end
+    package "openmpi-bin" 
+    package "libopenmpi-dev" 
+    package "mpi-default-bin" 
   end
     # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
     # compile openmpi on centos 7
