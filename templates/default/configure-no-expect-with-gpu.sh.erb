@@ -25,7 +25,7 @@ export TF_NEED_CUDA=<%= node["tensorflow"]["need_cuda"] %>
 export TF_NEED_HDFS=1
 export TF_NEED_VERBS=<%= node["tensorflow"]["need_rdma"] %>
 export TF_NEED_MPI=<%= node["tensorflow"]["need_mpi"] %>
-export TF_DOWNLOAD_MKL=1
+export TF_DOWNLOAD_MKL=<%= node["tensorflow"]["need_mkl"] %>
 
 export PYTHON_BIN_PATH=$(which python)
 export USE_DEFAULT_PYTHON_LIB_PATH=1
