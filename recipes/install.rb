@@ -196,20 +196,8 @@ bash "pip-upgrade" do
     code <<-EOF
     set -e
     pip install --upgrade pip
-# --user
-
     EOF
 end
-
-bash "pip-yarntf" do
-  user "root"
-  code <<-EOF
-    set -e
-    pip install yarntf
-# --user
-    EOF
-end
-
 
 # On ec2 you need to disable the nouveau driver and reboot the machine
 # http://www.pyimagesearch.com/2016/07/04/how-to-install-cuda-toolkit-and-cudnn-for-deep-learning/
@@ -227,8 +215,6 @@ end
 # echo options nouveau modeset=0 | sudo tee -a /etc/modprobe.d/nouveau-kms.conf
 # sudo update-initramfs -u
 # sudo reboot
-
-
 
 node.default.java.jdk_version = 8
 node.default.java.set_etc_environment = true
@@ -308,10 +294,7 @@ end
 
 if node.cuda.accept_nvidia_download_terms == "true"
 
-  raise if "#{node.cuda.accept_nvidia_download_terms}" == "false"
-  
   # Check to see if i can find a cuda card. If not, fail with an error
-
   package "clang"
   
   bash "test_nvidia" do
@@ -324,8 +307,8 @@ if node.cuda.accept_nvidia_download_terms == "true"
   end
 
 
-case node.platform_family
-  when "debian"
+# case node.platform_family
+#   when "debian"
 
   cuda =  File.basename(node.cuda.url)
   base_cuda_dir =  File.basename(cuda, "_linux-run")
@@ -364,7 +347,7 @@ case node.platform_family
     not_if { File.exist?(patch_file) }
   end
 
-end
+#end
   tensorflow_install "cuda_install" do
     action :cuda
   end
