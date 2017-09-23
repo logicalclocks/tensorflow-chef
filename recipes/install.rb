@@ -306,7 +306,7 @@ end
 
 
 
-if node.cuda.enabled == "true"
+if node.cuda.accept_nvidia_download_terms == "true"
 
   raise if "#{node.cuda.accept_nvidia_download_terms}" == "false"
   

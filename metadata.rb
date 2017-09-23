@@ -73,3 +73,4 @@ attribute "cuda/accept_nvidia_download_terms",
 attribute "cuda/skip_test",
           :description => "Dont check if there is a local nvidia card on this machine",
           :type => "string"
+
