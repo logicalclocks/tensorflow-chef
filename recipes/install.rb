@@ -21,12 +21,12 @@ if node["tensorflow"]["mkl"].eql? "true"
   node.override.tensorflow.need_mkl = 1
   node.override.tensorflow.install = "src"
 
-case node.platform_family
+  case node.platform_family
   when "debian"
 
     bash "install-intel-mkl-ubuntu" do
-    user "root"
-    code <<-EOF
+      user "root"
+      code <<-EOF
        set -e
        cd #{Chef::Config[:file_cache_path]}
        rm -f l_mkl_2018.0.128.tgz
@@ -36,18 +36,18 @@ case node.platform_family
 #       echo "install -eula=accept installdir=#{node['tensorflow']['dir']}/intel_mkl" > commands.txt
 #       ./install -s -eula=accept commands.txt
     EOF
-   end
+    end
 
   when "rhel"
-   bash "install-intel-mkl-rhel" do
-    user "root"
-    code <<-EOF
+    bash "install-intel-mkl-rhel" do
+      user "root"
+      code <<-EOF
        set -e
        yum-config-manager --add-repo https://yum.repos.intel.com/setup/intelproducts.repo
        rpm --import https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
        yum install intel-mkl-64bit-2017.3-056 -y
     EOF
-   end
+    end
   end
 
 end

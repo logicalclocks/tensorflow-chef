@@ -48,6 +48,7 @@ default.cuda.version_dir         = "#{cuda.dir}/cuda-#{node.cuda.major_version}"
 
 default.cuda.accept_nvidia_download_terms        = "false"
 default.cuda.skip_test           = "false"
+default.tensorflow.mkl           = "false"
 default.tensorflow.mpi           = "false"
 default.tensorflow.rdma          = "false"
 default["tensorflow"]["mpi"]     = "false"
