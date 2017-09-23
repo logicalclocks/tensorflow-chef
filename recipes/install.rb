@@ -315,23 +315,10 @@ if node.tensorflow.mpi == "true"
     # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
     # compile openmpi on centos 7
     # https://bitsanddragons.wordpress.com/2017/05/08/install-openmpi-2-1-0-on-centos-7/
-    
-    bash "compile_openmpi" do
-      user "root"
-      code <<-EOF
-        set -e
-        cd #{Chef::Config[:file_cache_path]}
-        wget #{node['download_url']}/openmpi-2.1.1.tar.gz
-        tar zxf openmpi-2.1.1.tar.gz 
-        cd openmpi-2.1.1
-        ./configure --prefix=#{node["tensorflow"]["dir"]}/openmpi-2.1.1 --with-cuda=#{node['cuda']['version_dir']} --with-verbs
-        make all
-        mkdir -p #{node["tensorflow"]["dir"]}/openmpi-2.1.1     
-        make install
-        chown -R #{node["tensorflow"]["user"]} #{node["tensorflow"]["dir"]}/openmpi-2.1.1
-      EOF
-      not_if { ::File.directory?("#{node['tensorflow']['dir']}/openmpi-2.1.1") }
-    end
+
+  tensorflow_compile "mpi-compile" do
+     action :openmpi
+  end
 
 end
 
