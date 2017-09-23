@@ -5,6 +5,7 @@ action :cuda do
 case node.platform_family
 when "debian"
 
+  patch =  ::File.basename(node.cuda.url_patch)  
   bash "install_cuda" do
     user "root"
     timeout 72000
@@ -13,22 +14,11 @@ when "debian"
 
     cd #{Chef::Config[:file_cache_path]}
     ./#{cuda} --silent --toolkit --driver --samples --verbose
-    EOF
-    not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
-  end
-
-  patch =  ::File.basename(node.cuda.url_patch)  
-  bash "install_cuda_patch" do
-    user "root"
-    timeout 72000
-    code <<-EOF
-    set -e
-    cd #{Chef::Config[:file_cache_path]}
     ./#{patch} --silent --accept-eula 
     EOF
     not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
   end
-
+  
   
 when "rhel"
   
@@ -46,43 +36,75 @@ when "rhel"
     not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
   end
 
-  bash "install_cuda_rpm" do
+  bash "install_cuda_driver" do
     user "root"
     timeout 72000
     code <<-EOF
-     set -e
-      cd #{Chef::Config[:file_cache_path]}
-      rm -f cuda-repo-rhel7-8-0-local-ga2-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
-      wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-ga2-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
-      rpm -ivh --replacepkgs cuda-repo-rhel7-8-0-local-ga2-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
-      yum clean expire-cache
-      yum install cuda -y
-      if [ ! -f /usr/lib64/libcuda.so ] ; then
-          ln -s /usr/lib64/nvidia/libcuda.so /usr/lib64
-      fi
-      rm -f cuda-repo-rhel*
+    set -e
+    cd #{Chef::Config[:file_cache_path]}
+    rm -f NVIDIA-Linux-x86_64-384.90.run
+    wget #{node['download_url']}/NVIDIA-Linux-x86_64-384.90.run
+    chmod +x NVIDIA-Linux-x86_64-384.90.run
+    ./NVIDIA-Linux-x86_64-384.90.run -a --install-libglvnd --force-libglx-indirect -q --dkms
     EOF
-    not_if { ::File.exists?( "/usr/lib64/libcuda.so" ) && ::File.exists?( "/usr/local/cuda/version.txt" ) }
+    not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
   end
 
-  bash "install_cuda_rpm_patch" do
+  patch =  ::File.basename(node.cuda.url_patch)  
+  bash "install_cuda_full" do
     user "root"
     timeout 72000
     code <<-EOF
- #     set -e
-      cd #{Chef::Config[:file_cache_path]}
-      rm -f cuda-repo-rhel7-8-0-local-cublas-performance-update-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
-      wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-cublas-performance-update-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
-      rpm -ivh --replacepkgs cuda-repo-rhel7-8-0-local-cublas-performance-update-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
-#      yum clean expire-cache
-#      yum update cuda -y
-#      yum upgrade 
-      rm -f cuda-repo-rhel*
+    set -e
+
+    cd #{Chef::Config[:file_cache_path]}
+    ./#{cuda} --silent --toolkit --samples --verbose
+    ./#{patch} --silent --accept-eula 
     EOF
-    #not_if { ::File.exists?( "/usr/lib64/libcuda.so" ) }
+    not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
   end
+
+  
+#   bash "install_cuda_rpm" do
+#     user "root"
+#     timeout 72000
+#     code <<-EOF
+#      set -e
+#       cd #{Chef::Config[:file_cache_path]}
+#       rm -f cuda-repo-rhel7-8-0-local-ga2-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
+#       wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-ga2-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
+#       rpm -ivh --replacepkgs cuda-repo-rhel7-8-0-local-ga2-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
+#       yum clean expire-cache
+#       yum install cuda -y
+#       if [ ! -f /usr/lib64/libcuda.so ] ; then
+#           ln -s /usr/lib64/nvidia/libcuda.so /usr/lib64
+#       fi
+#       rm -f cuda-repo-rhel*
+#     EOF
+#     not_if { ::File.exists?( "/usr/lib64/libcuda.so" ) && ::File.exists?( "/usr/local/cuda/version.txt" ) }
+#   end
+
+#   bash "install_cuda_rpm_patch" do
+#     user "root"
+#     timeout 72000
+#     code <<-EOF
+#  #     set -e
+#       cd #{Chef::Config[:file_cache_path]}
+#       rm -f cuda-repo-rhel7-8-0-local-cublas-performance-update-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
+#       wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-cublas-performance-update-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
+#       rpm -ivh --replacepkgs cuda-repo-rhel7-8-0-local-cublas-performance-update-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
+# #      yum clean expire-cache
+# #      yum update cuda -y
+# #      yum upgrade 
+#       rm -f cuda-repo-rhel*
+#     EOF
+#     #not_if { ::File.exists?( "/usr/lib64/libcuda.so" ) }
+#   end
 
 end  
+
+
+
 
 
   bash "link_libs" do
