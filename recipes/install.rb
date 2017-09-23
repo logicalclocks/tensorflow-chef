@@ -324,7 +324,7 @@ if node.tensorflow.mpi == "true"
         set -e
         cd #{Chef::Config[:file_cache_path]}
         mkdir -p #{node["tensorflow"]["dir"]}/openmpi-2.1.1
-        wget https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-2.1.1.tar.gz
+        wget #{node['download_url']}/openmpi-2.1.1.tar.gz
         tar zxf openmpi-2.1.1.tar.gz 
         cd openmpi-2.1.1
         ./configure --prefix=#{node["tensorflow"]["dir"]}/openmpi-2.1.1 --with-cuda=#{node['cuda']['version_dir']} --with-verbs
