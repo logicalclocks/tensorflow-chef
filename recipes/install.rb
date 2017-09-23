@@ -275,7 +275,6 @@ if node.tensorflow.install == "src"
       chmod +x bazel-*
       ./bazel-0.5.2-installer-linux-x86_64.sh
       /usr/local/bin/bazel
-      ln -s /usr/local/bin/bazel /usr/bin/bazel
     EOF
     end
 
