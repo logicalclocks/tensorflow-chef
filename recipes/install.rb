@@ -7,6 +7,7 @@
 
 if node["cuda"]["accept_nvidia_download_terms"].eql? "true"
   node.override.tensorflow.need_cuda = 1
+  node.override.cuda.enabled = "true"
 end
 #
 # If either 'infinband' or 'mpi' are selected, we have to build tensorflow from source.
@@ -38,6 +39,66 @@ if node["tensorflow"]["rdma"].eql? "true"
   else # "rhel"
     # http://www.rdmamojo.com/2014/10/11/working-rdma-redhatcentos-7/
     # https://community.mellanox.com/docs/DOC-2086
+
+
+# Get started - check hardware exists    
+# [root@hadoop5 install]#  lspci |grep -i infin
+# 03:00.0 InfiniBand: QLogic Corp. IBA7322 QDR InfiniBand HCA (rev 02)
+# [root@hadoop5 install]# lspci -Qvvs 03:00.0
+    # The last line will tell you what kernel module you need to load. In my case, it was:
+    # 	Kernel modules: ib_qib
+
+    # modprobe ib_qib
+    # lsmod | grep ib_
+    # Then check it is installed
+
+# [root@hadoop5 install]# ibstat
+# CA 'qib0'
+# 	CA type: InfiniPath_QLE7340
+# 	Number of ports: 1
+# 	Firmware version: 
+# 	Hardware version: 2
+# 	Node GUID: 0x001175000076dcbe
+# 	System image GUID: 0x001175000076dcbe
+# 	Port 1:
+# 		State: Active
+# 		Physical state: LinkUp
+# 		Rate: 40
+# 		Base lid: 6
+# 		LMC: 0
+# 		SM lid: 3
+# 		Capability mask: 0x07610868
+# 		Port GUID: 0x001175000076dcbe
+# 		Link layer: InfiniBand
+
+    # To measure bandwith, on the server run: 'ib_send_bw'
+    # On the client, 'ib_send_bw hadoop5'
+#      ib_read_bw 
+# ---------------------------------------------------------------------------------------
+# Device not recognized to implement inline feature. Disabling it
+
+# ************************************
+# * Waiting for client to connect... *
+# ************************************
+# ---------------------------------------------------------------------------------------
+#                     RDMA_Read BW Test
+#  Dual-port       : OFF		Device         : qib0
+#  Number of qps   : 1		Transport type : IB
+#  Connection type : RC		Using SRQ      : OFF
+#  CQ Moderation   : 100
+#  Mtu             : 2048[B]
+#  Link type       : IB
+#  Outstand reads  : 16
+#  rdma_cm QPs	 : OFF
+#  Data ex. method : Ethernet
+# ---------------------------------------------------------------------------------------
+#  local address: LID 0x06 QPN 0x000b PSN 0x2045ef OUT 0x10 RKey 0x030400 VAddr 0x007f9d36566000
+#  remote address: LID 0x03 QPN 0x0013 PSN 0x8c947f OUT 0x10 RKey 0x070800 VAddr 0x007ff8638c7000
+# ---------------------------------------------------------------------------------------
+#  #bytes     #iterations    BW peak[MB/sec]    BW average[MB/sec]   MsgRate[Mpps]
+#  65536      1000             2563.33            2563.29		   0.041013
+# ---------------------------------------------------------------------------------------
+
     
   bash "install-infiniband-rhel" do
     user "root"
@@ -190,7 +251,7 @@ if node.tensorflow.install == "src"
        apt-get install pkg-config zip g++ zlib1g-dev unzip -y
        cd #{Chef::Config[:file_cache_path]}
        wget #{node['bazel']['url']}
-       chmod +x bazel-*
+       chmod +xnnn bazel-*
        ./bazel-0.5.2-installer-linux-x86_64.sh
        /usr/local/bin/bazel
     EOF
@@ -214,6 +275,7 @@ if node.tensorflow.install == "src"
       chmod +x bazel-*
       ./bazel-0.5.2-installer-linux-x86_64.sh
       /usr/local/bin/bazel
+      ln -s /usr/local/bin/bazel /usr/bin/bazel
     EOF
     end
 
