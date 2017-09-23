@@ -86,12 +86,16 @@ bash "git_clone_tensorflow_server" do
     code <<-EOF
     set -e
     cd /home/#{node.tensorflow.user}
-
-    git clone --recurse-submodules --branch v#{node.tensorflow.base_version} #{node.tensorflow.git_url}
-#    cd tensorflow
-#    git checkout v#{node.tensorflow.base_version}
+    if [ -d /home/#{node.tensorflow.user}/tensorflow ] ; then
+      cd tensorflow
+      git pull
+    else 
+      git clone --recurse-submodules --branch v#{node.tensorflow.base_version} #{node.tensorflow.git_url}
+      cd tensorflow
+    fi
+#    git checkout r#{node.tensorflow.base_version}
 EOF
-  not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/configure" ) }
+#  not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/configure" ) }
 end
 
 clang_path=""
@@ -220,6 +224,20 @@ EOF
     cd /home/#{node.tensorflow.user}/tensorflow
     ./#{config}
 
+
+    git clone https://github.com/NVIDIA/nccl.git
+    cd nccl/
+    make CUDA_HOME=/usr/local/cuda
+    sudo make install
+    sudo mkdir -p /usr/local/include/external/nccl_archive/src
+    sudo ln -s /usr/local/include/nccl.h /usr/local/include/external/nccl_archive/src/nccl.h
+    cd ..
+
+#  https://github.com/tensorflow/serving/issues/327
+# removing prefix /external/nccl_archive in files nccl_ops.cc and
+# nccl_manager.h which in folder tensorflow/tensorflow/contrib/nccl/kernels, fix the issue
+   # vi tensorflow/workspace.bzl :s/6d43b9d223ce09e5d4ce8b0060cb8a7513577a35a64c7e3dad10f0703bf3ad93/e5fdeee6b28cf6c38d61243adff06628baa434a22b5ebb7432d2a7fbabbdb13d/g
+
 # Compile instructions - https://stackoverflow.com/questions/41293077/how-to-compile-tensorflow-with-sse4-2-and-avx-instructions
     export PATH=$PATH:/usr/local/bin
 #    bazel build -c opt --config=cuda //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
@@ -228,9 +246,8 @@ EOF
 # Build fails for centos: https://github.com/tensorflow/tensorflow/issues/10665
 #    bazel build -c opt  --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" --config=cuda --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 //tensorflow/tools/pip_package:build_pip_package
 
-# This works
-    bazel build -c opt --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0 -I/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/*.h" --config=cuda //tensorflow/tools/pip_package:build_pip_package
-
+#    bazel build -c opt --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0 -I/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/*.h" --config=cuda //tensorflow/tools/pip_package:build_pip_package
+    bazel build -c opt --cxxopt="-I/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/*.h" --config=cuda //tensorflow/tools/pip_package:build_pip_package
     touch .installed
 EOF
       not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
