@@ -7,7 +7,7 @@
 
 if node["cuda"]["accept_nvidia_download_terms"].eql? "true"
   node.override.tensorflow.need_cuda = 1
-  node.override.cuda.enabled = "true"
+
 end
 #
 # If either 'infinband' or 'mpi' are selected, we have to build tensorflow from source.
@@ -223,9 +223,11 @@ include_recipe "java::oracle"
 
 if node.tensorflow.install == "src"
 
+  bzl =  File.basename(node.bazel.url)
   case node["platform_family"]
   when "debian"
 
+    
     bash "bazel-install" do
       user "root"
       code <<-EOF
@@ -236,6 +238,7 @@ if node.tensorflow.install == "src"
 #      sudo apt-get install bazel -y
        apt-get install pkg-config zip g++ zlib1g-dev unzip -y
        cd #{Chef::Config[:file_cache_path]}
+       rm #{bzl}
        wget #{node['bazel']['url']}
        chmod +xnnn bazel-*
        ./bazel-0.5.2-installer-linux-x86_64.sh
@@ -257,6 +260,7 @@ if node.tensorflow.install == "src"
       yum -y install freetype-devel libpng12-devel zip zlib-devel giflib-devel zeromq3-devel
       pip install grpcio_tools mock
       cd #{Chef::Config[:file_cache_path]}
+      rm #{bzl}
       wget #{node['bazel']['url']}
       chmod +x bazel-*
       ./bazel-0.5.2-installer-linux-x86_64.sh

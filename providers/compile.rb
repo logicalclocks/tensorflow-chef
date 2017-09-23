@@ -95,7 +95,7 @@ EOF
 end
 
 clang_path=""
-if node.cuda.enabled == "true" 
+if node["cuda"]["accept_nvidia_download_terms"] == "true" 
   config="configure-no-expect-with-gpu.sh"
   case node.platform_family
   when "debian"
@@ -139,7 +139,7 @@ EOF
 end
 
 
-if node.cuda.enabled == "true" 
+if node["cuda"]["accept_nvidia_download_terms"] == "true" 
 
   # Try and download+install a custom python wheel first. If that fails, build from source
   begin
