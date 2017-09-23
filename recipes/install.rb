@@ -305,23 +305,6 @@ magic_shell_environment 'CUDA_HOME' do
 end
 
 
-if node.tensorflow.mpi == "true"
-  case node.platform_family
-  when "debian"
-    package "openmpi-bin" 
-    package "libopenmpi-dev" 
-    package "mpi-default-bin" 
-  end
-    # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
-    # compile openmpi on centos 7
-    # https://bitsanddragons.wordpress.com/2017/05/08/install-openmpi-2-1-0-on-centos-7/
-
-  tensorflow_compile "mpi-compile" do
-     action :openmpi
-  end
-
-end
-
 
 if node.cuda.enabled == "true"
 
@@ -444,6 +427,23 @@ end
 
 if node.tensorflow.install == "src"
 
+  if node.tensorflow.mpi == "true"
+    case node.platform_family
+    when "debian"
+      package "openmpi-bin" 
+      package "libopenmpi-dev" 
+      package "mpi-default-bin" 
+    end
+    # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
+    # compile openmpi on centos 7
+    # https://bitsanddragons.wordpress.com/2017/05/08/install-openmpi-2-1-0-on-centos-7/
+
+    tensorflow_compile "mpi-compile" do
+      action :openmpi
+    end
+
+  end
+  
   tensorflow_compile "tensorflow" do
     action :tf
   end
