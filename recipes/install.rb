@@ -25,9 +25,35 @@ if node["tensorflow"]["rdma"].eql? "true"
   node.override.tensorflow.need_rdma = 1
   node.override.tensorflow.install = "src"
   if node.platform_family.eql? "debian"
-    package "libibverbs-dev"
+
+# Install inifiband
+# https://community.mellanox.com/docs/DOC-2683    
+  bash "install-infiniband-ubuntu" do
+    user "root"
+    code <<-EOF
+    set -e
+     apt-get install libmlx4-1 libmlx5-1 ibutils  rdmacm-utils libibverbs1 ibverbs-utils perftest infiniband-diags libibverbs-dev -y
+    EOF
+  end
   else # "rhel"
-    package "libibverbs-devel"
+    # http://www.rdmamojo.com/2014/10/11/working-rdma-redhatcentos-7/
+    # https://community.mellanox.com/docs/DOC-2086
+    
+  bash "install-infiniband-rhel" do
+    user "root"
+    code <<-EOF
+    set -e
+    yum -y groupinstall "Infiniband Support"
+    yum --setopt=group_package_types=optional groupinstall "Infiniband Support" -y
+    yum -y install perftest infiniband-diags    
+    systemctl start rdma.service
+
+#    yum install -y libmlx5 libmlx4 libibverbs libibumad librdmacm librdmacm-utils libibverbs-utils perftest infiniband-diags libibverbs-devel
+#    modprobe mlx4_ib
+#    modprobe mlx5_ib
+   EOF
+  end
+    
   end
 end
 
@@ -235,12 +261,12 @@ if node.tensorflow.mpi == "true"
       user "root"
       code <<-EOF
         set -e
+        cd #{Chef::Config[:file_cache_path]}
         mkdir -p #{node["tensorflow"]["dir"]}/openmpi-2.1.1
-        cd /tmp
         wget https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-2.1.1.tar.gz
         tar zxf openmpi-2.1.1.tar.gz 
         cd openmpi-2.1.1
-        ./configure --prefix=#{node["tensorflow"]["dir"]}/openmpi-2.1.1
+        ./configure --prefix=#{node["tensorflow"]["dir"]}/openmpi-2.1.1 --with-cuda=#{node['cuda']['version_dir']} --with-verbs
         make all install
         chown -R #{node["tensorflow"]["user"]} #{node["tensorflow"]["dir"]}/openmpi-2.1.1
       EOF
@@ -249,18 +275,20 @@ if node.tensorflow.mpi == "true"
 
   when "rhel"
     # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
-
+    # compile openmpi on centos 7
+    # https://bitsanddragons.wordpress.com/2017/05/08/install-openmpi-2-1-0-on-centos-7/
     
     bash "compile_openmpi" do
       user "root"
       code <<-EOF
         set -e
-        cd /tmp
+        cd #{Chef::Config[:file_cache_path]}
         wget https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-2.1.1.tar.gz
         tar zxf openmpi-2.1.1.tar.gz 
         cd openmpi-2.1.1
-        ./configure --prefix=#{node["tensorflow"]["dir"]} --with-openib-libdir= --with-openib= 
+        ./configure --prefix=#{node["tensorflow"]["dir"]} --with-cuda=#{node['cuda']['version_dir']} --with-verbs
         make all install
+        chown -R #{node["tensorflow"]["user"]} #{node["tensorflow"]["dir"]}/openmpi-2.1.1
       EOF
     end
 
