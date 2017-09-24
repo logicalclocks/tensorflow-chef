@@ -1,27 +1,27 @@
 action :cuda do
 
-  cuda =  ::File.basename(node.cuda.url)
+  cuda =  ::File.basename(node['cuda']['url'])
 
-case node.platform_family
+case node['platform_family']
 when "debian"
 
-  patch =  ::File.basename(node.cuda.url_patch)  
+  patch =  ::File.basename(node['cuda']['url_patch'])
   bash "install_cuda" do
     user "root"
     timeout 72000
     code <<-EOF
     set -e
 
-    cd #{Chef::Config[:file_cache_path]}
+    cd #{Chef::Config['file_cache_path']}
     ./#{cuda} --silent --toolkit --driver --samples --verbose
-    ./#{patch} --silent --accept-eula 
+    ./#{patch} --silent --accept-eula
     EOF
     not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
   end
-  
-  
+
+
 when "rhel"
-  
+
   bash "install_cuda_preliminaries" do
     user "root"
     code <<-EOF
@@ -41,7 +41,7 @@ when "rhel"
     timeout 72000
     code <<-EOF
     set -e
-    cd #{Chef::Config[:file_cache_path]}
+    cd #{Chef::Config['file_cache_path']}
     rm -f NVIDIA-Linux-x86_64-384.90.run
     wget #{node['download_url']}/NVIDIA-Linux-x86_64-384.90.run
     chmod +x NVIDIA-Linux-x86_64-384.90.run
@@ -50,27 +50,27 @@ when "rhel"
     not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
   end
 
-  patch =  ::File.basename(node.cuda.url_patch)  
+  patch =  ::File.basename(node['cuda']['url_patch'])
   bash "install_cuda_full" do
     user "root"
     timeout 72000
     code <<-EOF
     set -e
 
-    cd #{Chef::Config[:file_cache_path]}
+    cd #{Chef::Config['file_cache_path']}
     ./#{cuda} --silent --toolkit --samples --verbose
-    ./#{patch} --silent --accept-eula 
+    ./#{patch} --silent --accept-eula
     EOF
     not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
   end
 
-  
+
 #   bash "install_cuda_rpm" do
 #     user "root"
 #     timeout 72000
 #     code <<-EOF
 #      set -e
-#       cd #{Chef::Config[:file_cache_path]}
+#       cd #{Chef::Config['file_cache_path']}
 #       rm -f cuda-repo-rhel7-8-0-local-ga2-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
 #       wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-ga2-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
 #       rpm -ivh --replacepkgs cuda-repo-rhel7-8-0-local-ga2-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
@@ -89,19 +89,19 @@ when "rhel"
 #     timeout 72000
 #     code <<-EOF
 #  #     set -e
-#       cd #{Chef::Config[:file_cache_path]}
+#       cd #{Chef::Config['file_cache_path']}
 #       rm -f cuda-repo-rhel7-8-0-local-cublas-performance-update-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
 #       wget #{node['download_url']}/cuda-repo-rhel7-8-0-local-cublas-performance-update-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
 #       rpm -ivh --replacepkgs cuda-repo-rhel7-8-0-local-cublas-performance-update-#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}-1.x86_64.rpm
 # #      yum clean expire-cache
 # #      yum update cuda -y
-# #      yum upgrade 
+# #      yum upgrade
 #       rm -f cuda-repo-rhel*
 #     EOF
 #     #not_if { ::File.exists?( "/usr/lib64/libcuda.so" ) }
 #   end
 
-end  
+end
 
 
 
@@ -118,14 +118,14 @@ end
     EOF
   end
 
-  
+
 end
 
 
 action :cudnn do
 
-  base_cudnn_file =  ::File.basename(node.cudnn.url)
-  cached_cudnn_file = "#{Chef::Config[:file_cache_path]}/#{base_cudnn_file}"
+  base_cudnn_file =  ::File.basename(node['cudnn']['url'])
+  cached_cudnn_file = "#{Chef::Config['file_cache_path']}/#{base_cudnn_file}"
 
 
   bash "unpack_install_cdnn" do
@@ -134,7 +134,7 @@ action :cudnn do
     code <<-EOF
     set -e
 
-    cd #{Chef::Config[:file_cache_path]}
+    cd #{Chef::Config['file_cache_path']}
 
     tar zxf #{cached_cudnn_file}
     cp -rf cuda/lib64/* /usr/local/cuda/lib64/
@@ -151,21 +151,21 @@ end
 
 
 action :cpu do
-  if node.tensorflow.install == "dist"
+  if node['tensorflow']['install'] == "dist"
     bash "install_tf_cpu" do
       user "root"
       code <<-EOF
     set -e
-    pip install --upgrade http://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl --user
+    pip install --upgrade http://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-#{node['tensorflow']['version']}-cp27-none-linux_x86_64.whl --user
     EOF
     end
   end
-  if node.tensorflow.install == "src"
+  if node['tensorflow']['install'] == "src"
     bash "install_tf_cpu_from_src" do
       user "root"
       code <<-EOF
     set -e
-    pip install --upgrade http://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl --user
+    pip install --upgrade http://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-#{node['tensorflow']['version']}-cp27-none-linux_x86_64.whl --user
     EOF
     end
 
@@ -175,22 +175,22 @@ end
 
 action :gpu do
 
-  if node.tensorflow.install == "dist"
-    
+  if node['tensorflow']['install'] == "dist"
+
     bash "install_tf_gpu" do
       user "root"
       code <<-EOF
     set -e
-    pip install --upgrade http://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl --user
+    pip install --upgrade http://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-#{node['tensorflow']['version']}-cp27-none-linux_x86_64.whl --user
     EOF
     end
   end
-  if node.tensorflow.install == "src"
+  if node['tensorflow']['install'] == "src"
     bash "install_tf_gpu_from_src" do
       user "root"
       code <<-EOF
     set -e
-    pip install --upgrade http://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-#{node.tensorflow.version}-cp27-none-linux_x86_64.whl --user
+    pip install --upgrade http://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-#{node['tensorflow']['version']}-cp27-none-linux_x86_64.whl --user
     EOF
     end
   end
@@ -201,7 +201,7 @@ action :gpu do
       ldconfig
     EOF
   end
-  
+
 end
 
 
@@ -219,4 +219,4 @@ action :conda_private do
     end
 
 
-end  
+end

@@ -7,26 +7,26 @@ action :openmpi do
       user "root"
       code <<-EOF
         set -e
-        cd #{Chef::Config[:file_cache_path]}
+        cd #{Chef::Config['file_cache_path']}
         rm -f openmpi-2.1.1.tar.gz
         wget #{node['download_url']}/openmpi-2.1.1.tar.gz
-        tar zxf openmpi-2.1.1.tar.gz 
+        tar zxf openmpi-2.1.1.tar.gz
         cd openmpi-2.1.1
-        ./configure --prefix=#{node["tensorflow"]["dir"]}/openmpi-2.1.1 --with-cuda=#{node['cuda']['version_dir']} --with-verbs
+        ./configure --prefix=#{node['tensorflow']['dir']}/openmpi-2.1.1 --with-cuda=#{node['cuda']['version_dir']} --with-verbs
         make all
-        mkdir -p #{node["tensorflow"]["dir"]}/openmpi-2.1.1     
+        mkdir -p #{node['tensorflow']['dir']}/openmpi-2.1.1
         make install
-        chown -R #{node["tensorflow"]["user"]} #{node["tensorflow"]["dir"]}/openmpi-2.1.1
+        chown -R #{node['tensorflow']['user']} #{node['tensorflow']['dir']}/openmpi-2.1.1
       EOF
       not_if { ::File.directory?("#{node['tensorflow']['dir']}/openmpi-2.1.1") }
     end
 
-end  
+end
 
 
 action :kernel_initramfs do
 
-  case node.platform_family
+  case node['platform_family']
   when "debian"
     bash "kernel_initramfs" do
       user "root"
@@ -54,9 +54,9 @@ bash "validate_cuda" do
     code <<-EOF
     set -e
 # test the cuda nvidia compiler
-    su #{node.tensorflow.user} -l -c "nvcc -V"
+    su #{node['tensorflow']['user']} -l -c "nvcc -V"
 EOF
-    not_if { node["cuda"]["skip_test"] == "true" }
+    not_if { node['cuda']['skip_test'] == "true" }
 end
 
 
@@ -68,9 +68,9 @@ bash "validate_cudnn" do
     user "root"
     code <<-EOF
     set -e
-    su #{node.tensorflow.user} -l -c "nvidia-smi | grep NVID"
+    su #{node['tensorflow']['user']} -l -c "nvidia-smi | grep NVID"
 EOF
-  not_if { node["cuda"]["skip_test"] == "true" }
+  not_if { node['cuda']['skip_test'] == "true" }
 end
 
 end
@@ -79,29 +79,29 @@ action :tf do
 
 
   # https://github.com/lakshayg/tensorflow-build
-  
+
 
 bash "git_clone_tensorflow_server" do
-    user node.tensorflow.user
+    user node['tensorflow']['user']
     code <<-EOF
     set -e
-    cd /home/#{node.tensorflow.user}
-    if [ -d /home/#{node.tensorflow.user}/tensorflow ] ; then
+    cd /home/#{node['tensorflow']['user']}
+    if [ -d /home/#{node['tensorflow']['user']}/tensorflow ] ; then
       cd tensorflow
       git pull
-    else 
-      git clone --recurse-submodules --branch v#{node.tensorflow.base_version} #{node.tensorflow.git_url}
+    else
+      git clone --recurse-submodules --branch v#{node['tensorflow']['base_version']} #{node['tensorflow']['git_url']}
       cd tensorflow
     fi
-#    git checkout r#{node.tensorflow.base_version}
+#    git checkout r#{node['tensorflow']['base_version']}
 EOF
-#  not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/configure" ) }
+#  not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/configure" ) }
 end
 
 clang_path=""
-if node["cuda"]["accept_nvidia_download_terms"] == "true" 
+if node['cuda']['accept_nvidia_download_terms'] == "true"
   config="configure-no-expect-with-gpu.sh"
-  case node.platform_family
+  case node['platform_family']
   when "debian"
    clang_path="/usr/bin/clang"
   when "rhel"
@@ -113,11 +113,11 @@ end
 
 
 
-template "/home/#{node.tensorflow.user}/tensorflow/#{config}" do
+template "/home/#{node['tensorflow']['user']}/tensorflow/#{config}" do
   source "#{config}.erb"
-  owner node.tensorflow.user
+  owner node['tensorflow']['user']
   mode 0770
- variables({ :clang_path => clang_path })  
+ variables({ :clang_path => clang_path })
 end
 
 
@@ -125,30 +125,29 @@ end
 # http://www.admin-magazine.com/Articles/Automating-with-Expect-Scripts
 #
 bash "configure_tensorflow_server" do
-    user node.tensorflow.user
+    user node['tensorflow']['user']
     code <<-EOF
     set -e
     export LC_CTYPE=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
 
-    cd /home/#{node.tensorflow.user}/tensorflow
+    cd /home/#{node['tensorflow']['user']}/tensorflow
     ./#{config}
-    
+
     # Check if configure completed successfully
     if [ ! -f tools/bazel.rc ] ; then
       exit 1
     fi
 EOF
-  not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/tools/bazel.rc" ) }
+  not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/tools/bazel.rc" ) }
 end
 
 
-if node["cuda"]["accept_nvidia_download_terms"] == "true" 
-
+if node['cuda']['accept_nvidia_download_terms'] == "true"
   # Try and download+install a custom python wheel first. If that fails, build from source
   begin
     wheel = File.basename("#{node['tensorflow']['custom_url']}")
-    remote_file "#{Chef::Config[:file_cache_path]}/#{wheel}" do
+    remote_file "#{Chef::Config['file_cache_path']}/#{wheel}" do
       source node['tensorflow']['custom_url']
       owner node['tensorflow']['user']
       group node['tensorflow']['group']
@@ -162,37 +161,37 @@ if node["cuda"]["accept_nvidia_download_terms"] == "true"
       set -e
       export LC_CTYPE=en_US.UTF-8
       export LC_ALL=en_US.UTF-8
-      pip install --ignore-installed --upgrade #{Chef::Config[:file_cache_path]}/#{wheel}
+      pip install --ignore-installed --upgrade #{Chef::Config['file_cache_path']}/#{wheel}
      EOF
     end
-    
-  rescue 
 
-  
+  rescue
+
+
   # https://github.com/bazelbuild/bazel/issues/739
     bash "workaround_bazel_build" do
      user "root"
       code <<-EOF
     set -e
-     chown -R #{node.tensorflow.user} /home/#{node.tensorflow.user}/tensorflow
-#     rm -rf /home/#{node.tensorflow.user}/.cache/bazel
+     chown -R #{node['tensorflow']['user']} /home/#{node['tensorflow']['user']}/tensorflow
+#     rm -rf /home/#{node['tensorflow']['user']}/.cache/bazel
      EOF
     end
 
 
 
-  case node.platform_family
+  case node['platform_family']
   when "debian"
 
   bash "build_install_tensorflow_server_debian" do
-    #    user node.tensorflow.user
+    #    user node['tensorflow']['user']
       user "root"
       timeout 30800
       code <<-EOF
     set -e
     export LC_CTYPE=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
-    cd /home/#{node.tensorflow.user}/tensorflow
+    cd /home/#{node['tensorflow']['user']}/tensorflow
     ./#{config}
 
 # Compile instructions - https://stackoverflow.com/questions/41293077/how-to-compile-tensorflow-with-sse4-2-and-avx-instructions
@@ -207,21 +206,21 @@ if node["cuda"]["accept_nvidia_download_terms"] == "true"
     bazel build -c opt --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0"  --config=cuda //tensorflow/tools/pip_package:build_pip_package
     touch .installed
 EOF
-      not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
+      not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/.installed" ) }
     end
 
-    
+
   when "rhel"
 
   bash "build_install_tensorflow_server_rhel" do
-    #    user node.tensorflow.user
+    #    user node['tensorflow']['user']
       user "root"
       timeout 30800
       code <<-EOF
     set -e
     export LC_CTYPE=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
-    cd /home/#{node.tensorflow.user}/tensorflow
+    cd /home/#{node['tensorflow']['user']}/tensorflow
     ./#{config}
 
 
@@ -250,17 +249,17 @@ EOF
     bazel build -c opt --cxxopt="-I/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/*.h" --config=cuda //tensorflow/tools/pip_package:build_pip_package
     touch .installed
 EOF
-      not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
+      not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/.installed" ) }
     end
 
-    
+
   end
 
-    
+
 
 
   bash "pip_install_tensorflow" do
-    #    user node.tensorflow.user
+    #    user node['tensorflow']['user']
       user "root"
       timeout 30800
       code <<-EOF
@@ -268,7 +267,7 @@ EOF
     export LC_CTYPE=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
     export PATH=$PATH:/usr/local/bin
-    cd /home/#{node.tensorflow.user}/tensorflow
+    cd /home/#{node['tensorflow']['user']}/tensorflow
 
     #install -Dm755 bazel-bin/tensorflow/libtensorflow.so /usr/lib/
     #install -Dm644 tensorflow/c/c_api.h /usr/include/tensorflow-cuda/c_api.h
@@ -276,14 +275,14 @@ EOF
 
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 
-    pip install --ignore-installed --upgrade /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-py2-none-any.whl
+    pip install --ignore-installed --upgrade /tmp/tensorflow_pkg/tensorflow-#{node['tensorflow']['base_version']}-py2-none-any.whl
     touch .installed_pip
 EOF
-      not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed_pip" ) }
+      not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/.installed_pip" ) }
     end
 
   end   # End rescue
-  
+
 else
 
   # https://github.com/bazelbuild/bazel/issues/739
@@ -291,14 +290,14 @@ else
      user "root"
       code <<-EOF
     set -e
-     chown -R #{node.tensorflow.user} /home/#{node.tensorflow.user}/tensorflow
-     rm -rf /home/#{node.tensorflow.user}/.cache/bazel
+     chown -R #{node['tensorflow']['user']} /home/#{node['tensorflow']['user']}/tensorflow
+     rm -rf /home/#{node['tensorflow']['user']}/.cache/bazel
      EOF
     end
 
 
   bash "build_install_tensorflow_server_no_cuda" do
-    #     user node.tensorflow.user
+    #     user node['tensorflow']['user']
       user "root"
       timeout 10800
       code <<-EOF
@@ -307,7 +306,7 @@ else
     export LC_CTYPE=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
 
-    cd /home/#{node.tensorflow.user}/tensorflow
+    cd /home/#{node['tensorflow']['user']}/tensorflow
     ./#{config}
 
 # Create the pip package and install
@@ -318,11 +317,11 @@ else
     export PATH=$PATH:/usr/local/bin
     bazel build -c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-    pip install /tmp/tensorflow_pkg/tensorflow-#{node.tensorflow.base_version}-cp27-cp27mu-linux_x86_64.whl  
+    pip install /tmp/tensorflow_pkg/tensorflow-#{node['tensorflow']['base_version']}-cp27-cp27mu-linux_x86_64.whl
     #--user
     touch .installed
 EOF
-      not_if { ::File.exists?( "/home/#{node.tensorflow.user}/tensorflow/.installed" ) }
+      not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/.installed" ) }
     end
   end
 
@@ -331,17 +330,17 @@ EOF
       user "root"
       code <<-EOF
        set -e
-       pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/protobuf-3.0.0b2.post2-cp27-none-linux_x86_64.whl 
+       pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/protobuf-3.0.0b2.post2-cp27-none-linux_x86_64.whl
        #--user
       EOF
     end
 
 
     bash "validate_tensorflow" do
-      user node.tensorflow.user
+      user node['tensorflow']['user']
       code <<-EOF
        set -e
-#       cd /home/#{node.tensorflow.user}/tensorflow
+#       cd /home/#{node['tensorflow']['user']}/tensorflow
 #       cd models/image/mnist
 #       python convolutional.py
       EOF
