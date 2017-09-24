@@ -51,7 +51,6 @@ default.cuda.skip_test           = "false"
 default.tensorflow.mkl           = "false"
 default.tensorflow.mpi           = "false"
 default.tensorflow.rdma          = "false"
-default["tensorflow"]["mpi"]     = "false"
 
 default.tensorflow.need_cuda     = 0
 default.tensorflow.need_mpi      = 0
