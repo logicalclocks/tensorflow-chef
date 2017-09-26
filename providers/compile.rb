@@ -193,7 +193,8 @@ if node['cuda']['accept_nvidia_download_terms'] == "true"
     export LC_ALL=en_US.UTF-8
     cd /home/#{node['tensorflow']['user']}/tensorflow
     ./#{config}
-
+    export PATH=$HOME/local/bin:$PATH
+    export LD_LIBRARY_PATH=$HOME/local/lib64:$LD_LIBRARY_PATH
 # Compile instructions - https://stackoverflow.com/questions/41293077/how-to-compile-tensorflow-with-sse4-2-and-avx-instructions
     export PATH=$PATH:/usr/local/bin
 #    bazel build -c opt --config=cuda //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server

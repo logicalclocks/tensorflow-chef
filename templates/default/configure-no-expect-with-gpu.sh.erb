@@ -38,7 +38,8 @@ export CUDA_TOOLKIT_PATH=/usr/local/cuda
 
 export TF_CUDNN_VERSION=<%= node['cudnn']['major_version'] %>
 export CUDNN_INSTALL_PATH=/usr/local/cuda
-export TF_CUDA_COMPUTE_CAPABILITIES=3.0,3.5,5.2,6.1
+# P100 = 6.0, 1080Ti/TitanX = 6.1, K80=3.7, M60=5.2
+export TF_CUDA_COMPUTE_CAPABILITIES="6.0,6.1"
 #"3.5,5.2"
 #export TF_CUDA_VERSION=$($CUDA_TOOLKIT_PATH/bin/nvcc --version | sed -n 's/^.*release \(.*\),.*/\1/p')
 #  export CUDNN_INSTALL_PATH=/opt/cuda

@@ -250,7 +250,7 @@ node.default['java']['set_etc_environment'] = true
 node.default['java']['oracle']['accept_oracle_download_terms'] = true
 include_recipe "java::oracle"
 
-if node['tensorflow']['install'] == "src"
+if node['tensorflow']['install'].eql?("src")
 
   bzl =  File.basename(node['bazel']['url'])
   case node['platform_family']
@@ -323,7 +323,7 @@ magic_shell_environment 'CUDA_HOME' do
 end
 
 
-if node['cuda']['accept_nvidia_download_terms'] == "true"
+if node['cuda']['accept_nvidia_download_terms'].eql?("true")
   # Check to see if i can find a cuda card. If not, fail with an error
   package "clang"
 
@@ -438,7 +438,7 @@ else
   end
 end
 
-if node['tensorflow']['install'] == "src"
+if node['tensorflow']['install'].eql?("src")
 
   if node['tensorflow']['mpi'] == "true"
     case node['platform_family']
