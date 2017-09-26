@@ -12,7 +12,7 @@ action :openmpi do
         wget #{node['download_url']}/openmpi-2.1.1.tar.gz
         tar zxf openmpi-2.1.1.tar.gz
         cd openmpi-2.1.1
-        ./configure --prefix=#{node['tensorflow']['dir']}/openmpi-2.1.1 --with-cuda=#{node['cuda']['version_dir']} --with-verbs
+        ./configure --prefix=/usr/local --with-cuda=#{node['cuda']['version_dir']} --with-verbs
         make all
         mkdir -p #{node['tensorflow']['dir']}/openmpi-2.1.1
         make install

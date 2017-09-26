@@ -13,12 +13,13 @@ end
 #
 if node['tensorflow']['mpi'].eql? "true"
   node.override['tensorflow']['need_mpi'] = 1
-  node.override['tensorflow']['install'] = "src"
+  node.override['tensorflow']['rdma'] = "true"
+#  node.override['tensorflow']['install'] = "src"
 end
 
 if node['tensorflow']['mkl'].eql? "true"
   node.override['tensorflow']['need_mkl'] = 1
-  node.override['tensorflow']['install'] = "src"
+#  node.override['tensorflow']['install'] = "src"
 
   case node['platform_family']
   when "debian"
@@ -53,7 +54,7 @@ end
 
 if node['tensorflow']['rdma'].eql? "true"
   node.override['tensorflow']['need_rdma'] = 1
-  node.override['tensorflow']['install'] = "src"
+#  node.override['tensorflow']['install'] = "src"
   if node['platform_family'].eql? "debian"
 
 # Install inifiband
@@ -446,6 +447,8 @@ if node['tensorflow']['install'].eql?("src")
       package "openmpi-bin"
       package "libopenmpi-dev"
       package "mpi-default-bin"
+    when "rhel"
+      package "openmpi-devel"
     end
     # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
     # compile openmpi on centos 7
