@@ -138,7 +138,7 @@ bash 'extract_mnist' do
         code <<-EOH
                 set -e
                 tar -zxf #{Chef::Config['file_cache_path']}/#{base_filename} -C #{Chef::Config['file_cache_path']}
-                chown -RL vagrant:vagrant #{Chef::Config['file_cache_path']}/#{node['tensorflow']['base_dirname']}
+                chown -RL #{node.hops.hdfs.user}:#{node.hops.group} #{Chef::Config['file_cache_path']}/#{node['tensorflow']['base_dirname']}
         EOH
         not_if { ::File.exists?("#{Chef::Config['file_cache_path']}/#{node['tensorflow']['base_dirname']}") }
 end
