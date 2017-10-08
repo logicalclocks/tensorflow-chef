@@ -285,8 +285,9 @@ if node['tensorflow']['install'].eql?("src")
       yum install patch -y
       yum -y install gcc gcc-c++ kernel-devel make automake autoconf swig git unzip libtool binutils
       yum -y install epel-release
-      yum -y install numpy python-devel python-pip
+      yum -y install python-devel python-pip
       yum -y install freetype-devel libpng12-devel zip zlib-devel giflib-devel zeromq3-devel
+      pip install --target /usr/lib/python2.7/site-packages numpy
       pip install grpcio_tools mock
       cd #{Chef::Config['file_cache_path']}
       rm -f #{bzl}
