@@ -113,7 +113,7 @@ end
     code <<-EOF
      set -e
       if [ ! -f /usr/lib64/libcuda.so ] ; then
-          ln -s /usr/lib64/nvidia/libcuda.so /usr/lib64
+          ln -s /usr/lib64/nvidia/libcuda.so /usr/lib64/libcuda.so
       fi
     EOF
   end
