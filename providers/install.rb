@@ -1,6 +1,14 @@
 action :cuda do
 
   cuda =  ::File.basename(node['cuda']['url'])
+  
+  bash "stop_xserver" do
+    user "root"
+    ignore_failure true
+    code <<-EOF
+      service lightdm stop
+    EOF
+  end
 
 case node['platform_family']
 when "debian"

@@ -68,7 +68,7 @@ bash "validate_cudnn" do
     user "root"
     code <<-EOF
     set -e
-    su #{node['tensorflow']['user']} -l -c "nvidia-smi -L | grep -i gpu"
+#    su #{node['tensorflow']['user']} -l -c "nvidia-smi -L | grep -i gpu"
 EOF
   not_if { node['cuda']['skip_test'] == "true" }
 end
