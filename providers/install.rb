@@ -113,18 +113,12 @@ end
 
 
 
-
-
-  bash "link_libs" do
-    user "root"
-    timeout 7200
-    code <<-EOF
-     set -e
-      if [ ! -f /usr/lib64/libcuda.so ] ; then
-          ln -s /usr/lib64/nvidia/libcuda.so /usr/lib64/libcuda.so
-      fi
-    EOF
+  link "/usr/lib64/libcuda.so" do
+    owner node['tensorflow']['user']
+    group node['tensorflow']['group']
+    to "/usr/lib64/nvidia/libcuda.so"
   end
+
 
 
 end
