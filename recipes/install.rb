@@ -440,17 +440,25 @@ else
   end
 end
 
+
+if node['tensorflow']['mpi'] == "true"
+  case node['platform_family']
+  when "debian"
+    package "openmpi-bin"
+    package "libopenmpi-dev"
+    package "mpi-default-bin"
+  when "rhel"
+    # installs binaries to /usr/local/bin
+    # horovod needs mpicxx in /usr/local/bin/mpicxx - add it to the PATH
+    package "openmpi-devel"
+    magic_shell_environment 'PATH' do
+      value "$PATH:#{node['cuda']['base_dir']}/bin:/usr/local/bin"
+    end
+  end
+end
+
 if node['tensorflow']['install'].eql?("src")
 
-  if node['tensorflow']['mpi'] == "true"
-    case node['platform_family']
-    when "debian"
-      package "openmpi-bin"
-      package "libopenmpi-dev"
-      package "mpi-default-bin"
-    when "rhel"
-      package "openmpi-devel"
-    end
     # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
     # compile openmpi on centos 7
     # https://bitsanddragons.wordpress.com/2017/05/08/install-openmpi-2-1-0-on-centos-7/
@@ -458,8 +466,6 @@ if node['tensorflow']['install'].eql?("src")
     tensorflow_compile "mpi-compile" do
       action :openmpi
     end
-
-  end
 
   tensorflow_compile "tensorflow" do
     action :tf
