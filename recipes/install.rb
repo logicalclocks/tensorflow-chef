@@ -489,9 +489,11 @@ if node['tensorflow']['mpi'] == "true"
        cd #{Chef::Config['file_cache_path']}
        rm -f #{nccl2}.txz
        wget http://snurran.sics.se/hops/#{nccl2}.txz
+       rm -f #{nccl2}.tar
        xz -d #{nccl2}.txz
-       tar xvf #{nccl2}.tar
-       mv  #{nccl2} /usr/local
+       rm -rf #{nccl2}
+       tar xf #{nccl2}.tar
+       mv  -f #{nccl2} /usr/local
        rm -f /usr/local/nccl2
        ln -s /usr/local/#{nccl2} /usr/local/nccl2
     EOF
