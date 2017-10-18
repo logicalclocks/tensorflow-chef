@@ -442,19 +442,62 @@ end
 
 
 if node['tensorflow']['mpi'] == "true"
+  
   case node['platform_family']
   when "debian"
     package "openmpi-bin"
     package "libopenmpi-dev"
     package "mpi-default-bin"
+
+#     bash "install-nccl2-ubuntu" do
+#       user "root"
+#       code <<-EOF
+# #       set -e
+#        cd #{Chef::Config['file_cache_path']}
+#        rm -f nccl-repo-ubuntu1604-2.0.5-ga-cuda8.0_2-1_amd64.deb
+#        wget http://snurran.sics.se/hops/nccl-repo-ubuntu1604-2.0.5-ga-cuda8.0_2-1_amd64.deb
+#        dpkg -i nccl-repo-ubuntu1604-2.0.5-ga-cuda8.0_2-1_amd64.deb
+#        apt-key add /var/nccl-repo-2.0.5-ga-cuda8.0/7fa2af80.pub
+#        apt update
+#        apt install libnccl2 libnccl-dev
+
+#        # https://github.com/uber/horovod/blob/master/docs/gpus.md
+#        # HOROVOD_GPU_ALLGATHER=MPI HOROVOD_GPU_BROADCAST=MPI HOROVOD_GPU_ALLREDUCE=NCCL pip install --no-cache-dir horovod
+#        # HOROVOD_GPU_ALLREDUCE=MPI HOROVOD_GPU_ALLGATHER=MPI HOROVOD_GPU_BROADCAST=MPI pip install --no-cache-dir horovod
+#     EOF
+#     end
+
   when "rhel"
     # installs binaries to /usr/local/bin
     # horovod needs mpicxx in /usr/local/bin/mpicxx - add it to the PATH
     package "openmpi-devel"
+    
     magic_shell_environment 'PATH' do
       value "$PATH:#{node['cuda']['base_dir']}/bin:/usr/local/bin"
-    end
+    end    
   end
+
+    magic_shell_environment 'LD_LIBRARY_PATH' do
+      value "$LD_LIBRARY_PATH:$JAVA_HOME/jre/lib/amd64/server:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:/usr/local/nccl2/lib"
+    end
+  
+
+    nncl2="nccl_2.0.5-3+cuda8.0_amd64"
+    bash "install-nccl2-centos" do
+      user "root"
+      code <<-EOF
+       set -e
+       cd #{Chef::Config['file_cache_path']}
+       rm -f #{nccl2}.txz
+       wget http://snurran.sics.se/hops/#{nccl2}.txz
+       xz -d < #{nccl2}.txz
+       tar xvf #{nccl2}.tar
+       mv  #{nccl2} /usr/local
+       rm -f /usr/local/nccl2
+       ln -s /usr/local/#{nccl2} /usr/local/nccl2
+    EOF
+    end
+  
 end
 
 if node['tensorflow']['install'].eql?("src")
