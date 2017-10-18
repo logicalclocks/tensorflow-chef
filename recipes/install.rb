@@ -493,7 +493,8 @@ if node['tensorflow']['mpi'] == "true"
        xz -d #{nccl2}.txz
        rm -rf #{nccl2}
        tar xf #{nccl2}.tar
-       mv  -f #{nccl2} /usr/local
+       rm -rf /usr/local/#{nccl2}
+       mv  #{nccl2} /usr/local
        rm -f /usr/local/nccl2
        ln -s /usr/local/#{nccl2} /usr/local/nccl2
     EOF
