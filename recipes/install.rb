@@ -13,7 +13,7 @@ end
 #
 if node['tensorflow']['mpi'].eql? "true"
   node.override['tensorflow']['need_mpi'] = 1
-  node.override['tensorflow']['rdma'] = "true"
+  #node.override['tensorflow']['rdma'] = "true"
 end
 
 if node['tensorflow']['mkl'].eql? "true"
