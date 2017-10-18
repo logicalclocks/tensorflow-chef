@@ -14,7 +14,6 @@ end
 if node['tensorflow']['mpi'].eql? "true"
   node.override['tensorflow']['need_mpi'] = 1
   node.override['tensorflow']['rdma'] = "true"
-#  node.override['tensorflow']['install'] = "src"
 end
 
 if node['tensorflow']['mkl'].eql? "true"
@@ -482,7 +481,7 @@ if node['tensorflow']['mpi'] == "true"
     end
   
 
-    nncl2="nccl_2.0.5-3+cuda8.0_amd64"
+    nccl2="nccl_2.0.5-3+cuda8.0_amd64"
     bash "install-nccl2-centos" do
       user "root"
       code <<-EOF
