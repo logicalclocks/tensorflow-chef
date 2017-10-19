@@ -144,7 +144,6 @@ action :cudnn do
     chmod a+r /usr/include/cudnn.h /usr/local/cuda/lib64/libcudnn*
     ldconfig
     EOF
-    not_if { ::File.exists?( "/usr/include/cudnn.h" ) }
   end
 
 end
