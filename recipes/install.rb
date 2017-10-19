@@ -337,10 +337,6 @@ if node['cuda']['accept_nvidia_download_terms'].eql?("true")
     not_if { node['cuda']['skip_test'] == "true" }
   end
 
-
-# case node['platform_family']
-#   when "debian"
-
   cuda =  File.basename(node['cuda']['url'])
   base_cuda_dir =  File.basename(cuda, "_linux-run")
   cuda_dir = "/tmp/#{base_cuda_dir}"
@@ -378,6 +374,20 @@ if node['cuda']['accept_nvidia_download_terms'].eql?("true")
     not_if { File.exist?(patch_file) }
   end
 
+
+  driver =  File.basename(node['cuda']['driver_url'])
+  cached_file = "#{Chef::Config['file_cache_path']}/#{driver}"
+
+
+  remote_file cached_file do
+    source node['cuda']['driver_url']
+    mode 0755
+    action :create
+    retries 1
+    not_if { File.exist?(cached_file) }
+  end
+
+  
 #end
   tensorflow_install "cuda_install" do
     action :cuda

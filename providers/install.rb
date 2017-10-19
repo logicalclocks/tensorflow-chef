@@ -10,6 +10,7 @@ action :cuda do
     EOF
   end
 
+driver =  ::File.basename(node['cuda']['driver_url'])    
 case node['platform_family']
 when "debian"
 
@@ -21,7 +22,8 @@ when "debian"
     set -e
 
     cd #{Chef::Config['file_cache_path']}
-    ./#{cuda} --silent --toolkit --driver --samples --verbose
+    ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms
+    ./#{cuda} --silent --toolkit --samples --verbose
     ./#{patch} --silent --accept-eula
     EOF
     not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
@@ -50,10 +52,7 @@ when "rhel"
     code <<-EOF
     set -e
     cd #{Chef::Config['file_cache_path']}
-    rm -f NVIDIA-Linux-x86_64-384.90.run
-    wget #{node['download_url']}/NVIDIA-Linux-x86_64-384.90.run
-    chmod +x NVIDIA-Linux-x86_64-384.90.run
-    ./NVIDIA-Linux-x86_64-384.90.run -a --install-libglvnd --force-libglx-indirect -q --dkms
+    ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms
     EOF
     not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
   end
