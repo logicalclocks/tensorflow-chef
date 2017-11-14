@@ -528,3 +528,16 @@ if node['tensorflow']['install'].eql?("src")
 
 end
 
+template "/etc/ld.so.conf.d/gpu.conf" do
+  source "gpu.conf.erb"
+  owner "root"
+  group "root"
+  mode "644"
+end
+
+bash "ldconfig" do
+  user "root"
+  code <<-EOF
+     ldconfig
+  EOF
+end
