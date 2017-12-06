@@ -138,12 +138,13 @@ if node['tensorflow']['rdma'].eql? "true"
     yum -y install perftest infiniband-diags
     systemctl start rdma.service
 
+#    lsmod | grep mlx
 #    yum install -y libmlx5 libmlx4 libibverbs libibumad librdmacm librdmacm-utils libibverbs-utils perftest infiniband-diags libibverbs-devel
 #    modprobe mlx4_ib
 #    modprobe mlx5_ib
    EOF
+    not_if "systemctl status rdma"
   end
-
   end
 end
 
@@ -168,10 +169,6 @@ group node['tensorflow']['group'] do
   append true
   not_if "getent passwd #{node['tensorflow']['user']}"
 end
-
-# package "expect" do
-#   action :install
-# end
 
 # http://www.pyimagesearch.com/2016/07/04/how-to-install-cuda-toolkit-and-cudnn-for-deep-learning/
 case node['platform_family']
@@ -349,14 +346,6 @@ if node['cuda']['accept_nvidia_download_terms'].eql?("true")
     action :create
     retries 2
     ignore_failure true
-    not_if { File.exist?(cached_file) }
-  end
-
-  remote_file cached_file do
-    source node['cuda']['url_backup']
-    mode 0755
-    action :create
-    retries 2
     not_if { File.exist?(cached_file) }
   end
 
