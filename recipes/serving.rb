@@ -10,9 +10,9 @@ for lib in libs
   end
 end 
 
-  bash 'compile_tfserving_bazel' do
-    user "root"
-    code <<-EOF
+bash 'compile_tfserving_bazel' do
+  user "root"
+  code <<-EOF
       set -e
       pip install tensorflow-serving-api
       cd #{node['tensorflow']['dir']}/serving
@@ -23,8 +23,8 @@ end
       rm -rf /usr/bin/tensorflow_model_server
       ln -s $(pwd)/tensorflow_serving/model_servers/tensorflow_model_server /usr/bin/
     EOF
-    action :nothing
- end
+  action :nothing
+end
 
 
 
