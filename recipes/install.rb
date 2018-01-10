@@ -253,21 +253,11 @@ if node['tensorflow']['install'].eql?("src")
   case node['platform_family']
   when "debian"
 
-    bash "bazel-install" do
+    bash "bazel-install-ubuntu" do
       user "root"
       code <<-EOF
       set -e
-#      echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
-#      curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
-#      apt-get update -y
-#      sudo apt-get install bazel -y
        apt-get install pkg-config zip g++ zlib1g-dev unzip -y
-       cd #{Chef::Config['file_cache_path']}
-       rm -f #{bzl}
-       wget #{node['bazel']['url']}
-       chmod +xnnn bazel-*
-       ./bazel-0.5.2-installer-linux-x86_64.sh
-       /usr/local/bin/bazel
     EOF
     end
 
@@ -285,16 +275,21 @@ if node['tensorflow']['install'].eql?("src")
       yum -y install freetype-devel libpng12-devel zip zlib-devel giflib-devel zeromq3-devel
       pip install --target /usr/lib/python2.7/site-packages numpy
       pip install grpcio_tools mock
-      cd #{Chef::Config['file_cache_path']}
-      rm -f #{bzl}
-      wget #{node['bazel']['url']}
-      chmod +x bazel-*
-      ./bazel-0.5.2-installer-linux-x86_64.sh
-      /usr/local/bin/bazel
     EOF
     end
-
-
+  end
+  bash "bazel-install" do
+    user "root"
+    code <<-EOF
+      set -e
+       cd #{Chef::Config['file_cache_path']}
+       rm -f #{bzl}
+       wget #{node['bazel']['url']}
+       chmod +xnnn bazel-*
+       ./#{bzl} --user
+       /usr/local/bin/bazel
+    EOF
+    not_if { File::exists?("/usr/local/bin/bazel") }
   end
 
 end

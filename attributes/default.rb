@@ -19,7 +19,7 @@ default['tensorflow']['hopstfdemo_url'] = "http://snurran.sics.se/hops/tensorflo
 
 default['tensorflow']['dir']           = node['install']['dir'].empty? ? "/srv/hops" : node['install']['dir']
 default['tensorflow']['home']          = node['tensorflow']['dir'] + "/tensorflow-" + node['tensorflow']['version']
-default['tensorflow']['base_dir']      = node['kagent']['dir'] + "/tensorflow"
+default['tensorflow']['base_dir']      = node['tensorflow']['dir'] + "/tensorflow"
 
 
 default['cuda']['major_version']       = "8.0"
@@ -59,6 +59,8 @@ default['tensorflow']['need_rdma']     = 0
 
 # https://github.com/bazelbuild/bazel/releases/download/0.5.2/bazel-0.5.2-installer-linux-x86_64.sh
 default['bazel']['major_version']      = "0.5"
-default['bazel']['minor_version']      = "2"
+default['bazel']['minor_version']      = "4"
 default['bazel']['version']            = node['bazel']['major_version'] + "." + node['bazel']['minor_version']
 default['bazel']['url']                = "#{node['download_url']}/bazel-#{node['bazel']['version']}-installer-linux-x86_64.sh"
+
+default['tensorflow']['serving']['version']      = "1.4.0"
