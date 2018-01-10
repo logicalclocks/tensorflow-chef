@@ -13,12 +13,10 @@ end
 #
 if node['tensorflow']['mpi'].eql? "true"
   node.override['tensorflow']['need_mpi'] = 1
-  #node.override['tensorflow']['rdma'] = "true"
 end
 
 if node['tensorflow']['mkl'].eql? "true"
   node.override['tensorflow']['need_mkl'] = 1
-#  node.override['tensorflow']['install'] = "src"
 
   case node['platform_family']
   when "debian"
@@ -53,7 +51,6 @@ end
 
 if node['tensorflow']['rdma'].eql? "true"
   node.override['tensorflow']['need_rdma'] = 1
-#  node.override['tensorflow']['install'] = "src"
   if node['platform_family'].eql? "debian"
 
 # Install inifiband
