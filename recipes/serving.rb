@@ -3,7 +3,7 @@ case node["platform_family"]
 when "debian"
   libs=%w{build-essential curl libcurl3-dev git libfreetype6-dev libpng12-dev libzmq3-dev pkg-config python-dev python-numpy python-pip software-properties-common swig zip zlib1g-dev }
 when "rhel"
-  libs=%w{build-essential curl libcurl git freetype-devel libpng12-devel python2-pkgconfig python-devel python27-python-pip swig zip zlib-devel giflib-devel zeromq3-devel }
+  libs=%w{curl libcurl git freetype-devel libpng12-devel python2-pkgconfig python-devel python27-python-pip swig zip zlib-devel giflib-devel zeromq3-devel }
 end
 
 for lib in libs
@@ -64,9 +64,11 @@ when "rhel"
        wget #{node['bazel']['url']}
        chmod +x bazel-*
        ./#{bzl} --user
-       /usr/local/bin/bazel
+       rm -rf /usr/bin/bazel
+       ln -s /root/bin/bazel /usr/bin/bazel
+       /usr/bin/bazel
     EOF
-    not_if { File::exists?("/usr/local/bin/bazel") }
+    not_if { File::exists?("/usr/bin/bazel") }
   end
 
   bash 'compile_tfserving_bazel' do
