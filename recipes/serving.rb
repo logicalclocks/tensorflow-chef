@@ -32,8 +32,8 @@ when "debian"
     bash 'upgrade_tf_serving' do
       user "root"
       code <<-EOF
-      apt-get update
-      apt-get update tensorflow-model-server
+      apt-get update -y
+      apt-get upgrade tensorflow-model-server -y
     EOF
     end
   end  
@@ -46,6 +46,8 @@ when "rhel"
     user "root"
     code <<-EOF
       set -e
+      yum groupinstall "Development Tools" -y
+      yum install kernel-devel kernel-headers -y
       yum install patch -y
       yum -y install gcc gcc-c++ kernel-devel make automake autoconf swig git unzip libtool binutils
       yum -y install epel-release
