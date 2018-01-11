@@ -39,7 +39,8 @@ when "debian"
   end  
   
 when "rhel"
-
+  
+  bzl =  File.basename(node['bazel']['url'])
   # https://gist.github.com/jarutis/6c2934705298720ff92a1c10f6a009d4
   bash "bazel-install-centos" do
     user "root"
@@ -61,7 +62,7 @@ when "rhel"
        cd #{Chef::Config['file_cache_path']}
        rm -f #{bzl}
        wget #{node['bazel']['url']}
-       chmod +xnnn bazel-*
+       chmod +x bazel-*
        ./#{bzl} --user
        /usr/local/bin/bazel
     EOF
