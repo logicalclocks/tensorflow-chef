@@ -8,17 +8,17 @@ action :openmpi do
       code <<-EOF
         set -e
         cd #{Chef::Config['file_cache_path']}
-        rm -f openmpi-2.1.1.tar.gz
-        wget #{node['download_url']}/openmpi-2.1.1.tar.gz
-        tar zxf openmpi-2.1.1.tar.gz
-        cd openmpi-2.1.1
+        rm -f openmpi-3.0.0.tar.gz
+        wget #{node['download_url']}/openmpi/openmpi-3.0.0.tar.gz
+        tar zxf openmpi-3.0.0.tar.gz
+        cd openmpi-3.0.0
         ./configure --prefix=/usr/local --with-cuda=#{node['cuda']['version_dir']} --with-verbs
         make all
-        mkdir -p #{node['tensorflow']['dir']}/openmpi-2.1.1
+        mkdir -p #{node['tensorflow']['dir']}/openmpi-3.0.0
         make install
-        chown -R #{node['tensorflow']['user']} #{node['tensorflow']['dir']}/openmpi-2.1.1
+        chown -R #{node['tensorflow']['user']} #{node['tensorflow']['dir']}/openmpi-3.0.0
       EOF
-      not_if { ::File.directory?("#{node['tensorflow']['dir']}/openmpi-2.1.1") }
+      not_if { ::File.directory?("#{node['tensorflow']['dir']}/openmpi-3.0.0") }
     end
 
 end
