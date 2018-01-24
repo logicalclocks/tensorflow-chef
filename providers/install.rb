@@ -112,11 +112,11 @@ end
 
 
 
-  link "/usr/lib64/libcuda.so" do
-    owner node['tensorflow']['user']
-    group node['tensorflow']['group']
-    to "/usr/lib64/nvidia/libcuda.so"
-  end
+#  link "/usr/lib64/libcuda.so" do
+#    owner node['tensorflow']['user']
+#    group node['tensorflow']['group']
+#    to "/usr/lib64/nvidia/libcuda.so"
+#  end
 
 
 
