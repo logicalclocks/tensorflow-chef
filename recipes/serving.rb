@@ -78,13 +78,13 @@ when "rhel"
     code <<-EOF
       set -e
       pip install tensorflow-serving-api
-      cd #{node['tensorflow']['dir']}/serving
-      bazel build -c opt --copt=-mavx2 --define with_hdfs_support=true tensorflow_serving/model_servers:tensorflow_model_server
+#      cd #{node['tensorflow']['dir']}/serving
+#      bazel build -c opt --copt=-mavx2 --define with_hdfs_support=true tensorflow_serving/model_servers:tensorflow_model_server
 #      To build the entire tree, uncomment the line below
 #      bazel build -c opt --define with_hdfs_support=true tensorflow_serving/...
 #       bazel test -c opt tensorflow_serving/...
-      rm -rf /usr/bin/tensorflow_model_server
-      ln -s $(pwd)/tensorflow_serving/model_servers/tensorflow_model_server /usr/bin/
+#      rm -rf /usr/bin/tensorflow_model_server
+#      ln -s $(pwd)/tensorflow_serving/model_servers/tensorflow_model_server /usr/bin/
     EOF
     action :nothing
   end
