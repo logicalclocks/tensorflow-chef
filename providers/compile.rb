@@ -253,14 +253,10 @@ EOF
       not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/.installed" ) }
     end
 
-
   end
 
 
-
-
   bash "pip_install_tensorflow" do
-    #    user node['tensorflow']['user']
       user "root"
       timeout 30800
       code <<-EOF
@@ -272,7 +268,6 @@ EOF
 
     #install -Dm755 bazel-bin/tensorflow/libtensorflow.so /usr/lib/
     #install -Dm644 tensorflow/c/c_api.h /usr/include/tensorflow-cuda/c_api.h
-
 
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 

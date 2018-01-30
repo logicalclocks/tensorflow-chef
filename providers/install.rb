@@ -20,9 +20,9 @@ when "debian"
     timeout 72000
     code <<-EOF
     set -e
-
+    apt-get install dkms -y
     cd #{Chef::Config['file_cache_path']}
-    ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms
+    ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s
     ./#{cuda} --silent --toolkit --samples --verbose
     ./#{patch} --silent --accept-eula
     EOF
@@ -112,11 +112,11 @@ end
 
 
 
-  link "/usr/lib64/libcuda.so" do
-    owner node['tensorflow']['user']
-    group node['tensorflow']['group']
-    to "/usr/lib64/nvidia/libcuda.so"
-  end
+#  link "/usr/lib64/libcuda.so" do
+#    owner node['tensorflow']['user']
+#    group node['tensorflow']['group']
+#    to "/usr/lib64/nvidia/libcuda.so"
+#  end
 
 
 
