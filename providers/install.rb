@@ -37,6 +37,7 @@ when "debian"
     apt-get install dkms -y
     cd #{Chef::Config['file_cache_path']}
     #./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s
+    ./#{cuda} --silent --driver
     ./#{cuda} --silent --toolkit --samples --verbose
     ./#{patch} --silent --accept-eula
     EOF

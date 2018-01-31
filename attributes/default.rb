@@ -29,7 +29,7 @@ default['cuda']['patch_version']       = "1"
 default['cuda']['version']             = node['cuda']['major_version'] + "." + node['cuda']['minor_version'] + "_" + node['cuda']['build_version']
 default['cuda']['url']                 = "#{node['download_url']}/cuda_#{node['cuda']['version']}_linux.run"
 #default['cuda']['url_backup']          = "http://developer.download.nvidia.com/compute/cuda/#{node['cuda']['major_version']}/Prod/local_installers/cuda_#{node['cuda']['version']}_linux.run"
-default['cuda']['driver_url']          = "#{node['download_url']}/NVIDIA-Linux-x86_64-384.90.run"
+default['cuda']['driver_url']          = "#{node['download_url']}/NVIDIA-Linux-x86_64-390.25.run"
 default['cuda']['md5sum']              = "33e1bd980e91af4e55f3ef835c103f9b"
 
 default['cuda']['version_patch']       = node['cuda']['major_version'] + "." + node['cuda']['minor_version'] + "." + node['cuda']['patch_version']
