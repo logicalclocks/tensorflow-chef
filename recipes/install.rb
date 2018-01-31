@@ -368,8 +368,6 @@ if node['cuda']['accept_nvidia_download_terms'].eql?("true")
     not_if { File.exist?(cached_file) }
   end
 
-  
-#end
   tensorflow_install "cuda_install" do
     action :cuda
   end
@@ -472,7 +470,7 @@ if node['tensorflow']['mpi'] == "true"
     end
   
 
-    nccl2="nccl_2.0.5-3+cuda8.0_amd64"
+    nccl2=node['cuda']['nccl_version']
     bash "install-nccl2" do
       user "root"
       code <<-EOF
@@ -489,6 +487,7 @@ if node['tensorflow']['mpi'] == "true"
        rm -f /usr/local/nccl2
        ln -s /usr/local/#{nccl2} /usr/local/nccl2
     EOF
+      not_if { File.directory?("/usr/local/#{nccl2}") }
     end
   
 end

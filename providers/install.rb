@@ -10,6 +10,17 @@ action :cuda do
     EOF
   end
 
+# Read the current version of installed cuda, if any  
+firstLine= File.open('/usr/local/cuda/version.txt', &:gets)
+if firstLine is nil
+   firstLine = " "
+end  
+cudaVersion = firstLine.sub! 'CUDA Version ' ''
+newCudaVersion = node['cuda']['major_version'] + '.' + ['cuda']['minor_version']
+
+Chef::Log.info "Old cuda version is: " + cudaVersion
+Chef::Log.info "New cuda version is: " + newCudaVersion
+
 driver =  ::File.basename(node['cuda']['driver_url'])    
 case node['platform_family']
 when "debian"
@@ -26,7 +37,7 @@ when "debian"
     ./#{cuda} --silent --toolkit --samples --verbose
     ./#{patch} --silent --accept-eula
     EOF
-    not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
+    not_if { cudaVersion == newCudaVersion }
   end
 
 
@@ -43,7 +54,7 @@ when "rhel"
       yum install kernel-headers -y
       yum install libglvnd-glx -y
     EOF
-    not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
+    not_if { cudaVersion == newCudaVersion }
   end
 
   bash "install_cuda_driver" do
@@ -54,7 +65,7 @@ when "rhel"
     cd #{Chef::Config['file_cache_path']}
     ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms
     EOF
-    not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
+    not_if { cudaVersion == newCudaVersion }
   end
 
   patch =  ::File.basename(node['cuda']['url_patch'])
@@ -68,7 +79,7 @@ when "rhel"
     ./#{cuda} --silent --toolkit --samples --verbose
     ./#{patch} --silent --accept-eula
     EOF
-    not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
+    not_if { cudaVersion == newCudaVersion }
   end
 
 

@@ -36,12 +36,11 @@ default['cuda']['version_patch']       = node['cuda']['major_version'] + "." + n
 default['cuda']['url_patch']           = "#{node['download_url']}/cuda_#{node['cuda']['version_patch']}_linux.run"
 
 
-#default['cudnn']['major_version']      = "7"
-#default['cudnn']['minor_version']      = "0"
-#default['cudnn']['version']            = node['cudnn']['major_version']
-#+ "." + node['cudnn']['minor_version']
 default['cudnn']['version']            = "7"
 default['cudnn']['url']                = "#{node['download_url']}/cudnn-#{node['cuda']['major_version']}-linux-x64-v#{node['cudnn']['version']}.tgz"
+
+# "nccl_2.0.5-3+cuda8.0_amd64"
+default['cuda']['nccl_version']        = "nccl_" + "2.1.4-1" + "+cuda" + node['cuda']['major_version'] + "_x86_64"
 
 default['cuda']['dir']                 = "/usr/local"
 default['cuda']['base_dir']            = "#{node['cuda']['dir']}/cuda"
