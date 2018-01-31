@@ -2,7 +2,7 @@ include_attribute "kagent"
 
 default['tensorflow']['user']          = node['tensorflow'].attribute?('user') ? node['install']['user'] : node['kagent']['user']
 default['tensorflow']['group']         = node['install']['user'].empty? ? node['kagent']['group'] : node['install']['user']
-default['tensorflow']['base_version']  = "1.4.0"
+default['tensorflow']['base_version']  = "1.5.0"
 
 default['tensorflow']['install']       = "dist" # or 'src' or 'custom'
 
@@ -22,10 +22,10 @@ default['tensorflow']['home']          = node['tensorflow']['dir'] + "/tensorflo
 default['tensorflow']['base_dir']      = node['tensorflow']['dir'] + "/tensorflow"
 
 
-default['cuda']['major_version']       = "8.0"
-default['cuda']['minor_version']       = "61"
-default['cuda']['build_version']       = "375.26"
-default['cuda']['patch_version']       = "2"
+default['cuda']['major_version']       = "9.1"
+default['cuda']['minor_version']       = "85"
+default['cuda']['build_version']       = "387.26"
+default['cuda']['patch_version']       = "1"
 default['cuda']['version']             = node['cuda']['major_version'] + "." + node['cuda']['minor_version'] + "_" + node['cuda']['build_version']
 default['cuda']['url']                 = "#{node['download_url']}/cuda_#{node['cuda']['version']}_linux.run"
 #default['cuda']['url_backup']          = "http://developer.download.nvidia.com/compute/cuda/#{node['cuda']['major_version']}/Prod/local_installers/cuda_#{node['cuda']['version']}_linux.run"
@@ -36,9 +36,11 @@ default['cuda']['version_patch']       = node['cuda']['major_version'] + "." + n
 default['cuda']['url_patch']           = "#{node['download_url']}/cuda_#{node['cuda']['version_patch']}_linux.run"
 
 
-default['cudnn']['major_version']      = "6"
-default['cudnn']['minor_version']      = "0"
-default['cudnn']['version']            = node['cudnn']['major_version'] + "." + node['cudnn']['minor_version']
+#default['cudnn']['major_version']      = "7"
+#default['cudnn']['minor_version']      = "0"
+#default['cudnn']['version']            = node['cudnn']['major_version']
+#+ "." + node['cudnn']['minor_version']
+default['cudnn']['version']            = "7"
 default['cudnn']['url']                = "#{node['download_url']}/cudnn-#{node['cuda']['major_version']}-linux-x64-v#{node['cudnn']['version']}.tgz"
 
 default['cuda']['dir']                 = "/usr/local"
