@@ -11,12 +11,15 @@ action :cuda do
   end
 
 # Read the current version of installed cuda, if any  
-firstLine= File.open('/usr/local/cuda/version.txt', &:gets)
-if firstLine is nil
-   firstLine = " "
+cudaVersion = " "
+if ::File.exist?( '/usr/local/cuda/version.txt')
+  IO.foreach('/usr/local/cuda/version.txt') do |f|
+    if f.include? "Cuda Version"
+      cudaVersion = f.sub! 'CUDA Version ' ''
+    end
+  end 
 end  
-cudaVersion = firstLine.sub! 'CUDA Version ' ''
-newCudaVersion = node['cuda']['major_version'] + '.' + ['cuda']['minor_version']
+newCudaVersion = "#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}"
 
 Chef::Log.info "Old cuda version is: " + cudaVersion
 Chef::Log.info "New cuda version is: " + newCudaVersion
@@ -33,7 +36,7 @@ when "debian"
     set -e
     apt-get install dkms -y
     cd #{Chef::Config['file_cache_path']}
-    ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s
+    #./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s
     ./#{cuda} --silent --toolkit --samples --verbose
     ./#{patch} --silent --accept-eula
     EOF
