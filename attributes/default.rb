@@ -10,12 +10,13 @@ default['tensorflow']['install']       = "dist" # or 'src' or 'custom'
 default['tensorflow']['custom_url']    = "#{node['download_url']}/tensorflow-#{node['tensorflow']['version']}-#{node['platform']}-5.4-2.7.whl"
 
 default['tensorflow']['git_url']       = "https://github.com/tensorflow/tensorflow"
-default['tensorflow']['python_url']    = "http://snurran.sics.se/hops/Python.zip"
-default['tensorflow']['tfspark_url']   = "http://snurran.sics.se/hops/tfspark.zip"
-default['tensorflow']['hopstf_url']    = "http://snurran.sics.se/hops/tensorflow/hops-tensorflow-0.0.1.jar"
+default['tensorflow']['python_url']    = "#{node['download_url']}/Python.zip"
+default['tensorflow']['tfspark_url']   = "#{node['download_url']}/tfspark.zip"
+default['tensorflow']['hopstf_version']= "0.0.1"
+default['tensorflow']['hopstf_url']    = "#{node['download_url']}/tensorflow/hops-tensorflow-#{node['tensorflow']['hopstf_version']}.jar"
 default['tensorflow']['base_dirname']  = "mnist"
 default['tensorflow']['hopstfdemo_dir'] = "tensorflow_demo"
-default['tensorflow']['hopstfdemo_url'] = "http://snurran.sics.se/hops/tensorflow/#{node['tensorflow']['base_dirname']}.tar.gz"
+default['tensorflow']['hopstfdemo_url'] = "#{node['download_url']}/tensorflow/#{node['tensorflow']['base_dirname']}.tar.gz"
 
 default['tensorflow']['dir']           = node['install']['dir'].empty? ? "/srv/hops" : node['install']['dir']
 default['tensorflow']['home']          = node['tensorflow']['dir'] + "/tensorflow-" + node['tensorflow']['version']
@@ -29,7 +30,8 @@ default['cuda']['patch_version']       = "1"
 default['cuda']['version']             = node['cuda']['major_version'] + "." + node['cuda']['minor_version'] + "_" + node['cuda']['build_version']
 default['cuda']['url']                 = "#{node['download_url']}/cuda_#{node['cuda']['version']}_linux.run"
 #default['cuda']['url_backup']          = "http://developer.download.nvidia.com/compute/cuda/#{node['cuda']['major_version']}/Prod/local_installers/cuda_#{node['cuda']['version']}_linux.run"
-default['cuda']['driver_url']          = "#{node['download_url']}/NVIDIA-Linux-x86_64-390.25.run"
+default['cuda']['driver_version']      = "NVIDIA-Linux-x86_64-390.25.run"
+default['cuda']['driver_url']          = "#{node['download_url']}/#{node['cuda']['driver_version']}"
 default['cuda']['md5sum']              = "33e1bd980e91af4e55f3ef835c103f9b"
 
 default['cuda']['version_patch']       = node['cuda']['major_version'] + "." + node['cuda']['minor_version'] + "." + node['cuda']['patch_version']
@@ -40,7 +42,8 @@ default['cudnn']['version']            = "7"
 default['cudnn']['url']                = "#{node['download_url']}/cudnn-#{node['cuda']['major_version']}-linux-x64-v#{node['cudnn']['version']}.tgz"
 
 # "nccl_2.0.5-3+cuda8.0_amd64"
-default['cuda']['nccl_version']        = "nccl_" + "2.1.4-1" + "+cuda" + node['cuda']['major_version'] + "_x86_64"
+default['cuda']['nccl']                = "2.1.4-1"
+default['cuda']['nccl_version']        = "nccl_" + node['cuda']['nccl'] + "+cuda" + node['cuda']['major_version'] + "_x86_64"
 
 default['cuda']['dir']                 = "/usr/local"
 default['cuda']['base_dir']            = "#{node['cuda']['dir']}/cuda"
@@ -65,3 +68,5 @@ default['bazel']['version']            = node['bazel']['major_version'] + "." + 
 default['bazel']['url']                = "#{node['download_url']}/bazel-#{node['bazel']['version']}-installer-linux-x86_64.sh"
 
 default['tensorflow']['serving']['version']      = "1.4.0"
+
+default['openmpi']['version']          = "openmpi-3.0.0.tar.gz"
