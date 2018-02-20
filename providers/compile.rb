@@ -3,22 +3,24 @@
 
 action :openmpi do
 
+    basename = File.basename(node['openmpi']['version'], ".tar.gz")
+  
     bash "compile_openmpi" do
       user "root"
       code <<-EOF
         set -e
         cd #{Chef::Config['file_cache_path']}
-        rm -f openmpi-3.0.0.tar.gz
-        wget #{node['download_url']}/openmpi/openmpi-3.0.0.tar.gz
-        tar zxf openmpi-3.0.0.tar.gz
-        cd openmpi-3.0.0
+        rm -f #{node['openmpi']['version']}
+        wget #{node['download_url']}/openmpi/#{node['openmpi']['version']}
+        tar zxf #{node['openmpi']['version']}
+        cd #{basename}
         ./configure --prefix=/usr/local --with-cuda=#{node['cuda']['version_dir']} --with-verbs
         make all
-        mkdir -p #{node['tensorflow']['dir']}/openmpi-3.0.0
+        mkdir -p #{node['tensorflow']['dir']}/#{basename}
         make install
-        chown -R #{node['tensorflow']['user']} #{node['tensorflow']['dir']}/openmpi-3.0.0
+        chown -R #{node['tensorflow']['user']} #{node['tensorflow']['dir']}/#{basename}
       EOF
-      not_if { ::File.directory?("#{node['tensorflow']['dir']}/openmpi-3.0.0") }
+      not_if { ::File.directory?("#{node['tensorflow']['dir']}/#{basename}") }
     end
 
 end

@@ -10,6 +10,20 @@ action :cuda do
     EOF
   end
 
+# Read the current version of installed cuda, if any  
+cudaVersion = " "
+if ::File.exist?( '/usr/local/cuda/version.txt')
+  IO.foreach('/usr/local/cuda/version.txt') do |f|
+    if f.include? "Cuda Version"
+      cudaVersion = f.sub! 'CUDA Version ' ''
+    end
+  end 
+end  
+newCudaVersion = "#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}"
+
+Chef::Log.info "Old cuda version is: " + cudaVersion
+Chef::Log.info "New cuda version is: " + newCudaVersion
+
 driver =  ::File.basename(node['cuda']['driver_url'])    
 case node['platform_family']
 when "debian"
@@ -22,11 +36,12 @@ when "debian"
     set -e
     apt-get install dkms -y
     cd #{Chef::Config['file_cache_path']}
-    ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s
+    #./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s
+    ./#{cuda} --silent --driver
     ./#{cuda} --silent --toolkit --samples --verbose
     ./#{patch} --silent --accept-eula
     EOF
-    not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
+    not_if { cudaVersion == newCudaVersion }
   end
 
 
@@ -43,7 +58,7 @@ when "rhel"
       yum install kernel-headers -y
       yum install libglvnd-glx -y
     EOF
-    not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
+    not_if { cudaVersion == newCudaVersion }
   end
 
   bash "install_cuda_driver" do
@@ -54,7 +69,7 @@ when "rhel"
     cd #{Chef::Config['file_cache_path']}
     ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms
     EOF
-    not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
+    not_if { cudaVersion == newCudaVersion }
   end
 
   patch =  ::File.basename(node['cuda']['url_patch'])
@@ -68,7 +83,7 @@ when "rhel"
     ./#{cuda} --silent --toolkit --samples --verbose
     ./#{patch} --silent --accept-eula
     EOF
-    not_if { ::File.exists?( "/usr/local/cuda/version.txt" ) }
+    not_if { cudaVersion == newCudaVersion }
   end
 
 
