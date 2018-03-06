@@ -60,6 +60,21 @@ if node['tensorflow']['rdma'].eql? "true"
     code <<-EOF
     set -e
      apt-get install libmlx4-1 libmlx5-1 ibutils  rdmacm-utils libibverbs1 ibverbs-utils perftest infiniband-diags libibverbs-dev -y
+     apt-get -y install libibcm1 libibverbs1 ibverbs-utils librdmacm1 rdmacm-utils libdapl2 ibsim-utils ibutils libcxgb3-1 libibmad5 libibumad3 libmlx4-1 libmthca1 libnes1 infiniband-diags mstflint opensm perftest srptools
+     # RDMA stack modules
+     sudo modprobe rdma_cm
+     sudo modprobe ib_uverbs
+     sudo modprobe rdma_ucm
+     sudo modprobe ib_ucm
+     sudo modprobe ib_umad
+     sudo modprobe ib_ipoib
+     # RDMA devices low-level drivers
+     sudo modprobe mlx4_ib
+     sudo modprobe mlx4_en
+     sudo modprobe iw_cxgb3
+     sudo modprobe iw_cxgb4
+     sudo modprobe iw_nes
+     sudo modprobe iw_c2
     EOF
   end
   else # "rhel"
