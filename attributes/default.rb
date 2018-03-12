@@ -10,8 +10,6 @@ default['tensorflow']['install']       = "dist" # or 'src' or 'custom'
 default['tensorflow']['custom_url']    = "#{node['download_url']}/tensorflow-#{node['tensorflow']['version']}-#{node['platform']}-5.4-2.7.whl"
 
 default['tensorflow']['git_url']       = "https://github.com/tensorflow/tensorflow"
-default['tensorflow']['python_url']    = "#{node['download_url']}/Python.zip"
-default['tensorflow']['tfspark_url']   = "#{node['download_url']}/tfspark.zip"
 default['tensorflow']['hopstf_version']= "0.0.1"
 default['tensorflow']['hopstf_url']    = "#{node['download_url']}/tensorflow/hops-tensorflow-#{node['tensorflow']['hopstf_version']}.jar"
 default['tensorflow']['base_dirname']  = "mnist"

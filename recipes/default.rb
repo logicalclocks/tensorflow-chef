@@ -66,44 +66,6 @@ end
 if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
 
 
-  url=node['tensorflow']['python_url']
-  base_filename =  File.basename(url)
-  cached_filename = "#{Chef::Config['file_cache_path']}/#{base_filename}"
-
-  remote_file cached_filename do
-    source url
-    mode 0755
-    action :create
-  end
-
-  hops_hdfs_directory cached_filename do
-    action :put_as_superuser
-    owner node['hops']['hdfs']['user']
-    group node['hops']['group']
-    mode "1755"
-    dest "/user/#{node['hops']['hdfs']['user']}/#{base_filename}"
-  end
-
-
-  url=node['tensorflow']['tfspark_url']
-
-  base_filename =  File.basename(url)
-  cached_filename = "#{Chef::Config['file_cache_path']}/#{base_filename}"
-
-  remote_file cached_filename do
-    source url
-    mode 0755
-    action :create
-  end
-
-  hops_hdfs_directory cached_filename do
-    action :put_as_superuser
-    owner node['hops']['hdfs']['user']
-    group node['hops']['group']
-    mode "1755"
-    dest "/user/#{node['hops']['hdfs']['user']}/#{base_filename}"
-  end
-
   url=node['tensorflow']['hopstf_url']
 
   base_filename =  File.basename(url)
