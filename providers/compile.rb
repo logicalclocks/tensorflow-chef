@@ -334,13 +334,17 @@ EOF
     end
 
 
-    bash "validate_tensorflow" do
+    bash "transform_graph" do
       user node['tensorflow']['user']
       code <<-EOF
        set -e
 #       cd /home/#{node['tensorflow']['user']}/tensorflow
 #       cd models/image/mnist
 #       python convolutional.py
+    
+        cd /home/#{node['tensorflow']['user']}/tensorflow
+        bazel build tensorflow/tools/graph_transforms:transform_graph
+
       EOF
     end
 

@@ -297,7 +297,7 @@ if node['tensorflow']['install'].eql?("src")
        cd #{Chef::Config['file_cache_path']}
        rm -f #{bzl}
        wget #{node['bazel']['url']}
-       chmod +xnnn bazel-*
+       chmod +x bazel-*
        ./#{bzl} --user
        /usr/local/bin/bazel
     EOF
