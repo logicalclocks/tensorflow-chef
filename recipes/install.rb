@@ -298,7 +298,8 @@ if node['tensorflow']['install'].eql?("src")
        rm -f #{bzl}
        wget #{node['bazel']['url']}
        chmod +x bazel-*
-       ./#{bzl} --user
+#       ./#{bzl} --user
+       ./#{bzl}
        /usr/local/bin/bazel
     EOF
     not_if { File::exists?("/usr/local/bin/bazel") }
