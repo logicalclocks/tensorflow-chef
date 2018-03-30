@@ -3,8 +3,13 @@
 
 action :openmpi do
 
-    basename = File.basename(node['openmpi']['version'], ".tar.gz")
-  
+    basename = ::File.basename(node['openmpi']['version'], ".tar.gz")
+
+    case node['platform_family']
+    when "debian"
+      package 'libibverbs-dev'
+    end
+    
     bash "compile_openmpi" do
       user "root"
       code <<-EOF
