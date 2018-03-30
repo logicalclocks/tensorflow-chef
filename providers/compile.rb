@@ -87,6 +87,8 @@ action :tf do
 
   # https://github.com/lakshayg/tensorflow-build
 
+  tf_version = node['tensorflow']['version']
+  base_version = ::File.basename("#{tf_version}", ::File.extname(tf_version))
 
 bash "git_clone_tensorflow_server" do
     user node['tensorflow']['user']

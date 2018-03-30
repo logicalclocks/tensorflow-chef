@@ -60,11 +60,11 @@ default['tensorflow']['need_mkl']      = 0
 default['tensorflow']['need_rdma']     = 0
 
 # https://github.com/bazelbuild/bazel/releases/download/0.5.2/bazel-0.5.2-installer-linux-x86_64.sh
-default['bazel']['major_version']      = "0.5"
-default['bazel']['minor_version']      = "4"
+default['bazel']['major_version']      = "0.11"
+default['bazel']['minor_version']      = "1"
 default['bazel']['version']            = node['bazel']['major_version'] + "." + node['bazel']['minor_version']
 default['bazel']['url']                = "#{node['download_url']}/bazel-#{node['bazel']['version']}-installer-linux-x86_64.sh"
 
-default['tensorflow']['serving']['version']      = "1.4.0"
+default['tensorflow']['serving']['version']      = "1.5.0"
 
 default['openmpi']['version']          = "openmpi-3.0.1.tar.gz"
