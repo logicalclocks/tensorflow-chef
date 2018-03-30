@@ -184,6 +184,8 @@ if node['cuda']['accept_nvidia_download_terms'] == "true"
     set -e
      chown -R #{node['tensorflow']['user']} /home/#{node['tensorflow']['user']}/tensorflow
 #     rm -rf /home/#{node['tensorflow']['user']}/.cache/bazel
+      find /usr/local/cuda/lib64/stubs/ -printf "%f\n" > /etc/ld.so.conf.d/cuda-stubs.conf
+      ldconfig
      EOF
     end
 
