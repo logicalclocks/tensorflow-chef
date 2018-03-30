@@ -37,7 +37,7 @@ default['cuda']['url_patch']           = "#{node['download_url']}/cuda_#{node['c
 
 # cudnn-9.1-linux-x64-v7.1.tar.gz
 default['cudnn']['version']            = "7.1"
-default['cudnn']['url']                = "#{node['download_url']}/cudnn-#{node['cuda']['major_version']}-linux-x64-v#{node['cudnn']['version']}.tgz"
+default['cudnn']['url']                = "#{node['download_url']}/cudnn-#{node['cuda']['major_version']}-linux-x64-v#{node['cudnn']['version']}.tar.gz"
 
 # nccl_2.1.15-1+cuda9.1_x86_64.txz
 default['cuda']['nccl']                = "2.1.15-1"
