@@ -213,7 +213,7 @@ if node['cuda']['accept_nvidia_download_terms'] == "true"
 #    bazel build -c opt  --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" --config=cuda --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 //tensorflow/tools/pip_package:build_pip_package
 
 # This works
-    bazel build -c opt --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0"  --config=cuda //tensorflow/tools/pip_package:build_pip_package
+    bazel build -c opt --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0"  --action_env=LD_LIBRARY_PATH=/usr/local/cuda/lib64   --config=cuda //tensorflow/tools/pip_package:build_pip_package
     touch .installed
 EOF
       not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/.installed" ) }
