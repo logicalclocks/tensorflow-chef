@@ -99,10 +99,9 @@ bash "git_clone_tensorflow_server" do
       cd tensorflow
       git pull
     else
-      git clone --recurse-submodules --branch r#{node['tensorflow']['base_version']} #{node['tensorflow']['git_url']}
+      git clone --recurse-submodules --branch r#{tf_version} #{node['tensorflow']['git_url']}
       cd tensorflow
     fi
-#    git checkout r#{node['tensorflow']['base_version']}
 EOF
 #  not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/configure" ) }
 end
@@ -282,7 +281,7 @@ EOF
 
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 
-    pip install --ignore-installed --upgrade /tmp/tensorflow_pkg/tensorflow-#{node['tensorflow']['base_version']}-py2-none-any.whl
+    pip install --ignore-installed --upgrade /tmp/tensorflow_pkg/tensorflow-#{base_version}-py2-none-any.whl
     touch .installed_pip
 EOF
       not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/.installed_pip" ) }
@@ -324,7 +323,7 @@ else
     export PATH=$PATH:/usr/local/bin
     bazel build -c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-    pip install /tmp/tensorflow_pkg/tensorflow-#{node['tensorflow']['base_version']}-cp27-cp27mu-linux_x86_64.whl
+    pip install /tmp/tensorflow_pkg/tensorflow-#{base_version}-cp27-cp27mu-linux_x86_64.whl
     #--user
     touch .installed
 EOF
