@@ -192,7 +192,8 @@ if node['cuda']['accept_nvidia_download_terms'] == "true"
 
   case node['platform_family']
   when "debian"
-   package 'cuda-command-line-tools'
+   # tensorflow tools say to install this - not default package in ubuntu
+   #package 'cuda-command-line-tools'
     
   bash "build_install_tensorflow_server_debian" do
     #    user node['tensorflow']['user']
