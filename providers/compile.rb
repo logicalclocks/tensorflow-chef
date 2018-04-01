@@ -236,13 +236,16 @@ EOF
     cd /home/#{node['tensorflow']['user']}/tensorflow
     ./#{config}
 
-
-    git clone https://github.com/NVIDIA/nccl.git
+    if [ ! -d nccl ] ; then 
+      git clone https://github.com/NVIDIA/nccl.git
+    fi
     cd nccl/
     make CUDA_HOME=/usr/local/cuda
     sudo make install
     sudo mkdir -p /usr/local/include/external/nccl_archive/src
-    sudo ln -s /usr/local/include/nccl.h /usr/local/include/external/nccl_archive/src/nccl.h
+    if [ ! -f /usr/local/include/external/nccl_archive/src/nccl.h ] ; then
+      sudo ln -s /usr/local/include/nccl.h /usr/local/include/external/nccl_archive/src/nccl.h
+    fi
     cd ..
 
 #  https://github.com/tensorflow/serving/issues/327
