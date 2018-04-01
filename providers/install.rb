@@ -28,7 +28,6 @@ driver =  ::File.basename(node['cuda']['driver_url'])
 case node['platform_family']
 when "debian"
 
-  patch =  ::File.basename(node['cuda']['url_patch'])
   bash "install_cuda" do
     user "root"
     timeout 72000
@@ -39,11 +38,9 @@ when "debian"
     #./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s
     ./#{cuda} --silent --driver
     ./#{cuda} --silent --toolkit --samples --verbose
-    ./#{patch} --silent --accept-eula
     EOF
     not_if { cudaVersion == newCudaVersion }
   end
-
 
 when "rhel"
 
@@ -125,6 +122,22 @@ when "rhel"
 
 end
 
+# Install all the cuda patches
+
+for i in 1..node['cuda']['num_patches'] do
+  patch_version  = node['cuda']['major_version'] + "." + node['cuda']['minor_version'] + ".#{i}" 
+  patch =  "cuda_#{patch_version}_linux.run"
+  bash "install_cuda_patch_#{i}" do
+    user "root"
+    timeout 72000
+    code <<-EOF
+    set -e
+    cd #{Chef::Config['file_cache_path']}
+    ./#{patch} --silent --accept-eula
+    EOF
+    not_if { cudaVersion == newCudaVersion }
+  end
+end
 
 
 #  link "/usr/lib64/libcuda.so" do
