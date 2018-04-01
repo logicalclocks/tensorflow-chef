@@ -102,7 +102,7 @@ action :tf do
       cd tensorflow
       git pull
     else
-      git clone --recurse-submodules --branch r#{tf_version} #{node['tensorflow']['git_url']}
+      git clone --recurse-submodules --branch r#{base_version} #{node['tensorflow']['git_url']}
       cd tensorflow
     fi
 EOF
