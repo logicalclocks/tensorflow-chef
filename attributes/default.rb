@@ -23,17 +23,12 @@ default['tensorflow']['base_dir']      = node['tensorflow']['dir'] + "/tensorflo
 default['cuda']['major_version']       = "9.1"
 default['cuda']['minor_version']       = "85"
 default['cuda']['build_version']       = "387.26"
-default['cuda']['patch_version']       = "1"
 default['cuda']['version']             = node['cuda']['major_version'] + "." + node['cuda']['minor_version'] + "_" + node['cuda']['build_version']
 default['cuda']['url']                 = "#{node['download_url']}/cuda_#{node['cuda']['version']}_linux.run"
 #default['cuda']['url_backup']          = "http://developer.download.nvidia.com/compute/cuda/#{node['cuda']['major_version']}/Prod/local_installers/cuda_#{node['cuda']['version']}_linux.run"
 default['cuda']['driver_version']      = "NVIDIA-Linux-x86_64-390.25.run"
 default['cuda']['driver_url']          = "#{node['download_url']}/#{node['cuda']['driver_version']}"
 default['cuda']['md5sum']              = "33e1bd980e91af4e55f3ef835c103f9b"
-
-default['cuda']['version_patch']       = node['cuda']['major_version'] + "." + node['cuda']['minor_version'] + "." + node['cuda']['patch_version']
-default['cuda']['url_patch']           = "#{node['download_url']}/cuda_#{node['cuda']['version_patch']}_linux.run"
-
 
 # cudnn-9.1-linux-x64-v7.1.tar.gz
 default['cudnn']['version']            = "7.1"
@@ -46,7 +41,7 @@ default['cuda']['nccl_version']        = "nccl_" + node['cuda']['nccl'] + "+cuda
 default['cuda']['dir']                 = "/usr/local"
 default['cuda']['base_dir']            = "#{node['cuda']['dir']}/cuda"
 default['cuda']['version_dir']         = "#{node['cuda']['dir']}/cuda-#{node['cuda']['major_version']}"
-
+default['cuda']['num_patches']         = 3
 
 default['cuda']['accept_nvidia_download_terms']        = "false"
 default['cuda']['skip_test']           = "false"

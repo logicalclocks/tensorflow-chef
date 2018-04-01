@@ -357,20 +357,25 @@ if node['cuda']['accept_nvidia_download_terms'].eql?("true")
     not_if { File.exist?(cached_file) }
   end
 
-  patch =  File.basename(node['cuda']['url_patch'])
-  base_patch_dir =  File.basename(patch, "_linux-run")
-  patch_dir = "/tmp/#{base_patch_dir}"
-  patch_file = "#{Chef::Config['file_cache_path']}/#{patch}"
 
-  remote_file patch_file do
-    source node['cuda']['url_patch']
-    mode 0755
-    action :create
-    retries 2
-    ignore_failure true
-    not_if { File.exist?(patch_file) }
+  for i in 1..node['cuda']['num_patches'] do
+
+    patch_version  = node['cuda']['major_version'] + "." + node['cuda']['minor_version'] + ".#{i}" 
+    patch_url  = "#{node['download_url']}/cuda_#{patch_version}_linux.run"
+    patch =  File.basename(#{patch_url})
+    base_patch_dir =  File.basename(patch, "_linux-run")
+    patch_dir = "#{Chef::Config['file_cache_path']}/#{base_patch_dir}"
+    patch_file = "#{Chef::Config['file_cache_path']}/#{patch}"
+
+    remote_file patch_file do
+      source patch_url
+      mode 0755
+      action :create
+      retries 2
+      ignore_failure true
+      not_if { File.exist?(patch_file) }
+    end
   end
-
 
   driver =  File.basename(node['cuda']['driver_url'])
   cached_file = "#{Chef::Config['file_cache_path']}/#{driver}"

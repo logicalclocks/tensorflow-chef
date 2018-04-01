@@ -214,7 +214,6 @@ if node['cuda']['accept_nvidia_download_terms'] == "true"
 # Build fails for centos: https://github.com/tensorflow/tensorflow/issues/10665
 #    bazel build -c opt  --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" --config=cuda --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 //tensorflow/tools/pip_package:build_pip_package
 
-# This works
     bazel build -c opt --action_env=LD_LIBRARY_PATH=/usr/local/cuda/lib64::/usr/local/cuda/extras/CUPTI/lib64 --config=monolithic //tensorflow/tools/pip_package:build_pip_package
     touch .installed
 EOF
@@ -258,6 +257,7 @@ EOF
 #    bazel build -c opt  --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" --config=cuda --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 //tensorflow/tools/pip_package:build_pip_package
 
 #    bazel build -c opt --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0 -I/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/*.h" --config=monolithic //tensorflow/tools/pip_package:build_pip_package
+
     bazel build -c opt  --action_env=LD_LIBRARY_PATH=/usr/local/cuda/lib64::/usr/local/cuda/extras/CUPTI/lib64 --cxxopt="-I/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/*.h" --config=cuda //tensorflow/tools/pip_package:build_pip_package
     touch .installed
 EOF
