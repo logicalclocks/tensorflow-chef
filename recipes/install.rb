@@ -53,6 +53,9 @@ if node['tensorflow']['rdma'].eql? "true"
   node.override['tensorflow']['need_rdma'] = 1
   if node['platform_family'].eql? "debian"
 
+    package "libipathverbs-dev"
+
+    
 # Install inifiband
 # https://community.mellanox.com/docs/DOC-2683
   bash "install-infiniband-ubuntu" do

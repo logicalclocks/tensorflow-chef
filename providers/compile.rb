@@ -10,7 +10,8 @@ action :openmpi do
       package 'libibverbs-dev'
     when "rhel"
       package 'libsysfs-devel'
-      package 'libibverbs'      
+      package 'libibverbs'
+      package 'rdma-core-devel'      
     end
     
     bash "compile_openmpi" do
