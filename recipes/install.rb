@@ -360,8 +360,9 @@ if node['cuda']['accept_nvidia_download_terms'].eql?("true")
 
   for i in 1..node['cuda']['num_patches'] do
 
-    patch_version  = node['cuda']['major_version'] + "." + node['cuda']['minor_version'] + ".#{i}" 
-    patch_url  = "#{node['download_url']}/cuda_#{patch_version}_linux.run"
+    patch_version  = node['cuda']['major_version'] + "." + node['cuda']['minor_version'] + ".#{i}"
+    patch = "cuda_#{patch_version}_linux.run"
+    patch_url  = "#{node['download_url']}/#{patch}"
     patch_file = "#{Chef::Config['file_cache_path']}/#{patch}"
 
     remote_file patch_file do
