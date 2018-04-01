@@ -64,7 +64,8 @@ when "rhel"
     code <<-EOF
     set -e
     cd #{Chef::Config['file_cache_path']}
-    ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms
+    # ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms
+    ./#{cuda} --silent --driver --verbose
     EOF
     not_if { cudaVersion == newCudaVersion }
   end

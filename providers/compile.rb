@@ -8,6 +8,9 @@ action :openmpi do
     case node['platform_family']
     when "debian"
       package 'libibverbs-dev'
+    when "rhel"
+      package 'libsysfs-devel'
+      package 'libibverbs'      
     end
     
     bash "compile_openmpi" do
