@@ -69,7 +69,6 @@ when "rhel"
     not_if { cudaVersion == newCudaVersion }
   end
 
-  patch =  ::File.basename(node['cuda']['url_patch'])
   bash "install_cuda_full" do
     user "root"
     timeout 72000
@@ -77,8 +76,7 @@ when "rhel"
     set -e
 
     cd #{Chef::Config['file_cache_path']}
-    ./#{cuda} --silent --toolkit --samples --verbose
-    ./#{patch} --silent --accept-eula
+    ./#{cuda} --silent --toolkit --verbose
     EOF
     not_if { cudaVersion == newCudaVersion }
   end

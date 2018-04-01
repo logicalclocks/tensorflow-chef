@@ -362,8 +362,6 @@ if node['cuda']['accept_nvidia_download_terms'].eql?("true")
 
     patch_version  = node['cuda']['major_version'] + "." + node['cuda']['minor_version'] + ".#{i}" 
     patch_url  = "#{node['download_url']}/cuda_#{patch_version}_linux.run"
-    patch =  File.basename(#{patch_url})
-    base_patch_dir =  File.basename(patch, "_linux-run")
     patch_file = "#{Chef::Config['file_cache_path']}/#{patch}"
 
     remote_file patch_file do
