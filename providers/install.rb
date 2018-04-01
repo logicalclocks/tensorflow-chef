@@ -37,7 +37,7 @@ when "debian"
     cd #{Chef::Config['file_cache_path']}
     #./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s
     ./#{cuda} --silent --driver
-    ./#{cuda} --silent --toolkit --samples --verbose
+    ./#{cuda} --silent --toolkit --verbose
     EOF
     not_if { cudaVersion == newCudaVersion }
   end
@@ -74,9 +74,12 @@ when "rhel"
     timeout 72000
     code <<-EOF
     set -e
-
+    # https://devtalk.nvidia.com/default/topic/1012901/unable-to-install-driver-375-66-on-centos-7/?offset=5
+    # There seems to be a non-standard installation path for the kernel sources in Centos
+    # The 'ks  = ...' tries to resolve the directory where they should be installed inside /lib/modules/...
+    ks = $(rpm -qa | grep kernel | head -1 | sed -e 's/kernel-//')
     cd #{Chef::Config['file_cache_path']}
-    ./#{cuda} --silent --toolkit --verbose
+    ./#{cuda} --silent --toolkit --verbose --kernel-source-path==/lib/modules/$ks
     EOF
     not_if { cudaVersion == newCudaVersion }
   end
