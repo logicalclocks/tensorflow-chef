@@ -285,7 +285,10 @@ EOF
     #install -Dm755 bazel-bin/tensorflow/libtensorflow.so /usr/lib/
     #install -Dm644 tensorflow/c/c_api.h /usr/include/tensorflow-cuda/c_api.h
 
-    bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+    #bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+
+     export PATH=$PATH:/usr/local/bin
+     bazel build --config=opt --config=monolithic //tensorflow/tools/pip_package:build_pip_package 
 
     pip install --ignore-installed --upgrade /tmp/tensorflow_pkg/tensorflow-#{base_version}-py2-none-any.whl
     touch .installed_pip
