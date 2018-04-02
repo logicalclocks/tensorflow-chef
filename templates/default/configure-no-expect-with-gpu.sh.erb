@@ -29,6 +29,11 @@ export TF_NEED_VERBS=<%= node['tensorflow']['need_rdma'] %>
 export TF_NEED_MPI=<%= node['tensorflow']['need_mpi'] %>
 export TF_DOWNLOAD_MKL=<%= node['tensorflow']['need_mkl'] %>
 export TF_NEED_OPENCL_SYCL=0
+export TF_NEED_GDR=0
+export TF_NEED_TENSORRT=0
+export TF_SET_ANDROID_WORKSPACE=0
+
+export TENSORRT_INSTALL_PATH=""
 
 export PYTHON_BIN_PATH=$(which python)
 export USE_DEFAULT_PYTHON_LIB_PATH=1
@@ -37,16 +42,14 @@ export CC_OPT_FLAGS="-march=x86-64 -O2"
 
 export CLANG_CUDA_COMPILER_PATH=<%= @clang_path %>
 export TF_CUDA_VERSION=<%= node['cuda']['major_version'] %>
-export CUDA_TOOLKIT_PATH=/usr/local/cuda
-
 export TF_CUDNN_VERSION=<%= node['cudnn']['major_version'] %>
+export CUDA_TOOLKIT_PATH=/usr/local/cuda
 export CUDNN_INSTALL_PATH=/usr/local/cuda
 # P100 = 6.0, 1080Ti/TitanX = 6.1, K80=3.7, M60=5.2
 export TF_CUDA_COMPUTE_CAPABILITIES="6.0,6.1"
 #"3.5,5.2"
 #export TF_CUDA_VERSION=$($CUDA_TOOLKIT_PATH/bin/nvcc --version | sed -n 's/^.*release \(.*\),.*/\1/p')
 #  export TF_CUDNN_VERSION=$(sed -n 's/^#define CUDNN_MAJOR\s*\(.*\).*/\1/p' $CUDNN_INSTALL_PATH/include/cudnn.h)
-
 
 export GCC_HOST_COMPILER_PATH=$(which gcc)
 export HOST_CXX_COMPILER=$(which g++)
