@@ -3,20 +3,20 @@
 
 action :openmpi do
 
-    basename = ::File.basename(node['openmpi']['version'], ".tar.gz")
+  basename = ::File.basename(node['openmpi']['version'], ".tar.gz")
 
-    case node['platform_family']
-    when "debian"
-      package 'libibverbs-dev'
-    when "rhel"
-      package 'libsysfs-devel'
-      package 'libibverbs'
-      package 'rdma-core-devel'      
-    end
-    
-    bash "compile_openmpi" do
-      user "root"
-      code <<-EOF
+  case node['platform_family']
+  when "debian"
+    package 'libibverbs-dev'
+  when "rhel"
+    package 'libsysfs-devel'
+    package 'libibverbs'
+    package 'rdma-core-devel'      
+  end
+  
+  bash "compile_openmpi" do
+    user "root"
+    code <<-EOF
         set -e
         cd #{Chef::Config['file_cache_path']}
         rm -f #{node['openmpi']['version']}
@@ -29,8 +29,8 @@ action :openmpi do
         make install
         chown -R #{node['tensorflow']['user']} #{node['tensorflow']['dir']}/#{basename}
       EOF
-      not_if { ::File.directory?("#{node['tensorflow']['dir']}/#{basename}") }
-    end
+    not_if { ::File.directory?("#{node['tensorflow']['dir']}/#{basename}") }
+  end
 
 end
 
@@ -47,20 +47,20 @@ action :kernel_initramfs do
       EOF
     end
   when "rhel"
-      bash "kernel_initramfs" do
-        user "root"
-        code <<-EOF
+    bash "kernel_initramfs" do
+      user "root"
+      code <<-EOF
         set -e
         sudo dracut --force
         EOF
-      end
+    end
   end
 
 end
 
 action :cuda do
 
-bash "validate_cuda" do
+  bash "validate_cuda" do
     user "root"
     code <<-EOF
     set -e
@@ -68,21 +68,21 @@ bash "validate_cuda" do
     su #{node['tensorflow']['user']} -l -c "nvcc -V"
 EOF
     not_if { node['cuda']['skip_test'] == "true" }
-end
+  end
 
 
 end
 
 action :cudnn do
 
-bash "validate_cudnn" do
+  bash "validate_cudnn" do
     user "root"
     code <<-EOF
     set -e
 #    su #{node['tensorflow']['user']} -l -c "nvidia-smi -L | grep -i gpu"
 EOF
-  not_if { node['cuda']['skip_test'] == "true" }
-end
+    not_if { node['cuda']['skip_test'] == "true" }
+  end
 
 end
 
@@ -217,7 +217,7 @@ EOF
 # Build fails for centos: https://github.com/tensorflow/tensorflow/issues/10665
 #    bazel build -c opt  --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" --config=cuda --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 //tensorflow/tools/pip_package:build_pip_package
 
-    bazel build -c opt --action_env=LD_LIBRARY_PATH=/usr/local/cuda/lib64::/usr/local/cuda/extras/CUPTI/lib64 --config=monolithic //tensorflow/tools/pip_package:build_pip_package
+    bazel build -c opt --action_env=LD_LIBRARY_PATH=/usr/local/cuda/lib64::/usr/local/cuda/extras/CUPTI/lib64 --config=cuda //tensorflow/tools/pip_package:build_pip_package
     touch .installed
 EOF
           not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/.installed" ) }
@@ -261,7 +261,7 @@ EOF
 # Build fails for centos: https://github.com/tensorflow/tensorflow/issues/10665
 #    bazel build -c opt  --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0" --config=cuda --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 //tensorflow/tools/pip_package:build_pip_package
 
-#    bazel build -c opt --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0 -I/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/*.h" --config=monolithic //tensorflow/tools/pip_package:build_pip_package
+#    bazel build -c opt --cxxopt="-D_GLIBCXX_USE_CXX11_ABI=0 -I/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/*.h" --config=cuda //tensorflow/tools/pip_package:build_pip_package
 
     bazel build -c opt  --action_env=LD_LIBRARY_PATH=/usr/local/cuda/lib64::/usr/local/cuda/extras/CUPTI/lib64 --cxxopt="-I/usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/*.h" --config=cuda //tensorflow/tools/pip_package:build_pip_package
     touch .installed
@@ -288,8 +288,7 @@ EOF
     #bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 
      export PATH=$PATH:/usr/local/bin
-     bazel build --config=opt --config=monolithic //tensorflow/tools/pip_package:build_pip_package 
-
+     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
     pip install --ignore-installed --upgrade /tmp/tensorflow_pkg/tensorflow-#{base_version}-py2-none-any.whl
     touch .installed_pip
 EOF
