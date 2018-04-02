@@ -212,7 +212,6 @@ EOF
     export PATH=$HOME/local/bin:$PATH
     export LD_LIBRARY_PATH=$HOME/local/lib64:$LD_LIBRARY_PATH
 # Compile instructions - https://stackoverflow.com/questions/41293077/how-to-compile-tensorflow-with-sse4-2-and-avx-instructions
-    export PATH=$PATH:/usr/local/bin
 
 # This works for ubuntu but not for centos
 # Build fails for centos: https://github.com/tensorflow/tensorflow/issues/10665
