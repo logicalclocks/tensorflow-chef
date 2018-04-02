@@ -138,7 +138,7 @@ EOF
   # http://www.admin-magazine.com/Articles/Automating-with-Expect-Scripts
   #
   bash "configure_tensorflow_server" do
-    user node['tensorflow']['user']
+    user "root"
     code <<-EOF
     set -e
     export LC_CTYPE=en_US.UTF-8
@@ -148,9 +148,9 @@ EOF
     ./#{config}
 
     # Check if configure completed successfully
-    if [ ! -f tools/bazel.rc ] ; then
-      exit 1
-    fi
+    #if [ ! -f tools/bazel.rc ] ; then
+    #  exit 1
+    #fi
 EOF
   end
 
@@ -206,11 +206,25 @@ EOF
     set -e
     export LC_CTYPE=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
+    export PATH=/usr/local/cuda/bin:/usr/local/bin:$PATH
+    export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+
     cd /home/#{node['tensorflow']['user']}/tensorflow
     ./#{config}
-    export PATH=$HOME/local/bin:$PATH
-    export LD_LIBRARY_PATH=$HOME/local/lib64:$LD_LIBRARY_PATH
 # Compile instructions - https://stackoverflow.com/questions/41293077/how-to-compile-tensorflow-with-sse4-2-and-avx-instructions
+
+
+    if [ ! -d nccl ] ; then 
+      git clone https://github.com/NVIDIA/nccl.git
+    fi
+    cd nccl/
+    make CUDA_HOME=/usr/local/cuda
+    sudo make install
+    sudo mkdir -p /usr/local/include/external/nccl_archive/src
+    if [ ! -f /usr/local/include/external/nccl_archive/src/nccl.h ] ; then
+      sudo ln -s /usr/local/include/nccl.h /usr/local/include/external/nccl_archive/src/nccl.h
+    fi
+    cd ..
 
 # This works for ubuntu but not for centos
 # Build fails for centos: https://github.com/tensorflow/tensorflow/issues/10665
@@ -232,10 +246,11 @@ EOF
     set -e
     export LC_CTYPE=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
+    export PATH=/usr/local/cuda/bin:/usr/local/bin:$PATH
+    export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+
     cd /home/#{node['tensorflow']['user']}/tensorflow
     ./#{config}
-
-    export PATH=$PATH:/usr/local/bin
 
     if [ ! -d nccl ] ; then 
       git clone https://github.com/NVIDIA/nccl.git
@@ -255,7 +270,6 @@ EOF
    # vi tensorflow/workspace.bzl :s/6d43b9d223ce09e5d4ce8b0060cb8a7513577a35a64c7e3dad10f0703bf3ad93/e5fdeee6b28cf6c38d61243adff06628baa434a22b5ebb7432d2a7fbabbdb13d/g
 
 # Compile instructions - https://stackoverflow.com/questions/41293077/how-to-compile-tensorflow-with-sse4-2-and-avx-instructions
-    export PATH=$PATH:/usr/local/bin
 #    bazel build -c opt --config=cuda //tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
 
 # This works for ubuntu but not for centos
