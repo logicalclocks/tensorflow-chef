@@ -301,7 +301,7 @@ EOF
     #install -Dm644 tensorflow/c/c_api.h /usr/include/tensorflow-cuda/c_api.h
 
     #bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-
+    export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
      export PATH=$PATH:/usr/local/bin
      bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
     pip install --ignore-installed --upgrade /tmp/tensorflow_pkg/tensorflow-#{base_version}-py2-none-any.whl
