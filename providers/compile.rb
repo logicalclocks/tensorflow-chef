@@ -13,25 +13,26 @@ action :openmpi do
     package 'libibverbs'
     package 'rdma-core-devel'      
   end
-  
+
   bash "compile_openmpi" do
     user "root"
     code <<-EOF
         set -e
         cd #{Chef::Config['file_cache_path']}
-        rm -f #{node['openmpi']['version']}
-        wget #{node['download_url']}/openmpi/#{node['openmpi']['version']}
+        if [ ! -f #{node['openmpi']['version']} ] ; then
+          wget #{node['download_url']}/openmpi/#{node['openmpi']['version']}
+        fi
         tar zxf #{node['openmpi']['version']}
         cd #{basename}
         ./configure --prefix=/usr/local --with-cuda=#{node['cuda']['version_dir']} --with-verbs
         make all
         mkdir -p #{node['tensorflow']['dir']}/#{basename}
         make install
-        chown -R #{node['tensorflow']['user']} #{node['tensorflow']['dir']}/#{basename}
+        #chown -R #{node['tensorflow']['user']} /usr/local/lib/openmpi
+        #chown -R #{node['tensorflow']['user']} /usr/local/include/openmpi
       EOF
-    not_if { ::File.directory?("#{node['tensorflow']['dir']}/#{basename}") }
+    not_if { ::File.directory?("/usr/local/include/openmpi}") }
   end
-
 end
 
 
