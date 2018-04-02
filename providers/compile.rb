@@ -236,6 +236,8 @@ EOF
     cd /home/#{node['tensorflow']['user']}/tensorflow
     ./#{config}
 
+    export PATH=$PATH:/usr/local/bin
+
     if [ ! -d nccl ] ; then 
       git clone https://github.com/NVIDIA/nccl.git
     fi
