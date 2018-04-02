@@ -42,7 +42,7 @@ export CC_OPT_FLAGS="-march=x86-64 -O2"
 
 export CLANG_CUDA_COMPILER_PATH=<%= @clang_path %>
 export TF_CUDA_VERSION=<%= node['cuda']['major_version'] %>
-export TF_CUDNN_VERSION=<%= node['cudnn']['major_version'] %>
+export TF_CUDNN_VERSION=<%= node['cudnn']['version'] %>
 export CUDA_TOOLKIT_PATH=/usr/local/cuda
 export CUDNN_INSTALL_PATH=/usr/local/cuda
 # P100 = 6.0, 1080Ti/TitanX = 6.1, K80=3.7, M60=5.2
