@@ -152,7 +152,6 @@ EOF
       exit 1
     fi
 EOF
-    not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/tools/bazel.rc" ) }
   end
 
 
