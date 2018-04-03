@@ -386,7 +386,9 @@ EOF
 
 # Needed for Centos
     export PATH=$PATH:/usr/local/bin
-    bazel build -c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 //tensorflow/tools/pip_package:build_pip_package
+    # http://biophysics.med.jhmi.edu/~yliu120/tensorflow.html
+    # bazel build -c opt --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 //tensorflow/tools/pip_package:build_pip_package
+    bazel build -c opt --copt=-mavx2 --ignore_unsupported_sandboxing --genrule_strategy=standalone --spawn_strategy=standalone --linkopt '-lrt -lm' //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
     pip install /tmp/tensorflow_pkg/tensorflow-#{base_version}-cp27-cp27mu-linux_x86_64.whl
     #--user
