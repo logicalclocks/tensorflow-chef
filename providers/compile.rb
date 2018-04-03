@@ -302,7 +302,7 @@ EOF
 
     #bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
     export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
-     export PATH=$PATH:/usr/local/bin
+    export PATH=$PATH:/usr/local/bin:/usr/local/cuda/bin
      bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
     # tensorflow-1.7.0-cp27-cp27mu-linux_x86_64.whl
     pip install --ignore-installed --upgrade /tmp/tensorflow_pkg/tensorflow-#{node['tensorflow']['version']}-cp27-cp27mu-linux_x86_64.whl
@@ -312,9 +312,23 @@ EOF
         not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/.installed_pip" ) }
       end
 
+  bash "transform_graph" do
+    user "root"
+    code <<-EOF
+       set -e
+        export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH    
+        export PATH=$PATH:/usr/local/bin:/usr/local/cuda/bin  
+        cd /home/#{node['tensorflow']['user']}/tensorflow
+        bazel build tensorflow/tools/graph_transforms:transform_graph
+        cp -r bazel-bin/tensorflow/* #{node['tensorflow']['base_dir']}
+      EOF
+  end
+
+
+      
     end   # End rescue
 
-  else
+  else                        
 
     # https://github.com/bazelbuild/bazel/issues/739
     bash "workaround_bazel_build" do
@@ -362,21 +376,6 @@ EOF
        set -e
        pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/protobuf-3.0.0b2.post2-cp27-none-linux_x86_64.whl
        #--user
-      EOF
-  end
-
-
-  bash "transform_graph" do
-    user node['tensorflow']['user']
-    code <<-EOF
-       set -e
-#       cd /home/#{node['tensorflow']['user']}/tensorflow
-#       cd models/image/mnist
-#       python convolutional.py
-    
-        cd /home/#{node['tensorflow']['user']}/tensorflow
-        bazel build tensorflow/tools/graph_transforms:transform_graph
-
       EOF
   end
 

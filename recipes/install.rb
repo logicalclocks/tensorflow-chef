@@ -1,3 +1,51 @@
+group node["tensorflow"]["group"] do
+  action :create
+  not_if "getent group #{node["tensorflow"]["group"]}"
+end
+
+user node["tensorflow"]["user"] do
+  gid node["tensorflow"]["group"]
+  manage_home true
+  home "/home/#{node["tensorflow"]["user"]}"
+  action :create
+  shell "/bin/bash"
+  not_if "getent passwd #{node["tensorflow"]["user"]}"
+end
+
+group node["tensorflow"]["group"] do
+  action :modify
+  members ["#{node["tensorflow"]["user"]}"]
+  append true
+end
+
+directory node["tensorflow"]["dir"]  do
+  owner node["tensorflow"]["user"]
+  group node["tensorflow"]["group"]
+  mode "755"
+  action :create
+  not_if { File.directory?("#{node["tensorflow"]["dir"]}") }
+end
+
+directory node["tensorflow"]["home"] do
+  owner node["tensorflow"]["user"]
+  group node["tensorflow"]["group"]
+  mode "750"
+  action :create
+end
+
+link node["tensorflow"]["base_dir"] do
+  owner node["tensorflow"]["user"]
+  group node["tensorflow"]["group"]
+  to node["tensorflow"]["home"]
+end
+
+
+
+
+
+
+
+
 # First, find out the compute capability of your GPU here: https://developer.nvidia.com/cuda-gpus
 # E.g.,
 # NVIDIA TITAN X	6.1
