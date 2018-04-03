@@ -490,7 +490,21 @@ if node['tensorflow']['mpi'] == "true"
     magic_shell_environment 'LD_LIBRARY_PATH' do
       value "$LD_LIBRARY_PATH:$JAVA_HOME/jre/lib/amd64/server:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:/usr/local/nccl2/lib"
     end
-  
+
+    template "/etc/ld.so.conf.d/gpu.conf" do
+      source "gpu.conf.erb"
+      owner "root"
+      group "root"
+      mode "644"
+    end
+
+    bash "ldconfig" do
+      user "root"
+      code <<-EOF
+        ldconfig
+      EOF
+    end
+    
 
     nccl2=node['cuda']['nccl_version']
     bash "install-nccl2" do
@@ -512,7 +526,7 @@ if node['tensorflow']['mpi'] == "true"
       not_if { File.directory?("/usr/local/#{nccl2}") }
     end
   
-end
+
 
 if node['tensorflow']['install'].eql?("src")
 
@@ -520,26 +534,12 @@ if node['tensorflow']['install'].eql?("src")
     # compile openmpi on centos 7
     # https://bitsanddragons.wordpress.com/2017/05/08/install-openmpi-2-1-0-on-centos-7/
 
-    tensorflow_compile "mpi-compile" do
-      action :openmpi
-    end
+  tensorflow_compile "mpi-compile" do
+    action :openmpi
+  end
 
   tensorflow_compile "tensorflow" do
     action :tf
   end
 
-end
-
-template "/etc/ld.so.conf.d/gpu.conf" do
-  source "gpu.conf.erb"
-  owner "root"
-  group "root"
-  mode "644"
-end
-
-bash "ldconfig" do
-  user "root"
-  code <<-EOF
-     ldconfig
-  EOF
 end
