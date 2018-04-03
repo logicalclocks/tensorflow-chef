@@ -300,18 +300,61 @@ EOF
     #install -Dm644 tensorflow/c/c_api.h /usr/include/tensorflow-cuda/c_api.h
 
     #bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-
-     export PATH=$PATH:/usr/local/bin
+    export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+    export PATH=$PATH:/usr/local/bin:/usr/local/cuda/bin
      bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-    pip install --ignore-installed --upgrade /tmp/tensorflow_pkg/tensorflow-#{base_version}-py2-none-any.whl
+    # tensorflow-1.7.0-cp27-cp27mu-linux_x86_64.whl
+    pip install --ignore-installed --upgrade /tmp/tensorflow_pkg/tensorflow-#{node['tensorflow']['version']}-cp27-cp27mu-linux_x86_64.whl
+    # pip install --ignore-installed --upgrade /tmp/tensorflow_pkg/tensorflow-#{base_version}-py2-none-any.whl
     touch .installed_pip
 EOF
         not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/.installed_pip" ) }
       end
 
+
+    end # End rescue
+
+    begin
+      gzip = File.basename("#{node['tensorflow']['graph_url']}")
+      remote_file "#{Chef::Config['file_cache_path']}/#{gzip}" do
+        source node['tensorflow']['graph_url']
+        owner node['tensorflow']['user']
+        group node['tensorflow']['group']
+        mode "0755"
+        action :create_if_missing
+      end
+
+      bash "install_transform_graph_tensorflow" do
+        user "root"
+        code <<-EOF
+      set -e
+      export LC_CTYPE=en_US.UTF-8
+      export LC_ALL=en_US.UTF-8
+        cd #{Chef::Config['file_cache_path']}
+        tar zxf #{gzip} -C #{node['tensorflow']['dir']}
+     EOF
+      end
+
+    rescue
+
+    
+      bash "transform_graph" do
+        user "root"
+        code <<-EOF
+       set -e
+        export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH    
+        export PATH=$PATH:/usr/local/bin:/usr/local/cuda/bin  
+        cd /home/#{node['tensorflow']['user']}/tensorflow
+        bazel build tensorflow/tools/graph_transforms:transform_graph
+        cp -rf bazel-bin/tensorflow #{node['tensorflow']['dir']}
+      EOF
+      end
+
+
+      
     end   # End rescue
 
-  else
+  else                        
 
     # https://github.com/bazelbuild/bazel/issues/739
     bash "workaround_bazel_build" do
@@ -342,7 +385,9 @@ EOF
 
 # Needed for Centos
     export PATH=$PATH:/usr/local/bin
-    bazel build -c opt --copt=-mavx --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 //tensorflow/tools/pip_package:build_pip_package
+    # http://biophysics.med.jhmi.edu/~yliu120/tensorflow.html
+    # bazel build -c opt --copt=-mavx2 --copt=-mfma --copt=-mfpmath=both --copt=-msse4.1 --copt=-msse4.2 //tensorflow/tools/pip_package:build_pip_package
+    bazel build -c opt --copt=-mavx2 --ignore_unsupported_sandboxing --genrule_strategy=standalone --spawn_strategy=standalone --linkopt '-lrt -lm' //tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
     pip install /tmp/tensorflow_pkg/tensorflow-#{base_version}-cp27-cp27mu-linux_x86_64.whl
     #--user
@@ -359,21 +404,6 @@ EOF
        set -e
        pip install --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/protobuf-3.0.0b2.post2-cp27-none-linux_x86_64.whl
        #--user
-      EOF
-  end
-
-
-  bash "transform_graph" do
-    user node['tensorflow']['user']
-    code <<-EOF
-       set -e
-#       cd /home/#{node['tensorflow']['user']}/tensorflow
-#       cd models/image/mnist
-#       python convolutional.py
-    
-        cd /home/#{node['tensorflow']['user']}/tensorflow
-        bazel build tensorflow/tools/graph_transforms:transform_graph
-
       EOF
   end
 
