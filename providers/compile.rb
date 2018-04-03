@@ -312,17 +312,44 @@ EOF
         not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/.installed_pip" ) }
       end
 
-  bash "transform_graph" do
-    user "root"
-    code <<-EOF
+
+    end # End rescue
+
+    begin
+      gzip = File.basename("#{node['tensorflow']['graph_url']}")
+      remote_file "#{Chef::Config['file_cache_path']}/#{gzip}" do
+        source node['tensorflow']['graph_url']
+        owner node['tensorflow']['user']
+        group node['tensorflow']['group']
+        mode "0755"
+        action :create_if_missing
+      end
+
+      bash "install_transform_graph_tensorflow" do
+        user "root"
+        code <<-EOF
+      set -e
+      export LC_CTYPE=en_US.UTF-8
+      export LC_ALL=en_US.UTF-8
+        cd #{Chef::Config['file_cache_path']}
+        tar zxf #{gzip} -C #{node['tensorflow']['dir']}
+     EOF
+      end
+
+    rescue
+
+    
+      bash "transform_graph" do
+        user "root"
+        code <<-EOF
        set -e
         export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH    
         export PATH=$PATH:/usr/local/bin:/usr/local/cuda/bin  
         cd /home/#{node['tensorflow']['user']}/tensorflow
         bazel build tensorflow/tools/graph_transforms:transform_graph
-        cp -r bazel-bin/tensorflow/* #{node['tensorflow']['base_dir']}
+        cp -rf bazel-bin/tensorflow #{node['tensorflow']['dir']}
       EOF
-  end
+      end
 
 
       

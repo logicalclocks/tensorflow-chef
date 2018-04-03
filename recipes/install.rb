@@ -568,9 +568,9 @@ if node['tensorflow']['install'].eql?("src")
     # compile openmpi on centos 7
     # https://bitsanddragons.wordpress.com/2017/05/08/install-openmpi-2-1-0-on-centos-7/
 
-    tensorflow_compile "mpi-compile" do
-      action :openmpi
-    end
+  tensorflow_compile "mpi-compile" do
+    action :openmpi
+  end
 
   tensorflow_compile "tensorflow" do
     action :tf

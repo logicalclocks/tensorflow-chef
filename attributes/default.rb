@@ -7,6 +7,9 @@ default['tensorflow']['install']       = "dist" # or 'src' or 'custom'
 
 # tensorflow-1.2.1-debian-gcc_version-python_version.whl
 default['tensorflow']['custom_url']    = "#{node['download_url']}/tensorflow-#{node['tensorflow']['version']}-#{node['platform']}-5.4-2.7.whl"
+# tensorflow-graph-hops-1.7.0.tar.gz
+default['tensorflow']['graph_url']     = "#{node['download_url']}/tensorflow-graph-hops-#{node['tensorflow']['version']}.tar.gz"
+
 
 default['tensorflow']['git_url']       = "https://github.com/tensorflow/tensorflow"
 default['tensorflow']['hopstf_version']= "0.0.1"
