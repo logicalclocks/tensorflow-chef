@@ -512,6 +512,20 @@ if node['tensorflow']['mpi'] == "true"
   end
   
 
+  template "/etc/ld.so.conf.d/gpu.conf" do
+    source "gpu.conf.erb"
+    owner "root"
+    group "root"
+    mode "644"
+  end
+
+  bash "ldconfig" do
+    user "root"
+    code <<-EOF
+        ldconfig
+      EOF
+  end
+  
   nccl2=node['cuda']['nccl_version']
   bash "install-nccl2" do
     user "root"
@@ -532,34 +546,20 @@ if node['tensorflow']['mpi'] == "true"
     not_if { File.directory?("/usr/local/#{nccl2}") }
   end
   
-end
 
-if node['tensorflow']['install'].eql?("src")
 
-  # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
-  # compile openmpi on centos 7
-  # https://bitsanddragons.wordpress.com/2017/05/08/install-openmpi-2-1-0-on-centos-7/
+  if node['tensorflow']['install'].eql?("src")
 
-  tensorflow_compile "mpi-compile" do
-    action :openmpi
+    # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
+    # compile openmpi on centos 7
+    # https://bitsanddragons.wordpress.com/2017/05/08/install-openmpi-2-1-0-on-centos-7/
+
+    tensorflow_compile "mpi-compile" do
+      action :openmpi
+    end
+
+    tensorflow_compile "tensorflow" do
+      action :tf
+    end
+
   end
-
-  tensorflow_compile "tensorflow" do
-    action :tf
-  end
-
-end
-
-template "/etc/ld.so.conf.d/gpu.conf" do
-  source "gpu.conf.erb"
-  owner "root"
-  group "root"
-  mode "644"
-end
-
-bash "ldconfig" do
-  user "root"
-  code <<-EOF
-     ldconfig
-  EOF
-end

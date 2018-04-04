@@ -89,7 +89,6 @@ end
 
 action :tf do
 
-
   # https://github.com/lakshayg/tensorflow-build
 
   tf_version = node['tensorflow']['version']
