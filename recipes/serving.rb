@@ -22,8 +22,10 @@ when "debian"
       set -e
       echo "deb [arch=amd64] http://storage.googleapis.com/tensorflow-serving-apt stable tensorflow-model-server tensorflow-model-server-universal" | sudo tee /etc/apt/sources.list.d/tensorflow-serving.list
       curl https://storage.googleapis.com/tensorflow-serving-apt/tensorflow-serving.release.pub.gpg | sudo apt-key add -        
+      add-apt-repository ppa:ubuntu-toolchain-r/test -y
       apt-get update
-      apt-get install tensorflow-model-server
+      apt-get install libstdc++6 -y
+      apt-get install tensorflow-model-server -y
     EOF
     not_if "which tensorflow_model_server"
   end
@@ -36,7 +38,7 @@ when "debian"
       apt-get upgrade tensorflow-model-server -y
     EOF
     end
-  end  
+  end
   
 when "rhel"
   
