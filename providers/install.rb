@@ -28,7 +28,6 @@ driver =  ::File.basename(node['cuda']['driver_url'])
 case node['platform_family']
 when "debian"
 
-  patch =  ::File.basename(node['cuda']['url_patch'])
   bash "install_cuda" do
     user "root"
     timeout 72000
@@ -38,12 +37,10 @@ when "debian"
     cd #{Chef::Config['file_cache_path']}
     #./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s
     ./#{cuda} --silent --driver
-    ./#{cuda} --silent --toolkit --samples --verbose
-    ./#{patch} --silent --accept-eula
+    ./#{cuda} --silent --toolkit --verbose
     EOF
     not_if { cudaVersion == newCudaVersion }
   end
-
 
 when "rhel"
 
@@ -67,21 +64,59 @@ when "rhel"
     code <<-EOF
     set -e
     cd #{Chef::Config['file_cache_path']}
-    ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms
+    # ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms
+    ./#{cuda} --silent --driver --verbose
     EOF
     not_if { cudaVersion == newCudaVersion }
   end
 
-  patch =  ::File.basename(node['cuda']['url_patch'])
+
+  bash "install_kernel_src_tools" do
+    user "root"
+    timeout 72000
+    code <<-EOF
+      set -e
+      yum install rpm-build redhat-rpm-config asciidoc hmaccalc perl-ExtUtils-Embed pesign xmlto bison bc -y 
+      yum install audit-libs-devel binutils-devel elfutils-devel elfutils-libelf-devel -y
+      yum install ncurses-devel newt-devel numactl-devel pciutils-devel python-devel zlib-devel0 -y
+    EOF
+    not_if { cudaVersion == newCudaVersion }
+  end
+  
+
+  # bash "install_kernel_sources" do
+  #   user node['kagent']['user']
+  #   timeout 72000
+  #   code <<-EOF
+  #    set -e
+  #    cd 
+  #    mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+  #    echo '%_topdir %(echo $HOME)/rpmbuild' > ~/.rpmmacros
+  #    ks=$(rpm -qa | grep kernel | head -1 | sed -e 's/kernel-//' | sed -e 's/\.x86_64//')
+  #    centos_version=$(cat /etc/centos-release | sed -e 's/.*release //' | sed -e 's/ .*//')
+  #    rpm -i http://vault.centos.org/${centos_version}/updates/Source/SPackages/kernel-${ks}.src.rpm 2>&1 | grep -v exist
+  #    cd ~/rpmbuild/SPECS
+  #    rpmbuild -bp --target=$(uname -m) kernel.spec
+  #   EOF
+  #   not_if { cudaVersion == newCudaVersion }
+  # end
+
+
+  
   bash "install_cuda_full" do
     user "root"
     timeout 72000
     code <<-EOF
     set -e
-
+    # https://devtalk.nvidia.com/default/topic/1012901/unable-to-install-driver-375-66-on-centos-7/?offset=5
+    # There seems to be a non-standard installation path for the kernel sources in Centos
+    # The 'ks=...' tries to resolve the directory where they should be installed inside /lib/modules/...
+    # ks=$(rpm -qa | grep kernel | head -1 | sed -e 's/kernel-//' | sed -e 's/\.x86_64//')
+    # ksl=$(rpm -qa | grep kernel | head -1 | sed -e 's/kernel-//')
+    # --kernel-source-path==/home/#{node['kagent']['user']}/rpmbuild/BUILD/kernel-${ks}/linux-${ksl}/
     cd #{Chef::Config['file_cache_path']}
-    ./#{cuda} --silent --toolkit --samples --verbose
-    ./#{patch} --silent --accept-eula
+    ./#{cuda} --silent --toolkit --verbose
+
     EOF
     not_if { cudaVersion == newCudaVersion }
   end
@@ -125,6 +160,22 @@ when "rhel"
 
 end
 
+# Install all the cuda patches
+
+for i in 1..node['cuda']['num_patches'] do
+  patch_version  = node['cuda']['major_version'] + "." + node['cuda']['minor_version'] + ".#{i}" 
+  patch =  "cuda_#{patch_version}_linux.run"
+  bash "install_cuda_patch_#{i}" do
+    user "root"
+    timeout 72000
+    code <<-EOF
+    set -e
+    cd #{Chef::Config['file_cache_path']}
+    ./#{patch} --silent --accept-eula
+    EOF
+    not_if { cudaVersion == newCudaVersion }
+  end
+end
 
 
 #  link "/usr/lib64/libcuda.so" do
