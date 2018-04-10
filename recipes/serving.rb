@@ -15,16 +15,23 @@ end
 
 case node["platform_family"]
 when "debian"
-
-  bash 'install_tf_serving' do
+  
+  bash 'prepare_tf_serving' do
     user "root"
+    ignore_failure true
     code <<-EOF
-      set -e
       echo "deb [arch=amd64] http://storage.googleapis.com/tensorflow-serving-apt stable tensorflow-model-server tensorflow-model-server-universal" | sudo tee /etc/apt/sources.list.d/tensorflow-serving.list
       curl https://storage.googleapis.com/tensorflow-serving-apt/tensorflow-serving.release.pub.gpg | sudo apt-key add -        
       add-apt-repository ppa:ubuntu-toolchain-r/test -y
       apt-get update
       apt-get install libstdc++6 -y
+    EOF
+  end
+
+  bash 'install_tf_serving' do
+    user "root"
+    code <<-EOF
+      set -e
       apt-get install tensorflow-model-server -y
     EOF
     not_if "which tensorflow_model_server"
