@@ -244,7 +244,17 @@ end
 case node['platform_family']
 when "debian"
 
-  execute 'apt-get update -y'
+  #
+  # This failed on my laptop as i had a google repo installed. I assume it can happen on other broken
+  # machines, so we can ignore failure and hope it doesn't prevent it working
+  #
+  bash "apt_update_repos" do
+    user "root"
+    ignore_failure true
+    code <<-EOF
+      apt-get update -y
+    EOF
+  end
 
   packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic python python-numpy python-dev python-pip python-lxml python-pillow libcupti-dev libcurl3-dev python-wheel python-six }
   for lib in packages do
