@@ -94,22 +94,30 @@ end
 
 if node['tensorflow']['mkl'].eql? "true"
   node.override['tensorflow']['need_mkl'] = 1
-
+  
   case node['platform_family']
   when "debian"
 
-    bash "install-intel-mkl-ubuntu" do
+  cached_file="l_mkl_2018.0.128.tgz"
+  remote_file cached_file do
+    source "#{node['download_url']}/l_mkl_2018.0.128.tgz"
+    mode 0755
+    action :create
+    retries 1
+    not_if { File.exist?(cached_file) }
+  end
+
+  bash "install-intel-mkl-ubuntu" do
       user "root"
       code <<-EOF
        set -e
        cd #{Chef::Config['file_cache_path']}
-       rm -f l_mkl_2018.0.128.tgz
-       wget http://snurran.sics.se/hops/l_mkl_2018.0.128.tgz
-       tar zxf l_mkl_2018.0.128.tgz
-       cd l_mkl_2018.0.128
+       tar zxf #{cached_file}
+       cd #{cached_file}
 #       echo "install -eula=accept installdir=#{node['tensorflow']['dir']}/intel_mkl" > commands.txt
 #       ./install -s -eula=accept commands.txt
     EOF
+      not_if "test -f #{Chef::Config['file_cache_path']}/#{cached_file}"
     end
 
   when "rhel"
