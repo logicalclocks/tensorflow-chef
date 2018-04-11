@@ -49,7 +49,7 @@ default['cuda']['nccl_version']        = "nccl_" + node['cuda']['nccl'] + "+cuda
 default['cuda']['dir']                 = "/usr/local"
 default['cuda']['base_dir']            = "#{node['cuda']['dir']}/cuda"
 default['cuda']['version_dir']         = "#{node['cuda']['dir']}/cuda-#{node['cuda']['major_version']}"
-default['cuda']['num_patches']         = 3
+default['cuda']['num_patches']         = 2
 
 default['cuda']['accept_nvidia_download_terms']        = "false"
 default['cuda']['skip_test']           = "false"
