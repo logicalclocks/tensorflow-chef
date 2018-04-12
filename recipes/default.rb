@@ -73,7 +73,7 @@ for python in python_versions
     code <<-EOF
 
     export CONDA_DIR=#{node['conda']['base_dir']}
-    export PY=$(echo #{python} | sed 's/\\.//')
+    export PY=$(echo #{python} | sed 's/\.//')
     export PROJECT=python${PY}
     export MPI=#{node['tensorflow']['need_mpi']}
 
