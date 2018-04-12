@@ -39,7 +39,7 @@ default['cuda']['md5sum']              = "7a00187b2ce5c5e350e68882f42dd507"
 #default['cuda']['md5sum']              = "33e1bd980e91af4e55f3ef835c103f9b"
 
 # cudnn-9.1-linux-x64-v7.1.tar.gz
-default['cudnn']['version']            = "7.1"
+default['cudnn']['version']            = "7"
 default['cudnn']['url']                = "#{node['download_url']}/cudnn-#{node['cuda']['major_version']}-linux-x64-v#{node['cudnn']['version']}.tgz"
 
 # nccl_2.1.15-1+cuda9.1_x86_64.txz
