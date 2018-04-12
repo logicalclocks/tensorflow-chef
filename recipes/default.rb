@@ -1,5 +1,8 @@
 private_ip = my_private_ip()
 
+if node['tensorflow']['mpi'].eql? "true"
+  node.override['tensorflow']['need_mpi'] = 1
+end
 
 # Only the first tensorflow server needs to create the directories in HDFS
 if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
@@ -118,7 +121,7 @@ for python in python_versions
     
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade hops
 
-    if [ "${MPI}" == "true" ] ; then
+    if [ $MPI -eq 1 ] ; then
        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade horovod
     fi
 
