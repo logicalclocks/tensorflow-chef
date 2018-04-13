@@ -73,6 +73,7 @@ for python in python_versions
   bash "conda_py#{python}_env" do
     user node['conda']['user']
     group node['conda']['group']
+    environment ({ 'HOME' => ::Dir.home(node['conda']['user']), 'USER' => node['conda']['user'] })
     code <<-EOF
     cd $HOME
     export CONDA_DIR=#{node['conda']['base_dir']}
