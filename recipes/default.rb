@@ -74,7 +74,7 @@ for python in python_versions
     user node['conda']['user']
     group node['conda']['group']
     code <<-EOF
-
+    cd $HOME
     export CONDA_DIR=#{node['conda']['base_dir']}
     export PY=$(echo #{python} | sed 's/\.//')
     export PROJECT=python${PY}
