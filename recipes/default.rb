@@ -78,7 +78,7 @@ for python in python_versions
     cd $HOME
     export CONDA_DIR=#{node['conda']['base_dir']}
     export PY=$(echo #{python} | sed 's/\.//')
-    export PROJECT=python${PY}
+    export PROJECT=python${python}
     export MPI=#{node['tensorflow']['need_mpi']}
 
     ${CONDA_DIR}/bin/conda info --envs | grep "^python${PY}"
