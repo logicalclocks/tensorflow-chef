@@ -24,6 +24,19 @@ newCudaVersion = "#{node['cuda']['major_version']}.#{node['cuda']['minor_version
 Chef::Log.info "Old cuda version is: " + cudaVersion
 Chef::Log.info "New cuda version is: " + newCudaVersion
 
+
+bash "uninstall_cuda" do
+    user "root"
+    timeout 72000
+    code <<-EOF
+       # Find the version of cuda that is currently installed, then uninstall that version
+       [[ #{cudaVersion} =~ ^[0-9]*.[0-9]* ]]
+       /usr/local/cuda/bin/uninstall_cuda_${BASH_REMATCH}.pl
+    EOF
+    only_if { cudaVersion != newCudaVersion }
+end
+
+
 driver =  ::File.basename(node['cuda']['driver_url'])    
 case node['platform_family']
 when "debian"
