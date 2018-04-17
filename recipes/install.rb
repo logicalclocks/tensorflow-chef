@@ -87,7 +87,12 @@ if node['tensorflow']['mpi'].eql? "true"
     
     magic_shell_environment 'PATH' do
       value "$PATH:#{node['cuda']['base_dir']}/bin:/usr/local/bin"
-    end    
+    end
+
+  tensorflow_compile "mpi-compile" do
+    action :openmpi
+  end
+  
   end
 end
 

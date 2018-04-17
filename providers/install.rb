@@ -35,9 +35,10 @@ when "debian"
     set -e
     apt-get install dkms -y
     cd #{Chef::Config['file_cache_path']}
-    #./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s
+    ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s
     ./#{cuda} --silent --driver
     ./#{cuda} --silent --toolkit --verbose
+    nvidia-smi 
     EOF
     not_if { cudaVersion == newCudaVersion }
   end
@@ -54,8 +55,9 @@ when "rhel"
       yum install kernel-devel -y
       yum install kernel-headers -y
       yum install libglvnd-glx -y
+      yum install epel-release dkms libstdc++.i686 -y
     EOF
-    not_if { cudaVersion == newCudaVersion }
+#    not_if { cudaVersion == newCudaVersion }
   end
 
   bash "install_cuda_driver" do
@@ -65,7 +67,8 @@ when "rhel"
     set -e
     cd #{Chef::Config['file_cache_path']}
     # ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms
-    ./#{cuda} --silent --driver --verbose
+    #./#{cuda} --silent --driver --verbose
+#    ./#{driver} -a --no-install-libglvnd  -q --dkms --compat32-libdir -s
     EOF
     not_if { cudaVersion == newCudaVersion }
   end
@@ -114,9 +117,20 @@ when "rhel"
     # ks=$(rpm -qa | grep kernel | head -1 | sed -e 's/kernel-//' | sed -e 's/\.x86_64//')
     # ksl=$(rpm -qa | grep kernel | head -1 | sed -e 's/kernel-//')
     # --kernel-source-path==/home/#{node['kagent']['user']}/rpmbuild/BUILD/kernel-${ks}/linux-${ksl}/
+    #
+    #
+    #
+    #
+#    rm -f /lib/modules/3.10.0-514.el7.x86_64/build
+#    cd /lib/modules/3.10.0-514.el7.x86_64/build
+#    ln -s /usr/src/kernels/3.10.0-693.21.1.el7.x86_64/ build
+#     --kernel-source-path=/lib/modules/3.10.0-514.el7.x86_64/build
     cd #{Chef::Config['file_cache_path']}
-    ./#{cuda} --silent --toolkit --verbose
-
+# I have problems installing the kernel module (if you dont have it, and upgrade the kernel, the driver will break)
+    ./#{cuda} --silent --driver --toolkit --verbose  --no-opengl-libs --no-drm 
+#    ./#{cuda} --silent --toolkit --verbose
+    ldconfig
+    nvidia-smi 
     EOF
     not_if { cudaVersion == newCudaVersion }
   end
