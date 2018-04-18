@@ -37,6 +37,7 @@ bash "uninstall_cuda" do
        fi
      fi
     EOF
+    only_if { "#{cudaVersion}" == "#{newCudaVersion}" && "#{cudaVersion}" != "" }        
 end
 
 
@@ -55,11 +56,21 @@ when "debian"
     ./#{cuda} --silent --driver
     ./#{cuda} --silent --toolkit --verbose
     ldconfig
-    nvidia-smi 
+    rm -f /usr/local/cuda
+    ln -s /usr/local/cuda-#{node['cuda']['major_version']}  /usr/local/cuda
     EOF
     not_if { "#{cudaVersion}" == "#{newCudaVersion}" }    
   end
 
+  bash "test_cuda" do
+    user "root"
+    code <<-EOF
+      set -e
+      nvidia-smi 
+    EOF
+  end
+
+  
 when "rhel"
 
   bash "install_cuda_preliminaries" do
@@ -146,11 +157,19 @@ when "rhel"
     ./#{cuda} --silent --driver --toolkit --verbose  --no-opengl-libs --no-drm 
 #    ./#{cuda} --silent --toolkit --verbose
     ldconfig
-    nvidia-smi 
+    rm -f /usr/local/cuda
+    ln -s /usr/local/cuda-#{node['cuda']['major_version']}  /usr/local/cuda
     EOF
     not_if { "#{cudaVersion}" == "#{newCudaVersion}" }
   end
 
+  bash "test_cuda" do
+    user "root"
+    code <<-EOF
+      set -e
+      nvidia-smi 
+    EOF
+  end
 
 #   bash "install_cuda_rpm" do
 #     user "root"
