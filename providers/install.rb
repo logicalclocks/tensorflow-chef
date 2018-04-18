@@ -30,14 +30,11 @@ bash "uninstall_cuda" do
     user "root"
     timeout 72000
     code <<-EOF
-     if [ "#{cudaVersion}" != "#{newCudaVersion}" ] ; then
-       # Find the version of cuda that is currently installed, then uninstall that version
-       if [[ #{cudaVersion} =~ ^[0-9]*.[0-9]* ]] ; then
+       if [[ "#{cudaVersion}" =~ ^[0-9]*.[0-9]* ]] ; then
          /usr/local/cuda/bin/uninstall_cuda_${BASH_REMATCH}.pl
        fi
-     fi
     EOF
-    only_if { "#{cudaVersion}" == "#{newCudaVersion}" && "#{cudaVersion}" != "" }        
+    not_if { "#{cudaVersion}" != "#{newCudaVersion}" || "#{cudaVersion}" != "" }        
 end
 
 
