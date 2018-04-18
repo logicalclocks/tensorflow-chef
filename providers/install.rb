@@ -14,8 +14,9 @@ action :cuda do
 cudaVersion = " "
 if ::File.exist?( '/usr/local/cuda/version.txt')
   IO.foreach('/usr/local/cuda/version.txt') do |f|
-    if f.include? "Cuda Version"
-      cudaVersion = f.sub! 'CUDA Version ' ''
+    if f.include? "CUDA Version"
+      cudaVersion = f.sub!('CUDA Version ', '')
+      break
     end
   end 
 end  
@@ -29,12 +30,13 @@ bash "uninstall_cuda" do
     user "root"
     timeout 72000
     code <<-EOF
+     if [ "#{cudaVersion}" != "#{newCudaVersion}" ] ; then
        # Find the version of cuda that is currently installed, then uninstall that version
        if [[ #{cudaVersion} =~ ^[0-9]*.[0-9]* ]] ; then
          /usr/local/cuda/bin/uninstall_cuda_${BASH_REMATCH}.pl
        fi
+     fi
     EOF
-    only_if { cudaVersion != newCudaVersion }
 end
 
 
@@ -52,9 +54,10 @@ when "debian"
     ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s
     ./#{cuda} --silent --driver
     ./#{cuda} --silent --toolkit --verbose
+    ldconfig
     nvidia-smi 
     EOF
-    not_if { cudaVersion == newCudaVersion }
+    not_if { "#{cudaVersion}" == "#{newCudaVersion}" }    
   end
 
 when "rhel"
@@ -71,21 +74,20 @@ when "rhel"
       yum install libglvnd-glx -y
       yum install epel-release dkms libstdc++.i686 -y
     EOF
-#    not_if { cudaVersion == newCudaVersion }
   end
 
-  bash "install_cuda_driver" do
-    user "root"
-    timeout 72000
-    code <<-EOF
-    set -e
-    cd #{Chef::Config['file_cache_path']}
-    # ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms
-    #./#{cuda} --silent --driver --verbose
-#    ./#{driver} -a --no-install-libglvnd  -q --dkms --compat32-libdir -s
-    EOF
-    not_if { cudaVersion == newCudaVersion }
-  end
+#   bash "install_cuda_driver" do
+#     user "root"
+#     timeout 72000
+#     code <<-EOF
+#     set -e
+#     cd #{Chef::Config['file_cache_path']}
+#     # ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms
+#     #./#{cuda} --silent --driver --verbose
+# #    ./#{driver} -a --no-install-libglvnd  -q --dkms --compat32-libdir -s
+#     EOF
+#     not_if { "#{cudaVersion}" == "#{newCudaVersion}" }        
+#   end
 
 
   bash "install_kernel_src_tools" do
@@ -97,7 +99,7 @@ when "rhel"
       yum install audit-libs-devel binutils-devel elfutils-devel elfutils-libelf-devel -y
       yum install ncurses-devel newt-devel numactl-devel pciutils-devel python-devel zlib-devel0 -y
     EOF
-    not_if { cudaVersion == newCudaVersion }
+    not_if { "#{cudaVersion}" == "#{newCudaVersion}" }        
   end
   
 
@@ -146,7 +148,7 @@ when "rhel"
     ldconfig
     nvidia-smi 
     EOF
-    not_if { cudaVersion == newCudaVersion }
+    not_if { "#{cudaVersion}" == "#{newCudaVersion}" }
   end
 
 
@@ -201,7 +203,7 @@ for i in 1..node['cuda']['num_patches'] do
     cd #{Chef::Config['file_cache_path']}
     ./#{patch} --silent --accept-eula
     EOF
-    not_if { cudaVersion == newCudaVersion }
+    not_if { "#{cudaVersion}" == "#{newCudaVersion}" }
   end
 end
 

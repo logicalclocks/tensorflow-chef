@@ -31,7 +31,7 @@ action :openmpi do
         #chown -R #{node['tensorflow']['user']} /usr/local/lib/openmpi
         #chown -R #{node['tensorflow']['user']} /usr/local/include/openmpi
       EOF
-    not_if { ::File.directory?("/usr/local/include/openmpi}") }
+    not_if { ::File.directory?("/usr/local/include/openmpi") }
   end
 end
 
