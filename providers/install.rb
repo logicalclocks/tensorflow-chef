@@ -198,15 +198,19 @@ action :cudnn do
   bash "unpack_install_cdnn" do
     user "root"
     timeout 14400
+    ignore_failure true
     code <<-EOF
     set -e
 
     cd #{Chef::Config['file_cache_path']}
 
     tar zxf #{cached_cudnn_file}
-    cp -rf cuda/lib64/* /usr/local/cuda/lib64/
-    cp -rf cuda/include/* /usr/include
-    chmod a+r /usr/include/cudnn.h /usr/local/cuda/lib64/libcudnn*
+    rm -rf /usr/local/cuda/lib64/libcudnn*
+    rm -f /usr/local/cuda/include/cudnn.h
+    cp -rf cuda/include/cudnn.h /usr/local/cuda/include
+    cp -rf cuda/lib64/libcudnn* /usr/local/cuda/lib64
+    chmod a+r /usr/local/cuda/include/cudnn.h
+    #/usr/local/cuda/lib64/libcudnn* if ldconfig does not work
     ldconfig
     EOF
   end
