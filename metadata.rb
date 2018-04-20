@@ -16,7 +16,6 @@ depends "java"
 depends "magic_shell"
 depends "ndb"
 depends "hops"
-depends "poise-python"
 
 %w{ ubuntu debian rhel centos }.each do |os|
   supports os
