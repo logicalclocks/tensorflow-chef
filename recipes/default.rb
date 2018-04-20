@@ -70,6 +70,9 @@ end
 python_versions = %w{ 2.7 3.6 }
 for python in python_versions
 
+  Chef::Log.info "Environment creation for: python#{python}"
+  proj = "python" + python.gsub(".", "")
+  
   bash "conda_py#{python}_env" do
     user node['conda']['user']
     group node['conda']['group']
@@ -77,8 +80,8 @@ for python in python_versions
     code <<-EOF
     cd $HOME
     export CONDA_DIR=#{node['conda']['base_dir']}
-    export PY=$(echo #{python} | sed 's/\.//')
-    export PROJECT="python${python}"
+    export PY=`echo #{python} | sed -e "s/\.//"`
+    export PROJECT=#{proj}
     export MPI=#{node['tensorflow']['need_mpi']}
 
     ${CONDA_DIR}/bin/conda info --envs | grep "^${PROJECT}"
