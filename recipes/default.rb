@@ -78,10 +78,10 @@ for python in python_versions
     cd $HOME
     export CONDA_DIR=#{node['conda']['base_dir']}
     export PY=$(echo #{python} | sed 's/\.//')
-    export PROJECT=python${python}
+    export PROJECT="python${python}"
     export MPI=#{node['tensorflow']['need_mpi']}
 
-    ${CONDA_DIR}/bin/conda info --envs | grep "^python${PY}"
+    ${CONDA_DIR}/bin/conda info --envs | grep "^${PROJECT}"
     if [ $? -eq 0 ] ; then 
        exit 0
     fi
@@ -93,7 +93,7 @@ for python in python_versions
 
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --pre --upgrade pydoop
 
-    if [ "$PY" == "27" ] ; then
+    if [ "$python" == "2.7" ] ; then
         yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade tensorflow-serving-api
     fi
 

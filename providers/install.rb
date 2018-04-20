@@ -152,7 +152,6 @@ when "rhel"
     cd #{Chef::Config['file_cache_path']}
 # I have problems installing the kernel module (if you dont have it, and upgrade the kernel, the driver will break)
     ./#{cuda} --silent --driver --toolkit --verbose  --no-opengl-libs --no-drm 
-#    ./#{cuda} --silent --toolkit --verbose
     ldconfig
     rm -f /usr/local/cuda
     ln -s /usr/local/cuda-#{node['cuda']['major_version']}  /usr/local/cuda
@@ -248,7 +247,8 @@ action :cudnn do
     set -e
 
     cd #{Chef::Config['file_cache_path']}
-
+    # Remove any old cuda directory that may have been lying around
+    rm -rf cuda
     tar zxf #{cached_cudnn_file}
     cp -rf cuda/lib64/* /usr/local/cuda/lib64/
     cp -rf cuda/include/* /usr/include
