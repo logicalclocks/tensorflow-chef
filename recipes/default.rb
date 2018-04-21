@@ -82,6 +82,7 @@ for python in python_versions
     export PY=`echo #{python} | sed -e "s/\.//"`
     export PROJECT=#{proj}
     export MPI=#{node['tensorflow']['need_mpi']}
+    export HADOOP_HOME=#{node['install']['dir']}/hadoop
 
     ${CONDA_DIR}/bin/conda info --envs | grep "^${PROJECT}"
     if [ $? -eq 0 ] ; then 
@@ -93,13 +94,7 @@ for python in python_versions
        exit 2
     fi
 
-
-    export HADOOP_HOME=#{node['install']['dir']}/hadoop
-
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade pydoop
-    if [ $? -ne 0 ] ; then 
-       exit 3
-    fi
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade pip
 
     if [ "$python" == "2.7" ] ; then
         yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade tensorflow-serving-api
@@ -159,6 +154,12 @@ for python in python_versions
     if [ $? -ne 0 ] ; then 
        exit 11
     fi
+
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install pydoop==2.0a2
+    if [ $? -ne 0 ] ; then 
+       exit 3
+    fi
+
 
  EOF
   end
