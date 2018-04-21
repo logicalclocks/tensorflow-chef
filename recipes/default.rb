@@ -170,8 +170,14 @@ for python in python_versions
 
 
     cd ${CONDA_DIR}/anaconda/bin
+    if [ $? -ne 0 ] ; then 
+       exit 12
+    fi
     source ./activate ${PROJECT}
-    pip install pydoop==2.0a2
+    if [ $? -ne 0 ] ; then 
+       exit 13
+    fi
+    YES | pip install pydoop==2.0a2
     if [ $? -ne 0 ] ; then
        exit 3
     fi
