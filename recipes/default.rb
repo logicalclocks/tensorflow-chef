@@ -85,13 +85,11 @@ for python in python_versions
     export HADOOP_HOME=#{node['install']['dir']}/hadoop
 
     ${CONDA_DIR}/bin/conda info --envs | grep "^${PROJECT}"
-    if [ $? -eq 0 ] ; then 
-       exit 0
-    fi
-
-    ${CONDA_DIR}/bin/conda create -n $PROJECT python=#{python} -y -q
     if [ $? -ne 0 ] ; then 
-       exit 2
+      ${CONDA_DIR}/bin/conda create -n $PROJECT python=#{python} -y -q
+      if [ $? -ne 0 ] ; then 
+         exit 2
+      fi
     fi
 
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade pip
