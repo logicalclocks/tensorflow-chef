@@ -92,6 +92,7 @@ for python in python_versions
     export MPI=#{node['tensorflow']['need_mpi']}
     export HADOOP_HOME=#{node['install']['dir']}/hadoop
     export HADOOP_VERSION=#{hops_version}
+    export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop
 
     ${CONDA_DIR}/bin/conda info --envs | grep "^${PROJECT}"
     if [ $? -ne 0 ] ; then 
