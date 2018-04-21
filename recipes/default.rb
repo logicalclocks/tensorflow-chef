@@ -67,6 +67,14 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
 end
 
 
+hops_version = "2.8.2"
+if node.attribute?('hops') == true
+  if node['hops'].attribute?('version') == true
+    hops_version = node['hops']['version']
+  end
+end
+
+
 python_versions = %w{ 2.7 3.6 }
 for python in python_versions
   Chef::Log.info "Environment creation for: python#{python}"
@@ -83,6 +91,7 @@ for python in python_versions
     export PROJECT=#{proj}
     export MPI=#{node['tensorflow']['need_mpi']}
     export HADOOP_HOME=#{node['install']['dir']}/hadoop
+    export HADOOP_VERSION=#{hops_version}
 
     ${CONDA_DIR}/bin/conda info --envs | grep "^${PROJECT}"
     if [ $? -ne 0 ] ; then 
