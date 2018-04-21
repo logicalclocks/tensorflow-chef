@@ -69,7 +69,6 @@ end
 
 python_versions = %w{ 2.7 3.6 }
 for python in python_versions
-
   Chef::Log.info "Environment creation for: python#{python}"
   proj = "python" + python.gsub(".", "")
   
@@ -90,19 +89,37 @@ for python in python_versions
     fi
 
     ${CONDA_DIR}/bin/conda create -n $PROJECT python=#{python} -y -q
+    if [ $? -ne 0 ] ; then 
+       exit 2
+    fi
 
 
     export HADOOP_HOME=#{node['install']['dir']}/hadoop
 
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade pydoop
+    if [ $? -ne 0 ] ; then 
+       exit 3
+    fi
 
     if [ "$python" == "2.7" ] ; then
         yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade tensorflow-serving-api
+        if [ $? -ne 0 ] ; then 
+          exit 4
+        fi
     fi
 
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade hopsfacets
+    if [ $? -ne 0 ] ; then 
+       exit 5
+    fi
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade tfspark
+    if [ $? -ne 0 ] ; then 
+       exit 6
+    fi
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade ipykernel
+    if [ $? -ne 0 ] ; then 
+       exit 7
+    fi
 
     # Install a custom build of tensorflow with this line.
     ##{node['conda']['base_dir']}/envs/${PROJECT}/bin/pip install --upgrade #{node['conda']['base_dir']}/pkgs/tensorflow${GPU}-#{node['tensorflow']['version']}-cp${PY}-cp${PY}mu-manylinux1_x86_64.whl"
@@ -122,14 +139,26 @@ for python in python_versions
     fi
 
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install tensorflow${GPU}==#{node['tensorflow']['version']}  --upgrade --force-reinstall
+    if [ $? -ne 0 ] ; then 
+       exit 8
+    fi
     
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade hops
+    if [ $? -ne 0 ] ; then 
+       exit 9
+    fi
 
     if [ $MPI -eq 1 ] ; then
        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade horovod
+       if [ $? -ne 0 ] ; then 
+         exit 10
+       fi
     fi
 
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade #{node['mml']['url']}
+    if [ $? -ne 0 ] ; then 
+       exit 11
+    fi
 
  EOF
   end
