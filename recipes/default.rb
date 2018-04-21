@@ -163,11 +163,10 @@ for python in python_versions
        exit 11
     fi
 
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade pydoop==2.0a2 
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install pydoop==2.0a2 
     if [ $? -ne 0 ] ; then 
        exit 3
     fi
-
 
  EOF
   end
