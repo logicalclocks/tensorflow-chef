@@ -92,9 +92,9 @@ for python in python_versions
     ${CONDA_DIR}/bin/conda create -n $PROJECT python=#{python} -y -q
 
 
-    export HADOOP_HOME=#{node['kagent']['dir']}/hadoop
+    export HADOOP_HOME=#{node['install']['dir']}/hadoop
 
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --pre --upgrade pydoop
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade pydoop
 
     if [ "$python" == "2.7" ] ; then
         yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade tensorflow-serving-api
