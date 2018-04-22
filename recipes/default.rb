@@ -90,6 +90,8 @@ for python in python_versions
     export PY=`echo #{python} | sed -e "s/\.//"`
     export PROJECT=#{proj}
     export MPI=#{node['tensorflow']['need_mpi']}
+    export HOROVOD_NCCL_HOME=/usr/local/nccl2
+    export HOROVOD_GPU_ALLREDUCE=NCCL
     # export HADOOP_HOME=#{node['install']['dir']}/hadoop
     # export HADOOP_VERSION=#{hops_version}
     # export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop
