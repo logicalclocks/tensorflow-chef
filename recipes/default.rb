@@ -153,12 +153,12 @@ for python in python_versions
        exit 9
     fi
 
-    if [ $MPI -eq 1 ] ; then
-       yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade horovod
-       if [ $? -ne 0 ] ; then 
-         exit 10
-       fi
-    fi
+    # if [ $MPI -eq 1 ] ; then
+    #    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade horovod
+    #    if [ $? -ne 0 ] ; then 
+    #      exit 10
+    #    fi
+    # fi
 
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade #{node['mml']['url']}
     if [ $? -ne 0 ] ; then 
@@ -187,6 +187,30 @@ for python in python_versions
     EOF
   end
 
+  bash "horovod_py#{python}_env" do
+    user "root"
+    code <<-EOF
+    cd $HOME
+    export CONDA_DIR=#{node['conda']['base_dir']}
+
+    export PROJECT=#{proj}
+    export MPI=#{node['tensorflow']['need_mpi']}
+    
+    
+    # export HADOOP_HOME=#{node['install']['dir']}/hadoop
+    # export HADOOP_VERSION=#{hops_version}
+    # export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop
+    if [ $MPI -eq 1 ] ; then
+           su #{node['conda']['user']} -c "export HOROVOD_NCCL_HOME=/usr/local/nccl2; export HOROVOD_GPU_ALLREDUCE=NCCL ;yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade horovod"
+       if [ $? -ne 0 ] ; then 
+         exit 10
+       fi
+    fi
+    EOF
+  end
+
+
+  
   bash "pydoop_py#{python}_env" do
     user "root"
     code <<-EOF
