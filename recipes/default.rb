@@ -90,9 +90,9 @@ for python in python_versions
     export PY=`echo #{python} | sed -e "s/\.//"`
     export PROJECT=#{proj}
     export MPI=#{node['tensorflow']['need_mpi']}
-    export HADOOP_HOME=#{node['install']['dir']}/hadoop
-    export HADOOP_VERSION=#{hops_version}
-    export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop
+    # export HADOOP_HOME=#{node['install']['dir']}/hadoop
+    # export HADOOP_VERSION=#{hops_version}
+    # export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop
 
     ${CONDA_DIR}/bin/conda info --envs | grep "^${PROJECT}"
     if [ $? -ne 0 ] ; then 
@@ -169,21 +169,37 @@ for python in python_versions
     # fi
 
 
-    cd ${CONDA_DIR}/anaconda/bin
+    # cd ${CONDA_DIR}/anaconda/bin
+    # if [ $? -ne 0 ] ; then 
+    #    exit 12
+    # fi
+    # source ./activate ${PROJECT}
+    # if [ $? -ne 0 ] ; then 
+    #    exit 13
+    # fi
+    # YES | pip install pydoop==2.0a2
+    # if [ $? -ne 0 ] ; then
+    #    exit 3
+    # fi
+
+    EOF
+  end
+
+  bash "pydoop_py#{python}_env" do
+    user "root"
+    code <<-EOF
+    export CONDA_DIR=#{node['conda']['base_dir']}
+    export PROJECT=#{proj}
+
+    su #{node['conda']['user']} -c "export HADOOP_HOME=#{node['install']['dir']}/hadoop; yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install pydoop==2.0a2 "
     if [ $? -ne 0 ] ; then 
-       exit 12
-    fi
-    source ./activate ${PROJECT}
-    if [ $? -ne 0 ] ; then 
-       exit 13
-    fi
-    YES | pip install pydoop==2.0a2
-    if [ $? -ne 0 ] ; then
        exit 3
     fi
 
- EOF
+
+    EOF
   end
 
+  
 end
 
