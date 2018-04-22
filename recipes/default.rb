@@ -166,14 +166,14 @@ for python in python_versions
   # PAHT needs /usr/local/bin/mpicxx for horovod
   # horovod - https://github.com/uber/horovod/blob/master/docs/gpus.md
   #
-  if node['tensorflow']['need_mpi'] == 1
+  if node['tensorflow']['need_mpi'] == 1 && node['cuda']['accept_nvidia_download_terms'].eql? "true"
     bash "horovod_py#{python}_env" do
       user "root"
       code <<-EOF
       set -e
       export CONDA_DIR=#{node['conda']['base_dir']}
       export PROJECT=#{proj}
-      su #{node['conda']['user']} -c "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/nccl2/lib; export PATH=$PATH:/usr/local/bin;  export HOROVOD_NCCL_HOME=/usr/local/nccl2; export HOROVOD_GPU_ALLREDUCE=NCCL ;yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade horovod"
+      su #{node['conda']['user']} -c "export HOROVOD_CUDA_HOME=/usr/local/cuda; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/nccl2/lib; export PATH=$PATH:/usr/local/bin;  export HOROVOD_NCCL_HOME=/usr/local/nccl2; export HOROVOD_GPU_ALLREDUCE=NCCL ;yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade horovod"
       EOF
     end
   end
