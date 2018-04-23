@@ -166,7 +166,7 @@ for python in python_versions
   # PAHT needs /usr/local/bin/mpicxx for horovod
   # horovod - https://github.com/uber/horovod/blob/master/docs/gpus.md
   #
-  if node['tensorflow']['need_mpi'] == 1 && node['cuda']['accept_nvidia_download_terms'].eql? "true"
+  if node['tensorflow']['need_mpi'] == 1 && node['cuda']['accept_nvidia_download_terms'] == "true"
     bash "horovod_py#{python}_env" do
       user "root"
       code <<-EOF
