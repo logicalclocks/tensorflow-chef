@@ -192,3 +192,14 @@ for python in python_versions
   
 end
 
+#
+# Allow hopsworks/user to ssh into servers with the anaconda user to make a copy of environments.
+#
+homedir = node['conda']['user'].eql?("root") ? "/root" : "/home/#{node['conda']['user']}"
+kagent_keys "#{homedir}" do
+  cb_user "#{node['conda']['user']}"
+  cb_group "#{node['conda']['group']}"
+  cb_name "hopsworks"
+  cb_recipe "default"  
+  action :get_publickey
+end  
