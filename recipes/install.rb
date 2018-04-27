@@ -236,7 +236,7 @@ if node['tensorflow']['rdma'].eql? "true"
     bash "install-infiniband-rhel" do
       user "root"
       code <<-EOF
-    set -e
+    #set -e
     yum -y groupinstall "Infiniband Support"
     yum --setopt=group_package_types=optional groupinstall "Infiniband Support" -y
     yum -y install perftest infiniband-diags
@@ -247,7 +247,7 @@ if node['tensorflow']['rdma'].eql? "true"
 #    modprobe mlx4_ib
 #    modprobe mlx5_ib
    EOF
-      not_if "systemctl status rdma"
+      #not_if "systemctl status rdma"
     end
   end
 end
