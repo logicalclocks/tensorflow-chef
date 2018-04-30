@@ -13,7 +13,15 @@ action :openmpi do
     package 'libibverbs'
     package 'rdma-core-devel'      
   end
-
+  cuda=""
+  if node['cuda']['accept_nvidia_download_terms'].eql?("true")
+    cuda=" --with-cuda=#{node['cuda']['version_dir']}"
+  end
+  rdma=""
+  if node['tensorflow']['rdma'].eql? "true"
+    rdma=" --with-verbs"
+  end
+  
   bash "compile_openmpi" do
     user "root"
     code <<-EOF
@@ -24,7 +32,7 @@ action :openmpi do
         fi
         tar zxf #{node['openmpi']['version']}
         cd #{basename}
-        ./configure --prefix=/usr/local --with-cuda=#{node['cuda']['version_dir']} --with-verbs
+        ./configure --prefix=/usr/local #{cuda} #{rdma}
         make all
         mkdir -p #{node['tensorflow']['dir']}/#{basename}
         make install
