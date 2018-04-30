@@ -12,6 +12,7 @@ action :openmpi do
     package 'libsysfs-devel'
     package 'libibverbs'
     package 'rdma-core-devel'      
+    package 'gcc-c++'
   end
   cuda=""
   if node['cuda']['accept_nvidia_download_terms'].eql?("true")
