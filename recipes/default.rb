@@ -65,11 +65,10 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
     dest "/user/#{node['hops']['hdfs']['user']}/#{node['tensorflow']['hopstfdemo_dir']}"
   end
 
-<<<<<<< HEAD
 end
 
 
-hops_version = "2.8.2"
+hops_version = "2.8.4"
 if node.attribute?('hops') == true
   if node['hops'].attribute?('version') == true
     hops_version = node['hops']['version']
@@ -211,6 +210,5 @@ kagent_keys "#{homedir}" do
   cb_recipe "default"  
   action :get_publickey
 end  
-=======
-end
->>>>>>> 2b777d4d5cf0221630072567335103212676ce9c
+
+
