@@ -192,6 +192,12 @@ for python in python_versions
   
 end
 
+
+#
+# Need to synchronize conda enviornments for newly joined or rejoining nodes.
+#
+package "rsync"
+
 #
 # Allow hopsworks/user to ssh into servers with the anaconda user to make a copy of environments.
 #
