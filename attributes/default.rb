@@ -11,9 +11,9 @@ default['tensorflow']['custom_url']    = "#{node['download_url']}/tensorflow-#{n
 default['tensorflow']['git_url']       = "https://github.com/tensorflow/tensorflow"
 default['tensorflow']['hopstf_version']= "0.0.1"
 default['tensorflow']['hopstf_url']    = "#{node['download_url']}/tensorflow/hops-tensorflow-#{node['tensorflow']['hopstf_version']}.jar"
-default['tensorflow']['base_dirname']  = "mnist"
+default['tensorflow']['base_dirname']  = "#{node['hops']['hopsexamples_version']}"
 default['tensorflow']['hopstfdemo_dir'] = "tensorflow_demo"
-default['tensorflow']['hopstfdemo_url'] = "#{node['download_url']}/tensorflow/#{node['tensorflow']['base_dirname']}.tar.gz"
+default['tensorflow']['hopstfdemo_url'] = "#{node['download_url']}/tensorflow/demo/#{node['tensorflow']['base_dirname']}/#{node['tensorflow']['base_dirname']}.tar.gz"
 
 default['tensorflow']['dir']           = node['install']['dir'].empty? ? "/srv/hops" : node['install']['dir']
 default['tensorflow']['home']          = node['tensorflow']['dir'] + "/tensorflow-" + node['tensorflow']['version']

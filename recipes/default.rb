@@ -37,12 +37,13 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
     action :create
   end
 
-  # Extract mnist
-  bash 'extract_mnist' do
+  # Extract Jupyter notebooks
+  bash 'extract_notebooks' do
     user "root"
     code <<-EOH
                 set -e
-                tar -zxf #{Chef::Config['file_cache_path']}/#{base_filename} -C #{Chef::Config['file_cache_path']}
+                mkdir #{Chef::Config['file_cache_path']}/#{node['tensorflow']['base_dirname']}
+                tar -zxf #{Chef::Config['file_cache_path']}/#{node['tensorflow']['base_dirname']}.tar.gz -C #{Chef::Config['file_cache_path']}/#{node['tensorflow']['base_dirname']}
                 chown -RL #{node['hops']['hdfs']['user']}:#{node['hops']['group']} #{Chef::Config['file_cache_path']}/#{node['tensorflow']['base_dirname']}
         EOH
     not_if { ::File.exists?("#{Chef::Config['file_cache_path']}/#{node['tensorflow']['base_dirname']}") }
@@ -64,6 +65,7 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
     dest "/user/#{node['hops']['hdfs']['user']}/#{node['tensorflow']['hopstfdemo_dir']}"
   end
 
+<<<<<<< HEAD
 end
 
 
@@ -209,3 +211,6 @@ kagent_keys "#{homedir}" do
   cb_recipe "default"  
   action :get_publickey
 end  
+=======
+end
+>>>>>>> 2b777d4d5cf0221630072567335103212676ce9c
