@@ -16,8 +16,6 @@ depends "java"
 depends "magic_shell"
 depends "ndb"
 depends "hops"
-depends "poise-python"
-depends "hops"
 
 %w{ ubuntu debian rhel centos }.each do |os|
   supports os
@@ -74,5 +72,9 @@ attribute "cuda/accept_nvidia_download_terms",
 
 attribute "cuda/skip_test",
           :description => "Dont check if there is a local nvidia card on this machine",
+          :type => "string"
+
+attribute "cuda/skip_stop_xserver",
+          :description => "Dont restart the xserver (probably a localhost installation)",
           :type => "string"
 

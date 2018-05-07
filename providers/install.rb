@@ -14,8 +14,9 @@ action :cuda do
 cudaVersion = " "
 if ::File.exist?( '/usr/local/cuda/version.txt')
   IO.foreach('/usr/local/cuda/version.txt') do |f|
-    if f.include? "Cuda Version"
-      cudaVersion = f.sub! 'CUDA Version ' ''
+    if f.include? "CUDA Version"
+      cudaVersion = f.sub!('CUDA Version ', '')
+      break
     end
   end 
 end  
@@ -23,6 +24,19 @@ newCudaVersion = "#{node['cuda']['major_version']}.#{node['cuda']['minor_version
 
 Chef::Log.info "Old cuda version is: " + cudaVersion
 Chef::Log.info "New cuda version is: " + newCudaVersion
+
+
+bash "uninstall_cuda" do
+    user "root"
+    timeout 72000
+    code <<-EOF
+       if [[ "#{cudaVersion}" =~ ^[0-9]*.[0-9]* ]] ; then
+         /usr/local/cuda/bin/uninstall_cuda_${BASH_REMATCH}.pl
+       fi
+    EOF
+    not_if { "#{cudaVersion}" != "#{newCudaVersion}" || "#{cudaVersion}" != "" }        
+end
+
 
 driver =  ::File.basename(node['cuda']['driver_url'])    
 case node['platform_family']
@@ -35,13 +49,25 @@ when "debian"
     set -e
     apt-get install dkms -y
     cd #{Chef::Config['file_cache_path']}
-    #./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s
+    ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s
     ./#{cuda} --silent --driver
     ./#{cuda} --silent --toolkit --verbose
+    ldconfig
+    rm -f /usr/local/cuda
+    ln -s /usr/local/cuda-#{node['cuda']['major_version']}  /usr/local/cuda
     EOF
-    not_if { cudaVersion == newCudaVersion }
+    not_if { "#{cudaVersion}" == "#{newCudaVersion}" }    
   end
 
+  bash "test_cuda" do
+    user "root"
+    code <<-EOF
+      set -e
+      nvidia-smi 
+    EOF
+  end
+
+  
 when "rhel"
 
   bash "install_cuda_preliminaries" do
@@ -54,21 +80,22 @@ when "rhel"
       yum install kernel-devel -y
       yum install kernel-headers -y
       yum install libglvnd-glx -y
+      yum install epel-release dkms libstdc++.i686 -y
     EOF
-    not_if { cudaVersion == newCudaVersion }
   end
 
-  bash "install_cuda_driver" do
-    user "root"
-    timeout 72000
-    code <<-EOF
-    set -e
-    cd #{Chef::Config['file_cache_path']}
-    # ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms
-    ./#{cuda} --silent --driver --verbose
-    EOF
-    not_if { cudaVersion == newCudaVersion }
-  end
+#   bash "install_cuda_driver" do
+#     user "root"
+#     timeout 72000
+#     code <<-EOF
+#     set -e
+#     cd #{Chef::Config['file_cache_path']}
+#     # ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms
+#     #./#{cuda} --silent --driver --verbose
+# #    ./#{driver} -a --no-install-libglvnd  -q --dkms --compat32-libdir -s
+#     EOF
+#     not_if { "#{cudaVersion}" == "#{newCudaVersion}" }        
+#   end
 
 
   bash "install_kernel_src_tools" do
@@ -80,7 +107,7 @@ when "rhel"
       yum install audit-libs-devel binutils-devel elfutils-devel elfutils-libelf-devel -y
       yum install ncurses-devel newt-devel numactl-devel pciutils-devel python-devel zlib-devel0 -y
     EOF
-    not_if { cudaVersion == newCudaVersion }
+    not_if { "#{cudaVersion}" == "#{newCudaVersion}" }        
   end
   
 
@@ -114,13 +141,31 @@ when "rhel"
     # ks=$(rpm -qa | grep kernel | head -1 | sed -e 's/kernel-//' | sed -e 's/\.x86_64//')
     # ksl=$(rpm -qa | grep kernel | head -1 | sed -e 's/kernel-//')
     # --kernel-source-path==/home/#{node['kagent']['user']}/rpmbuild/BUILD/kernel-${ks}/linux-${ksl}/
+    #
+    #
+    #
+    #
+#    rm -f /lib/modules/3.10.0-514.el7.x86_64/build
+#    cd /lib/modules/3.10.0-514.el7.x86_64/build
+#    ln -s /usr/src/kernels/3.10.0-693.21.1.el7.x86_64/ build
+#     --kernel-source-path=/lib/modules/3.10.0-514.el7.x86_64/build
     cd #{Chef::Config['file_cache_path']}
-    ./#{cuda} --silent --toolkit --verbose
-
+# I have problems installing the kernel module (if you dont have it, and upgrade the kernel, the driver will break)
+    ./#{cuda} --silent --driver --toolkit --verbose  --no-opengl-libs --no-drm 
+    ldconfig
+    rm -f /usr/local/cuda
+    ln -s /usr/local/cuda-#{node['cuda']['major_version']}  /usr/local/cuda
     EOF
-    not_if { cudaVersion == newCudaVersion }
+    not_if { "#{cudaVersion}" == "#{newCudaVersion}" }
   end
 
+  bash "test_cuda" do
+    user "root"
+    code <<-EOF
+      set -e
+      nvidia-smi 
+    EOF
+  end
 
 #   bash "install_cuda_rpm" do
 #     user "root"
@@ -173,7 +218,7 @@ for i in 1..node['cuda']['num_patches'] do
     cd #{Chef::Config['file_cache_path']}
     ./#{patch} --silent --accept-eula
     EOF
-    not_if { cudaVersion == newCudaVersion }
+    not_if { "#{cudaVersion}" == "#{newCudaVersion}" }
   end
 end
 
@@ -202,7 +247,8 @@ action :cudnn do
     set -e
 
     cd #{Chef::Config['file_cache_path']}
-
+    # Remove any old cuda directory that may have been lying around
+    rm -rf cuda
     tar zxf #{cached_cudnn_file}
     cp -rf cuda/lib64/* /usr/local/cuda/lib64/
     cp -rf cuda/include/* /usr/include

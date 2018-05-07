@@ -3,7 +3,7 @@ case node["platform_family"]
 when "debian"
   libs=%w{build-essential curl libcurl3-dev git libfreetype6-dev libpng12-dev libzmq3-dev pkg-config python-dev python-numpy python-pip software-properties-common swig zip zlib1g-dev }
 when "rhel"
-  libs=%w{curl libcurl git freetype-devel libpng12-devel python2-pkgconfig python-devel python27-python-pip swig zip zlib-devel giflib-devel zeromq3-devel }
+  libs=%w{curl libcurl git freetype-devel libpng12-devel python2-pkgconfig python-devel python2-pip swig zip zlib-devel giflib-devel zeromq3-devel }
 end
 
 for lib in libs

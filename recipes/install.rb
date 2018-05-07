@@ -87,29 +87,42 @@ if node['tensorflow']['mpi'].eql? "true"
     
     magic_shell_environment 'PATH' do
       value "$PATH:#{node['cuda']['base_dir']}/bin:/usr/local/bin"
-    end    
+    end
+
+  tensorflow_compile "mpi-compile" do
+    action :openmpi
+  end
+  
   end
 end
 
 
 if node['tensorflow']['mkl'].eql? "true"
   node.override['tensorflow']['need_mkl'] = 1
-
+  
   case node['platform_family']
   when "debian"
 
-    bash "install-intel-mkl-ubuntu" do
+  cached_file="l_mkl_2018.0.128.tgz"
+  remote_file cached_file do
+    source "#{node['download_url']}/l_mkl_2018.0.128.tgz"
+    mode 0755
+    action :create
+    retries 1
+    not_if { File.exist?(cached_file) }
+  end
+
+  bash "install-intel-mkl-ubuntu" do
       user "root"
       code <<-EOF
        set -e
        cd #{Chef::Config['file_cache_path']}
-       rm -f l_mkl_2018.0.128.tgz
-       wget http://snurran.sics.se/hops/l_mkl_2018.0.128.tgz
-       tar zxf l_mkl_2018.0.128.tgz
-       cd l_mkl_2018.0.128
+       tar zxf #{cached_file}
+       cd #{cached_file}
 #       echo "install -eula=accept installdir=#{node['tensorflow']['dir']}/intel_mkl" > commands.txt
 #       ./install -s -eula=accept commands.txt
     EOF
+      not_if "test -f #{Chef::Config['file_cache_path']}/#{cached_file}"
     end
 
   when "rhel"
@@ -223,7 +236,7 @@ if node['tensorflow']['rdma'].eql? "true"
     bash "install-infiniband-rhel" do
       user "root"
       code <<-EOF
-    set -e
+    #set -e
     yum -y groupinstall "Infiniband Support"
     yum --setopt=group_package_types=optional groupinstall "Infiniband Support" -y
     yum -y install perftest infiniband-diags
@@ -234,7 +247,7 @@ if node['tensorflow']['rdma'].eql? "true"
 #    modprobe mlx4_ib
 #    modprobe mlx5_ib
    EOF
-      not_if "systemctl status rdma"
+      #not_if "systemctl status rdma"
     end
   end
 end
@@ -256,7 +269,7 @@ when "debian"
     EOF
   end
 
-  packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic python python-numpy python-dev python-pip python-lxml python-pillow libcupti-dev libcurl3-dev python-wheel python-six }
+  packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic python2.7 python2.7-numpy python2.7-dev python-pip python2.7-lxml python-pillow libcupti-dev libcurl3-dev python-wheel python-six }
   for lib in packages do
     package lib do
       action :install
