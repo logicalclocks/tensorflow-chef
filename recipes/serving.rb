@@ -37,15 +37,15 @@ when "debian"
     not_if "which tensorflow_model_server"
   end
 
-  if node['install']['upgrade'] == "true" 
-    bash 'upgrade_tf_serving' do
-      user "root"
-      code <<-EOF
-      apt-get update -y
-      apt-get upgrade tensorflow-model-server -y
-    EOF
-    end
-  end
+  #if node['install']['upgrade'] == "true" 
+    #bash 'upgrade_tf_serving' do
+    #  user "root"
+    #  code <<-EOF
+    #  apt-get update -y
+    #  apt-get upgrade tensorflow-model-server -y
+    #EOF
+    #end
+  #end
   
 when "rhel"
   
