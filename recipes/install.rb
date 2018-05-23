@@ -89,12 +89,10 @@ if node['tensorflow']['mpi'].eql? "true"
       value "$PATH:#{node['cuda']['base_dir']}/bin:/usr/local/bin"
     end
 
-  tensorflow_compile "mpi-compile" do
-    action :openmpi
-  end
-  
   end
 end
+
+  
 
 
 if node['tensorflow']['mkl'].eql? "true"
@@ -472,7 +470,17 @@ if node['cuda']['accept_nvidia_download_terms'].eql?("true")
     action :cuda
   end
 
+  if node['tensorflow']['mpi'].eql? "true"
+    case node['platform_family']
+    when "rhel"
+      tensorflow_compile "mpi-compile" do
+        action :openmpi
+      end
+    end
+  end
 
+
+  
   #    cd #{cuda_dir}
   #    ./NVIDIA-Linux-x86_64-352.39.run
   #    modprobe nvidia
