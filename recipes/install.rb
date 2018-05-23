@@ -84,6 +84,7 @@ if node['tensorflow']['mpi'].eql? "true"
     # installs binaries to /usr/local/bin
     # horovod needs mpicxx in /usr/local/bin/mpicxx - add it to the PATH
     package "openmpi-devel"
+    package "libtool"
     
     magic_shell_environment 'PATH' do
       value "$PATH:#{node['cuda']['base_dir']}/bin:/usr/local/bin"
