@@ -107,7 +107,7 @@ for python in python_versions
 
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade pip
 
-    if [ "$python" == "2.7" ] ; then
+    if [ "#{python}" == "2.7" ] ; then
         yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade tensorflow-serving-api
         if [ $? -ne 0 ] ; then 
           exit 4
