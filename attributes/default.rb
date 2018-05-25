@@ -68,4 +68,6 @@ default['bazel']['url']                = "#{node['download_url']}/bazel-#{node['
 
 default['tensorflow']['serving']['version']      = "1.5.0"
 
-default['openmpi']['version']          = "openmpi-3.0.1.tar.gz"
+default['openmpi']['version']          = "openmpi-3.1.0.tar.gz"
+
+default['pydoop']['version']           = "2.0a3"

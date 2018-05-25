@@ -164,7 +164,7 @@ for python in python_versions
 
 
   #
-  # PAHT needs /usr/local/bin/mpicxx for horovod
+  # PATH needs /usr/local/bin/mpicxx for horovod
   # horovod - https://github.com/uber/horovod/blob/master/docs/gpus.md
   #
   if node['tensorflow']['need_mpi'] == 1 && node['cuda']['accept_nvidia_download_terms'] == "true"
@@ -186,7 +186,7 @@ for python in python_versions
     set -e
     export CONDA_DIR=#{node['conda']['base_dir']}
     export PROJECT=#{proj}
-    su #{node['conda']['user']} -c "export HADOOP_HOME=#{node['install']['dir']}/hadoop; yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install pydoop==2.0a2 "
+    su #{node['conda']['user']} -c "export HADOOP_HOME=#{node['install']['dir']}/hadoop; yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install pydoop==#{node['pydoop']['version']}"
     EOF
   end
 
