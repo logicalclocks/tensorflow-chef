@@ -29,9 +29,9 @@ default['cuda']['build_version']       = "384.81"
 default['cuda']['version']             = node['cuda']['major_version'] + "." + node['cuda']['minor_version'] + "_" + node['cuda']['build_version']
 default['cuda']['url']                 = "#{node['download_url']}/cuda_#{node['cuda']['version']}_linux.run"
 #default['cuda']['url_backup']          = "http://developer.download.nvidia.com/compute/cuda/#{node['cuda']['major_version']}/Prod/local_installers/cuda_#{node['cuda']['version']}_linux.run"
-default['cuda']['driver_version']      = "NVIDIA-Linux-x86_64-390.25.run"
+default['cuda']['driver_version']      = "NVIDIA-Linux-x86_64-390.59.run"
 default['cuda']['driver_url']          = "#{node['download_url']}/#{node['cuda']['driver_version']}"
-default['cuda']['md5sum']              = "7a00187b2ce5c5e350e68882f42dd507"
+default['cuda']['md5sum']              = ""
 # 9.1 checksum
 #default['cuda']['md5sum']              = "33e1bd980e91af4e55f3ef835c103f9b"
 
@@ -68,4 +68,6 @@ default['bazel']['url']                = "#{node['download_url']}/bazel-#{node['
 
 default['tensorflow']['serving']['version']      = "1.5.0"
 
-default['openmpi']['version']          = "openmpi-3.0.1.tar.gz"
+default['openmpi']['version']          = "openmpi-3.1.0.tar.gz"
+
+default['pydoop']['version']           = "2.0a3"

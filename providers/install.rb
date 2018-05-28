@@ -84,6 +84,12 @@ when "rhel"
     EOF
   end
 
+
+  #
+  # for centos 7.2, this link is broken: /lib/modules/3.10.0-693.21.1.el7.x86_64/build
+  # rm -f /lib/modules/3.10.0-693.21.1.el7.x86_64/build
+  # ln -s /usr/src/kernels/3.10.0-862.3.2.el7.x86_64 /lib/modules/3.10.0-693.21.1.el7.x86_64/build
+  #
 #   bash "install_cuda_driver" do
 #     user "root"
 #     timeout 72000
@@ -129,6 +135,10 @@ when "rhel"
   # end
 
 
+  # ELRepo
+  # rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+  # rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm
+  #
   
   bash "install_cuda_full" do
     user "root"
