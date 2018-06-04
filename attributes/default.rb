@@ -70,4 +70,4 @@ default['tensorflow']['serving']['version']      = "1.5.0"
 
 default['openmpi']['version']          = "openmpi-3.1.0.tar.gz"
 
-default['pydoop']['version']           = "2.0a3"
+
