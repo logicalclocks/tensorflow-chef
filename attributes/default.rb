@@ -6,7 +6,8 @@ default['tensorflow']['group']         = node['install']['user'].empty? ? node['
 default['tensorflow']['install']       = "dist" # or 'src' or 'custom'
 
 # tensorflow-1.2.1-debian-gcc_version-python_version.whl
-default['tensorflow']['custom_url']    = "#{node['download_url']}/tensorflow-#{node['tensorflow']['version']}-#{node['platform']}-5.4-2.7.whl"
+# #{node['download_url']}/tensorflow-#{node['tensorflow']['version']}-#{node['platform']}-5.4-2.7.whl"
+default['tensorflow']['custom_url']    = ""
 
 default['tensorflow']['git_url']       = "https://github.com/tensorflow/tensorflow"
 default['tensorflow']['hopstf_version']= "0.0.1"
