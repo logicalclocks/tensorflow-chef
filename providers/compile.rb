@@ -80,7 +80,6 @@ EOF
     not_if { node['cuda']['skip_test'] == "true" }
   end
 
-
 end
 
 action :cudnn do
@@ -103,9 +102,33 @@ action :tf do
   tf_version = node['tensorflow']['version']
   base_version = ::File.basename("#{tf_version}", ::File.extname(tf_version))
 
-  bash "git_clone_tensorflow_server" do
-    user node['tensorflow']['user']
-    code <<-EOF
+  # Try and download+install a custom python wheel first. If that fails, build from source
+  begin
+    wheel = File.basename("#{node['tensorflow']['custom_url']}")
+    remote_file "#{Chef::Config['file_cache_path']}/#{wheel}" do
+      source node['tensorflow']['custom_url']
+      owner node['tensorflow']['user']
+      group node['tensorflow']['group']
+      mode "0755"
+      action :create_if_missing
+    end
+
+    bash "pip_install_custom_tensorflow" do
+      user "root"
+      code <<-EOF
+      set -e
+      export LC_CTYPE=en_US.UTF-8
+      export LC_ALL=en_US.UTF-8
+      pip install --ignore-installed --upgrade #{Chef::Config['file_cache_path']}/#{wheel}
+     EOF
+    end
+
+  rescue
+
+    
+    bash "git_clone_tensorflow_server" do
+      user node['tensorflow']['user']
+      code <<-EOF
     set -e
     cd /home/#{node['tensorflow']['user']}
     if [ -d /home/#{node['tensorflow']['user']}/tensorflow ] ; then
@@ -116,38 +139,38 @@ action :tf do
       cd tensorflow
     fi
 EOF
-    #  not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/configure" ) }
-  end
-
-  clang_path=""
-  if node['cuda']['accept_nvidia_download_terms'] == "true"
-    config="configure-no-expect-with-gpu.sh"
-    case node['platform_family']
-    when "debian"
-      clang_path="/usr/bin/clang"
-    when "rhel"
-      clang_path="/bin/clang"
+      #  not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/configure" ) }
     end
-  else
-    config="configure-no-expect.sh"
-  end
+
+    clang_path=""
+    if node['cuda']['accept_nvidia_download_terms'] == "true"
+      config="configure-no-expect-with-gpu.sh"
+      case node['platform_family']
+      when "debian"
+        clang_path="/usr/bin/clang"
+      when "rhel"
+        clang_path="/bin/clang"
+      end
+    else
+      config="configure-no-expect.sh"
+    end
 
 
 
-  template "/home/#{node['tensorflow']['user']}/tensorflow/#{config}" do
-    source "#{config}.erb"
-    owner node['tensorflow']['user']
-    mode 0770
-    variables({ :clang_path => clang_path })
-  end
+    template "/home/#{node['tensorflow']['user']}/tensorflow/#{config}" do
+      source "#{config}.erb"
+      owner node['tensorflow']['user']
+      mode 0770
+      variables({ :clang_path => clang_path })
+    end
 
 
-  #
-  # http://www.admin-magazine.com/Articles/Automating-with-Expect-Scripts
-  #
-  bash "configure_tensorflow_server" do
-    user "root"
-    code <<-EOF
+    #
+    # http://www.admin-magazine.com/Articles/Automating-with-Expect-Scripts
+    #
+    bash "configure_tensorflow_server" do
+      user "root"
+      code <<-EOF
     set -e
     export LC_CTYPE=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
@@ -160,32 +183,10 @@ EOF
     #  exit 1
     #fi
 EOF
-  end
+    end
 
 
-  if node['cuda']['accept_nvidia_download_terms'] == "true"
-    # Try and download+install a custom python wheel first. If that fails, build from source
-    begin
-      wheel = File.basename("#{node['tensorflow']['custom_url']}")
-      remote_file "#{Chef::Config['file_cache_path']}/#{wheel}" do
-        source node['tensorflow']['custom_url']
-        owner node['tensorflow']['user']
-        group node['tensorflow']['group']
-        mode "0755"
-        action :create_if_missing
-      end
-
-      bash "pip_install_custom_tensorflow" do
-        user "root"
-        code <<-EOF
-      set -e
-      export LC_CTYPE=en_US.UTF-8
-      export LC_ALL=en_US.UTF-8
-      pip install --ignore-installed --upgrade #{Chef::Config['file_cache_path']}/#{wheel}
-     EOF
-      end
-
-    rescue
+    if node['cuda']['accept_nvidia_download_terms'] == "true"
 
 
       # https://github.com/bazelbuild/bazel/issues/739
@@ -320,36 +321,33 @@ EOF
         not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/.installed_pip" ) }
       end
 
+      begin
+        gzip = File.basename("#{node['tensorflow']['graph_url']}")
+        remote_file "#{Chef::Config['file_cache_path']}/#{gzip}" do
+          source node['tensorflow']['graph_url']
+          owner node['tensorflow']['user']
+          group node['tensorflow']['group']
+          mode "0755"
+          action :create_if_missing
+        end
 
-    end # End rescue
-
-    begin
-      gzip = File.basename("#{node['tensorflow']['graph_url']}")
-      remote_file "#{Chef::Config['file_cache_path']}/#{gzip}" do
-        source node['tensorflow']['graph_url']
-        owner node['tensorflow']['user']
-        group node['tensorflow']['group']
-        mode "0755"
-        action :create_if_missing
-      end
-
-      bash "install_transform_graph_tensorflow" do
-        user "root"
-        code <<-EOF
+        bash "install_transform_graph_tensorflow" do
+          user "root"
+          code <<-EOF
       set -e
       export LC_CTYPE=en_US.UTF-8
       export LC_ALL=en_US.UTF-8
         cd #{Chef::Config['file_cache_path']}
         tar zxf #{gzip} -C #{node['tensorflow']['dir']}
      EOF
-      end
+        end
 
-    rescue
+      rescue
 
-    
-      bash "transform_graph" do
-        user "root"
-        code <<-EOF
+        
+        bash "transform_graph" do
+          user "root"
+          code <<-EOF
        set -e
         export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH    
         export PATH=$PATH:/usr/local/bin:/usr/local/cuda/bin  
@@ -357,29 +355,29 @@ EOF
         bazel build tensorflow/tools/graph_transforms:transform_graph
         cp -rf bazel-bin/tensorflow #{node['tensorflow']['dir']}
       EOF
-      end
+        end
 
 
-      
-    end   # End rescue
+        
+      end   # End rescue
 
-  else                        
+    else                        
 
-    # https://github.com/bazelbuild/bazel/issues/739
-    bash "workaround_bazel_build" do
-      user "root"
-      code <<-EOF
+      # https://github.com/bazelbuild/bazel/issues/739
+      bash "workaround_bazel_build" do
+        user "root"
+        code <<-EOF
     set -e
      chown -R #{node['tensorflow']['user']} /home/#{node['tensorflow']['user']}/tensorflow
      rm -rf /home/#{node['tensorflow']['user']}/.cache/bazel
      EOF
-    end
+      end
 
 
-    bash "build_install_tensorflow_server_no_cuda" do
-      user "root"
-      timeout 10800
-      code <<-EOF
+      bash "build_install_tensorflow_server_no_cuda" do
+        user "root"
+        timeout 10800
+        code <<-EOF
     set -e
 
     export LC_CTYPE=en_US.UTF-8
@@ -402,10 +400,12 @@ EOF
     #--user
     touch .installed
 EOF
-      not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/.installed" ) }
+        not_if { ::File.exists?( "/home/#{node['tensorflow']['user']}/tensorflow/.installed" ) }
+      end
     end
-  end
 
+
+  end # End rescue  
 
   bash "upgrade_protobufs" do
     user "root"
