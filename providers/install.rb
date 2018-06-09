@@ -80,7 +80,8 @@ when "rhel"
       yum install kernel-devel -y
       yum install kernel-headers -y
       yum install libglvnd-glx -y
-      yum install epel-release dkms libstdc++.i686 -y
+      yum install epel-release dkms -y
+# libstdc++.i686 
     EOF
   end
 
