@@ -1,7 +1,7 @@
 action :cuda do
 
   cuda =  ::File.basename(node['cuda']['url'])
-  
+
   bash "stop_xserver" do
     user "root"
     ignore_failure true
@@ -10,7 +10,7 @@ action :cuda do
     EOF
   end
 
-# Read the current version of installed cuda, if any  
+# Read the current version of installed cuda, if any
 cudaVersion = " "
 if ::File.exist?( '/usr/local/cuda/version.txt')
   IO.foreach('/usr/local/cuda/version.txt') do |f|
@@ -18,8 +18,8 @@ if ::File.exist?( '/usr/local/cuda/version.txt')
       cudaVersion = f.sub!('CUDA Version ', '')
       break
     end
-  end 
-end  
+  end
+end
 newCudaVersion = "#{node['cuda']['major_version']}.#{node['cuda']['minor_version']}"
 
 Chef::Log.info "Old cuda version is: " + cudaVersion
@@ -34,11 +34,11 @@ bash "uninstall_cuda" do
          /usr/local/cuda/bin/uninstall_cuda_${BASH_REMATCH}.pl
        fi
     EOF
-    not_if { "#{cudaVersion}" != "#{newCudaVersion}" || "#{cudaVersion}" != "" }        
+    not_if { "#{cudaVersion}" != "#{newCudaVersion}" || "#{cudaVersion}" != "" }
 end
 
 
-driver =  ::File.basename(node['cuda']['driver_url'])    
+driver =  ::File.basename(node['cuda']['driver_url'])
 case node['platform_family']
 when "debian"
 
@@ -56,18 +56,18 @@ when "debian"
     rm -f /usr/local/cuda
     ln -s /usr/local/cuda-#{node['cuda']['major_version']}  /usr/local/cuda
     EOF
-    not_if { "#{cudaVersion}" == "#{newCudaVersion}" }    
+    not_if { "#{cudaVersion}" == "#{newCudaVersion}" }
   end
 
   bash "test_cuda" do
     user "root"
     code <<-EOF
       set -e
-      nvidia-smi 
+      nvidia-smi
     EOF
   end
 
-  
+
 when "rhel"
 
   bash "install_cuda_preliminaries" do
@@ -81,7 +81,7 @@ when "rhel"
       yum install kernel-headers -y
       yum install libglvnd-glx -y
       yum install epel-release dkms -y
-# libstdc++.i686 
+# libstdc++.i686
     EOF
   end
 
@@ -101,7 +101,7 @@ when "rhel"
 #     #./#{cuda} --silent --driver --verbose
 # #    ./#{driver} -a --no-install-libglvnd  -q --dkms --compat32-libdir -s
 #     EOF
-#     not_if { "#{cudaVersion}" == "#{newCudaVersion}" }        
+#     not_if { "#{cudaVersion}" == "#{newCudaVersion}" }
 #   end
 
 
@@ -110,20 +110,20 @@ when "rhel"
     timeout 72000
     code <<-EOF
       set -e
-      yum install rpm-build redhat-rpm-config asciidoc hmaccalc perl-ExtUtils-Embed pesign xmlto bison bc -y 
+      yum install rpm-build redhat-rpm-config asciidoc hmaccalc perl-ExtUtils-Embed pesign xmlto bison bc -y
       yum install audit-libs-devel binutils-devel elfutils-devel elfutils-libelf-devel -y
       yum install ncurses-devel newt-devel numactl-devel pciutils-devel python-devel zlib-devel0 -y
     EOF
-    not_if { "#{cudaVersion}" == "#{newCudaVersion}" }        
+    not_if { "#{cudaVersion}" == "#{newCudaVersion}" }
   end
-  
+
 
   # bash "install_kernel_sources" do
   #   user node['kagent']['user']
   #   timeout 72000
   #   code <<-EOF
   #    set -e
-  #    cd 
+  #    cd
   #    mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
   #    echo '%_topdir %(echo $HOME)/rpmbuild' > ~/.rpmmacros
   #    ks=$(rpm -qa | grep kernel | head -1 | sed -e 's/kernel-//' | sed -e 's/\.x86_64//')
@@ -140,7 +140,7 @@ when "rhel"
   # rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
   # rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm
   #
-  
+
   bash "install_cuda_full" do
     user "root"
     timeout 72000
@@ -162,7 +162,7 @@ when "rhel"
 #     --kernel-source-path=/lib/modules/3.10.0-514.el7.x86_64/build
     cd #{Chef::Config['file_cache_path']}
 # I have problems installing the kernel module (if you dont have it, and upgrade the kernel, the driver will break)
-    ./#{cuda} --silent --driver --toolkit --verbose  --no-opengl-libs --no-drm 
+    ./#{cuda} --silent --driver --toolkit --verbose  --no-opengl-libs --no-drm
     ldconfig
     rm -f /usr/local/cuda
     ln -s /usr/local/cuda-#{node['cuda']['major_version']}  /usr/local/cuda
@@ -174,7 +174,7 @@ when "rhel"
     user "root"
     code <<-EOF
       set -e
-      nvidia-smi 
+      nvidia-smi
     EOF
   end
 
@@ -219,7 +219,7 @@ end
 # Install all the cuda patches
 
 for i in 1..node['cuda']['num_patches'] do
-  patch_version  = node['cuda']['major_version'] + "." + node['cuda']['minor_version'] + ".#{i}" 
+  patch_version  = node['cuda']['major_version'] + "." + node['cuda']['minor_version'] + ".#{i}"
   patch =  "cuda_#{patch_version}_linux.run"
   bash "install_cuda_patch_#{i}" do
     user "root"
