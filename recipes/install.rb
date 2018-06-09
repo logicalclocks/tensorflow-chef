@@ -129,6 +129,7 @@ if node['tensorflow']['mkl'].eql? "true"
       user "root"
       code <<-EOF
        set -e
+       yum install yum-utils -y
        yum-config-manager --add-repo https://yum.repos.intel.com/setup/intelproducts.repo
        rpm --import https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
        yum install intel-mkl-64bit-2017.3-056 -y
