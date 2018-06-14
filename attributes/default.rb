@@ -74,7 +74,7 @@ default['bazel']['minor_version']      = "1"
 default['bazel']['version']            = node['bazel']['major_version'] + "." + node['bazel']['minor_version']
 default['bazel']['url']                = "#{node['download_url']}/bazel-#{node['bazel']['version']}-installer-linux-x86_64.sh"
 
-default['tensorflow']['serving']['version']      = "1.5.0"
+default['tensorflow']['serving']['version']      = "1.8.0"
 
 default['openmpi']['version']          = "openmpi-3.1.0.tar.gz"
 
