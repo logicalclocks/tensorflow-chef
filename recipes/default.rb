@@ -85,18 +85,17 @@ for python in python_versions
 
   customTf=0
 
+ if node['tensorflow']['custom_url'].start_with?("http://", "https://", "file://")
   begin
     uri = URI.parse(node['tensorflow']['custom_url'])
     %w( http https ).include?(uri.scheme)
     customTf=1
   rescue URI::BadURIError
     Chef::Log.warn "BadURIError custom_url for tensorflow: #{node['tensorflow']['custom_url']}"
-    customTf=0    
   rescue URI::InvalidURIError
     Chef::Log.warn "InvalidURIError custom_url for tensorflow: #{node['tensorflow']['custom_url']}"    
-    customTf=0
   end  
- 
+ end 
   
   bash "conda_py#{python}_env" do
     user node['conda']['user']
