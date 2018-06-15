@@ -28,7 +28,7 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
 
   url=node['tensorflow']['hopstfdemo_url']
 
-  base_filename =  File.basename(url)
+  base_filename =  "demo-#{node['tensorflow']['examples_version']}.tar.gz"
   cached_filename = "#{Chef::Config['file_cache_path']}/#{base_filename}"
 
   remote_file cached_filename do
@@ -43,11 +43,11 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
     code <<-EOH
                 set -e
                 mkdir -p #{node['tensorflow']['examples_version']}
-                tar -zxf #{Chef::Config['file_cache_path']}/demo.tar.gz -C #{Chef::Config['file_cache_path']}/#{node['tensorflow']['examples_version']}
+                tar -zxf #{base_filename} -C #{Chef::Config['file_cache_path']}/#{node['tensorflow']['examples_version']}
                 chown -RL #{node['hops']['hdfs']['user']}:#{node['hops']['group']} #{Chef::Config['file_cache_path']}/#{node['tensorflow']['examples_version']}
-                rm #{Chef::Config['file_cache_path']}/demo.tar.gz
+                touch #{node['tensorflow']['examples_version']}/.installed
         EOH
-    not_if { ::File.exists?("#{Chef::Config['file_cache_path']}/#{node['tensorflow']['examples_version']}") }
+    not_if { ::File.exists?("#{node['tensorflow']['examples_version']}/.installed") }
   end
 
   hops_hdfs_directory "/user/#{node['hops']['hdfs']['user']}/#{node['tensorflow']['hopstfdemo_dir']}" do
