@@ -84,7 +84,7 @@ for python in python_versions
 
   customTf=0
 
-  try
+  begin
     uri = URI.parse(node['tensorflow']['custom_url'])
     %w( http https ).include?(uri.scheme)
     customTf=1
