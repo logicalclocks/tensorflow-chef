@@ -42,6 +42,7 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
     user "root"
     code <<-EOH
                 set -e
+                cd #{Chef::Config['file_cache_path']}
                 mkdir -p #{node['tensorflow']['examples_version']}
                 tar -zxf #{base_filename} -C #{Chef::Config['file_cache_path']}/#{node['tensorflow']['examples_version']}
                 chown -RL #{node['hops']['hdfs']['user']}:#{node['hops']['group']} #{Chef::Config['file_cache_path']}/#{node['tensorflow']['examples_version']}
