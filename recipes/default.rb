@@ -58,7 +58,7 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
     mode "1775"
   end
 
-  hops_hdfs_directory "#{Chef::Config['file_cache_path']}/#{node['tensorflow']['examples_version']}/data" do
+  hops_hdfs_directory "#{Chef::Config['file_cache_path']}/#{node['tensorflow']['examples_version']}/*" do
     action :put_as_superuser
     owner node['hops']['hdfs']['user']
     group node['hops']['group']
@@ -67,16 +67,6 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
     dest "/user/#{node['hops']['hdfs']['user']}/#{node['tensorflow']['hopstfdemo_dir']}"
   end
   
-  hops_hdfs_directory "#{Chef::Config['file_cache_path']}/#{node['tensorflow']['examples_version']}/notebooks" do
-    action :put_as_superuser
-    owner node['hops']['hdfs']['user']
-    group node['hops']['group']
-    isDir true
-    mode "1755"
-    dest "/user/#{node['hops']['hdfs']['user']}/#{node['tensorflow']['hopstfdemo_dir']}"
-  end
-
-
 end
 
 
