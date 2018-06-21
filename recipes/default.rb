@@ -80,7 +80,22 @@ python_versions = %w{ 2.7 3.6 }
 for python in python_versions
   Chef::Log.info "Environment creation for: python#{python}"
   proj = "python" + python.gsub(".", "")
-  
+
+  customTf=0
+  if node['tensorflow']['custom_url'].start_with?("http://", "https://", "file://")
+    begin
+      uri = URI.parse(node['tensorflow']['custom_url'])
+      %w( http https ).include?(uri.scheme)
+      customTf=1
+    rescue URI::BadURIError
+      Chef::Log.warn "BadURIError custom_url for tensorflow: #{node['tensorflow']['custom_url']}"
+      customTf=0
+    rescue URI::InvalidURIError
+      Chef::Log.warn "InvalidURIError custom_url for tensorflow: #{node['tensorflow']['custom_url']}"
+      customTf=0
+    end
+  end
+
   bash "conda_py#{python}_env" do
     user node['conda']['user']
     group node['conda']['group']
@@ -98,9 +113,9 @@ for python in python_versions
     # export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop
 
     ${CONDA_DIR}/bin/conda info --envs | grep "^${PROJECT}"
-    if [ $? -ne 0 ] ; then 
+    if [ $? -ne 0 ] ; then
       ${CONDA_DIR}/bin/conda create -n $PROJECT python=#{python} -y -q
-      if [ $? -ne 0 ] ; then 
+      if [ $? -ne 0 ] ; then
          exit 2
       fi
     fi
@@ -109,21 +124,21 @@ for python in python_versions
 
     if [ "#{python}" == "2.7" ] ; then
         yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade tensorflow-serving-api
-        if [ $? -ne 0 ] ; then 
+        if [ $? -ne 0 ] ; then
           exit 4
         fi
     fi
 
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade hopsfacets
-    if [ $? -ne 0 ] ; then 
+    if [ $? -ne 0 ] ; then
        exit 5
     fi
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade tfspark
-    if [ $? -ne 0 ] ; then 
+    if [ $? -ne 0 ] ; then
        exit 6
     fi
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade ipykernel
-    if [ $? -ne 0 ] ; then 
+    if [ $? -ne 0 ] ; then
        exit 7
     fi
 
@@ -144,18 +159,23 @@ for python in python_versions
         fi
     fi
 
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install tensorflow${GPU}==#{node['tensorflow']['version']}  --upgrade --force-reinstall
-    if [ $? -ne 0 ] ; then 
+   # Install a custom build of tensorflow with this line.
+    if [ $CUSTOM_TF -eq 1 ] ; then
+      yes | #{node['conda']['base_dir']}/envs/${PROJECT}/bin/pip install --upgrade #{node['tensorflow']['custom_url']}/tensorflow${GPU}-#{node['tensorflow']['version']}-cp${PY}-cp${PY}mu-manylinux1_x86_64.whl --force-reinstall
+    else
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install tensorflow${GPU}==#{node['tensorflow']['version']}  --upgrade --force-reinstall
+    fi
+    if [ $? -ne 0 ] ; then
        exit 8
     fi
-    
+
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade hops
-    if [ $? -ne 0 ] ; then 
+    if [ $? -ne 0 ] ; then
        exit 9
     fi
 
     #yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade #{node['mml']['url']}
-    #if [ $? -ne 0 ] ; then 
+    #if [ $? -ne 0 ] ; then
     #   exit 11
     #fi
 
@@ -179,7 +199,7 @@ for python in python_versions
     end
   end
 
-  
+
   bash "pydoop_py#{python}_env" do
     user "root"
     code <<-EOF
@@ -190,7 +210,7 @@ for python in python_versions
     EOF
   end
 
-  
+
 end
 
 
@@ -207,8 +227,8 @@ kagent_keys "#{homedir}" do
   cb_user "#{node['conda']['user']}"
   cb_group "#{node['conda']['group']}"
   cb_name "hopsworks"
-  cb_recipe "default"  
+  cb_recipe "default"
   action :get_publickey
-end  
+end
 
 
