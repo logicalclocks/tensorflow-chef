@@ -3,7 +3,7 @@ maintainer       "Jim Dowling"
 maintainer_email "jdowling@kth.se"
 license          "Apache v2.0"
 description      'Installs/Configures/Runs tensorflow'
-version          "0.5.0"
+version          "0.5.1"
 
 recipe            "tensorflow::install", "Download and compile and install tensorflow"
 recipe            "tensorflow::default",  "Setup tensorflow"
