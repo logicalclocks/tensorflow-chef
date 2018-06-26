@@ -7,28 +7,28 @@ end
 # Only the first tensorflow server needs to create the directories in HDFS
 if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
 
-  url=node['tensorflow']['hopstf_url']
+  # url=node['tensorflow']['hopstf_url']
 
-  base_filename =  File.basename(url)
-  cached_filename = "#{Chef::Config['file_cache_path']}/#{base_filename}"
+  # base_filename =  File.basename(url)
+  # cached_filename = "#{Chef::Config['file_cache_path']}/#{base_filename}"
 
-  remote_file cached_filename do
-    source url
-    mode 0755
-    action :create
-  end
+  # remote_file cached_filename do
+  #   source url
+  #   mode 0755
+  #   action :create
+  # end
 
-  hops_hdfs_directory cached_filename do
-    action :put_as_superuser
-    owner node['hops']['hdfs']['user']
-    group node['hops']['group']
-    mode "1755"
-    dest "/user/#{node['hops']['hdfs']['user']}/#{base_filename}"
-  end
+  # hops_hdfs_directory cached_filename do
+  #   action :put_as_superuser
+  #   owner node['hops']['hdfs']['user']
+  #   group node['hops']['group']
+  #   mode "1755"
+  #   dest "/user/#{node['hops']['hdfs']['user']}/#{base_filename}"
+  # end
 
   url=node['tensorflow']['hopstfdemo_url']
 
-  base_filename =  File.basename(url)
+  base_filename =  "demo-#{node['tensorflow']['examples_version']}.tar.gz"
   cached_filename = "#{Chef::Config['file_cache_path']}/#{base_filename}"
 
   remote_file cached_filename do
@@ -42,11 +42,13 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
     user "root"
     code <<-EOH
                 set -e
-                mkdir #{Chef::Config['file_cache_path']}/#{node['tensorflow']['base_dirname']}
-                tar -zxf #{Chef::Config['file_cache_path']}/#{node['tensorflow']['base_dirname']}.tar.gz -C #{Chef::Config['file_cache_path']}/#{node['tensorflow']['base_dirname']}
-                chown -RL #{node['hops']['hdfs']['user']}:#{node['hops']['group']} #{Chef::Config['file_cache_path']}/#{node['tensorflow']['base_dirname']}
+                cd #{Chef::Config['file_cache_path']}
+                mkdir -p #{node['tensorflow']['examples_version']}
+                tar -zxf #{base_filename} -C #{Chef::Config['file_cache_path']}/#{node['tensorflow']['examples_version']}
+                chown -RL #{node['hops']['hdfs']['user']}:#{node['hops']['group']} #{Chef::Config['file_cache_path']}/#{node['tensorflow']['examples_version']}
+                touch #{node['tensorflow']['examples_version']}/.installed
         EOH
-    not_if { ::File.exists?("#{Chef::Config['file_cache_path']}/#{node['tensorflow']['base_dirname']}") }
+    not_if { ::File.exists?("#{node['tensorflow']['examples_version']}/.installed") }
   end
 
   hops_hdfs_directory "/user/#{node['hops']['hdfs']['user']}/#{node['tensorflow']['hopstfdemo_dir']}" do
@@ -56,7 +58,7 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
     mode "1775"
   end
 
-  hops_hdfs_directory "#{Chef::Config['file_cache_path']}/#{node['tensorflow']['base_dirname']}/*" do
+  hops_hdfs_directory "#{Chef::Config['file_cache_path']}/#{node['tensorflow']['examples_version']}/*" do
     action :put_as_superuser
     owner node['hops']['hdfs']['user']
     group node['hops']['group']
@@ -64,11 +66,11 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
     mode "1755"
     dest "/user/#{node['hops']['hdfs']['user']}/#{node['tensorflow']['hopstfdemo_dir']}"
   end
-
+  
 end
 
 
-hops_version = "2.8.4"
+hops_version = "2.8.2.4"
 if node.attribute?('hops') == true
   if node['hops'].attribute?('version') == true
     hops_version = node['hops']['version']

@@ -10,12 +10,19 @@ default['tensorflow']['install']       = "dist" # or 'src' or 'custom'
 default['tensorflow']['custom_url']    = ""
 
 default['tensorflow']['git_url']       = "https://github.com/tensorflow/tensorflow"
-default['tensorflow']['hopstf_version']= "0.0.1"
-default['tensorflow']['hopstf_url']    = "#{node['download_url']}/tensorflow/hops-tensorflow-#{node['tensorflow']['hopstf_version']}.jar"
-default['tensorflow']['base_dirname']  = "#{node['hops']['hopsexamples_version']}"
-default['tensorflow']['hopstfdemo_dir'] = "tensorflow_demo"
-default['tensorflow']['hopstfdemo_url'] = "#{node['download_url']}/tensorflow/demo/#{node['tensorflow']['base_dirname']}/#{node['tensorflow']['base_dirname']}.tar.gz"
 
+#
+# TensorFlow/PyTorch example notebooks and datasets
+#
+#default['tensorflow']['hopstf_version']= node['install']['version']
+#default['tensorflow']['hopstf_url']    = "#{node['download_url']}/tensorflow/hops-tensorflow-#{node['tensorflow']['hopstf_version']}.jar"
+default['tensorflow']['examples_version']  = node['install']['version']
+default['tensorflow']['hopstfdemo_dir'] = "tensorflow_demo"
+default['tensorflow']['hopstfdemo_url'] = "#{node['download_url']}/tensorflow/#{node['tensorflow']['examples_version']}/demo.tar.gz"
+
+#
+# Base directories
+#
 default['tensorflow']['dir']           = node['install']['dir'].empty? ? "/srv/hops" : node['install']['dir']
 default['tensorflow']['home']          = node['tensorflow']['dir'] + "/tensorflow-" + node['tensorflow']['version']
 default['tensorflow']['base_dir']      = node['tensorflow']['dir'] + "/tensorflow"
@@ -67,8 +74,8 @@ default['bazel']['minor_version']      = "1"
 default['bazel']['version']            = node['bazel']['major_version'] + "." + node['bazel']['minor_version']
 default['bazel']['url']                = "#{node['download_url']}/bazel-#{node['bazel']['version']}-installer-linux-x86_64.sh"
 
-default['tensorflow']['serving']['version']      = "1.5.0"
+default['tensorflow']['serving']['version']      = "1.8.0"
 
 default['openmpi']['version']          = "openmpi-3.1.0.tar.gz"
 
-default['pydoop']['version']           = "2.0a3"
+
