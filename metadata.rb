@@ -3,7 +3,7 @@ maintainer       "Jim Dowling"
 maintainer_email "jdowling@kth.se"
 license          "Apache v2.0"
 description      'Installs/Configures/Runs tensorflow'
-version          "0.5.1"
+version          "0.5.2"
 
 recipe            "tensorflow::install", "Download and compile and install tensorflow"
 recipe            "tensorflow::default",  "Setup tensorflow"
@@ -36,6 +36,10 @@ attribute "tensorflow/dir",
 
 attribute "download_url",
           :description => "url for binaries",
+          :type => "string"
+
+attribute "tensorflow/custom_url",
+          :description => "User-supplied URL for the tensorflow .whl binaries to be installed.",
           :type => "string"
 
 attribute "tensorflow/git_url",
@@ -77,4 +81,3 @@ attribute "cuda/skip_test",
 attribute "cuda/skip_stop_xserver",
           :description => "Dont restart the xserver (probably a localhost installation)",
           :type => "string"
-
