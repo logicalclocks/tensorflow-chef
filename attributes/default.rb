@@ -13,8 +13,8 @@ default['tensorflow']['git_url']       = "https://github.com/tensorflow/tensorfl
 #
 # TensorFlow/PyTorch example notebooks and datasets
 #
-#default['tensorflow']['hopstf_version']= node['install']['version']
-#default['tensorflow']['hopstf_url']    = "#{node['download_url']}/tensorflow/hops-tensorflow-#{node['tensorflow']['hopstf_version']}.jar"
+default['tensorflow']['hopstf_version'] = '0.0.1'
+default['tensorflow']['hopstf_url']    = "#{node['download_url']}/tensorflow/hops-tensorflow-#{node['tensorflow']['hopstf_version']}.jar"
 default['tensorflow']['examples_version']  = node['install']['version']
 default['tensorflow']['hopstfdemo_dir'] = "tensorflow_demo"
 default['tensorflow']['hopstfdemo_url'] = "#{node['download_url']}/tensorflow/#{node['tensorflow']['examples_version']}/demo.tar.gz"
