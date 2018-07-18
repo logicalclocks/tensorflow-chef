@@ -126,6 +126,11 @@ for python in python_versions
 
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade pip
 
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade requests
+    if [ $? -ne 0 ] ; then
+       exit 3
+    fi
+
     if [ "#{python}" == "2.7" ] ; then
         yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade tensorflow-serving-api
         if [ $? -ne 0 ] ; then
@@ -137,10 +142,7 @@ for python in python_versions
     if [ $? -ne 0 ] ; then
        exit 5
     fi
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade tfspark
-    if [ $? -ne 0 ] ; then
-       exit 6
-    fi
+
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade ipykernel
     if [ $? -ne 0 ] ; then
        exit 7
