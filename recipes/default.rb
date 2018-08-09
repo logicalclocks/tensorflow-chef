@@ -4,6 +4,11 @@ if node['tensorflow']['mpi'].eql? "true"
   node.override['tensorflow']['need_mpi'] = 1
 end
 
+if node['tensorflow']['tensorrt'].eql? "true"
+  node.override['tensorflow']['need_tensorrt'] = 1
+end
+
+
 # Only the first tensorflow server needs to create the directories in HDFS
 if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
 
@@ -213,6 +218,43 @@ for python in python_versions
 
 end
 
+if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_download_terms'] == "true"
+
+  case node['platform_family']
+  when "debian"
+
+    cached_file="#{Chef::Config['file_cache_path']}/#{node['cuda']['tensorrt_version']}"
+    remote_file cached_file do
+      source "#{node['download_url']}/#{node['cuda']['tensorrt_version']}"
+      mode 0755
+      action :create
+      retries 1
+      not_if { File.exist?(cached_file) }
+    end
+
+    tensorrt_dir="#{node['tensorflow']['dir']}/TensorRT-#{node['cuda']['tensorrt']}"
+    bash "install-tensorrt-ubuntu" do
+      user "root"
+      code <<-EOF
+       set -e
+       cd #{Chef::Config['file_cache_path']}
+       tar zxf #{cached_file}
+       mv TensorRT-#{node['cuda']['tensorrt']} #{node['tensorflow']['dir']}
+       #export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib"
+       #cd #{tensorrt_dir}/python
+       #pip install tensorrt-#{node['cuda']['tensorrt']}"-cp27-cp27mu-linux_x86_64.whl
+    EOF
+      not_if "test -d #{tensorrt_dir}"
+    end
+
+    magic_shell_environment 'LD_LIBRARY_PATH' do
+      value "$LD_LIBRARY_PATH:#{tensorrt_dir}/lib"
+    end
+
+    
+  end
+
+end
 
 #
 # Need to synchronize conda enviornments for newly joined or rejoining nodes.
