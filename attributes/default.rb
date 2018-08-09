@@ -40,15 +40,15 @@ default['cuda']['url']                 = "#{node['download_url']}/cuda_#{node['c
 default['cuda']['driver_version']      = "NVIDIA-Linux-x86_64-390.59.run"
 default['cuda']['driver_url']          = "#{node['download_url']}/#{node['cuda']['driver_version']}"
 default['cuda']['md5sum']              = ""
-# 9.1 checksum
+# 9.0 checksum
 #default['cuda']['md5sum']              = "33e1bd980e91af4e55f3ef835c103f9b"
 
-# cudnn-9.1-linux-x64-v7.1.tar.gz
+# cudnn-9.0-linux-x64-v7.1.tar.gz
 default['cudnn']['version']            = "7"
 default['cudnn']['url']                = "#{node['download_url']}/cudnn-#{node['cuda']['major_version']}-linux-x64-v#{node['cudnn']['version']}.tgz"
 
-# nccl_2.1.15-1+cuda9.1_x86_64.txz
-default['cuda']['nccl']                = "2.1.15-1"
+# nccl_2.2.13-1+cuda9.0_x86_64.txz
+default['cuda']['nccl']                = "2.2.13-1"
 default['cuda']['nccl_version']        = "nccl_" + node['cuda']['nccl'] + "+cuda" + node['cuda']['major_version'] + "_x86_64"
 
 default['cuda']['dir']                 = "/usr/local"
