@@ -224,10 +224,10 @@ for python in python_versions
        exit 9
     fi
 
-    #yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade #{node['mml']['url']}
-    #if [ $? -ne 0 ] ; then
-    #   exit 11
-    #fi
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade #{node['mml']['url']}
+    if [ $? -ne 0 ] ; then
+       exit 11
+    fi
 
     EOF
   end
