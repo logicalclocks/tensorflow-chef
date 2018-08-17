@@ -129,8 +129,9 @@ for python in python_versions
   if rt1 = "36"
     rt1 = "35"
   end
+  # assume that is python 2.7  
   rt2 = "27mu"
-  if python = "3.6"
+  if python == "3.6"
     rt2 = "35m"
   end
   customTf=0
