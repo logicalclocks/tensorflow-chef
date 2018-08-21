@@ -40,16 +40,22 @@ default['cuda']['url']                 = "#{node['download_url']}/cuda_#{node['c
 default['cuda']['driver_version']      = "NVIDIA-Linux-x86_64-390.59.run"
 default['cuda']['driver_url']          = "#{node['download_url']}/#{node['cuda']['driver_version']}"
 default['cuda']['md5sum']              = ""
-# 9.1 checksum
+# 9.0 checksum
 #default['cuda']['md5sum']              = "33e1bd980e91af4e55f3ef835c103f9b"
 
-# cudnn-9.1-linux-x64-v7.1.tar.gz
+# cudnn-9.0-linux-x64-v7.1.tar.gz
 default['cudnn']['version']            = "7"
 default['cudnn']['url']                = "#{node['download_url']}/cudnn-#{node['cuda']['major_version']}-linux-x64-v#{node['cudnn']['version']}.tgz"
 
-# nccl_2.1.15-1+cuda9.1_x86_64.txz
-default['cuda']['nccl']                = "2.1.15-1"
+# nccl_2.2.13-1+cuda9.0_x86_64.txz
+default['cuda']['nccl']                = "2.2.13-1"
 default['cuda']['nccl_version']        = "nccl_" + node['cuda']['nccl'] + "+cuda" + node['cuda']['major_version'] + "_x86_64"
+
+# TensorRT - Nvidia (ubuntu only)
+# TensorRT-3.0.4.Ubuntu-16.04.3.x86_64.cuda-9.0.cudnn7.0.tar.gz
+default['cuda']['tensorrt']            = "3.0.4"
+default['cuda']['tensorrt_version']    = "TensorRT-" + node['cuda']['tensorrt'] + ".Ubuntu-16.04.3.x86_64-gnu.cuda-"
+                                          + node['cuda']['major_version'] + ".cudnn" + "7.0" + ".tar.gz"
 
 default['cuda']['dir']                 = "/usr/local"
 default['cuda']['base_dir']            = "#{node['cuda']['dir']}/cuda"
@@ -62,11 +68,14 @@ default['cuda']['skip_stop_xserver']   = "false"
 default['tensorflow']['mkl']           = "false"
 default['tensorflow']['mpi']           = "false"
 default['tensorflow']['rdma']          = "false"
+default['tensorflow']['tensorrt']      = "false"
+
 
 default['tensorflow']['need_cuda']     = 0
 default['tensorflow']['need_mpi']      = 0
 default['tensorflow']['need_mkl']      = 0
 default['tensorflow']['need_rdma']     = 0
+default['tensorflow']['need_tensorrt'] = 0
 
 # https://github.com/bazelbuild/bazel/releases/download/0.5.2/bazel-0.5.2-installer-linux-x86_64.sh
 default['bazel']['major_version']      = "0.11"

@@ -58,6 +58,10 @@ attribute "tensorflow/rdma",
           :description => "Used by TensorflowOnSpark. 'true' to install rdma (infiniband) support, 'false' (default) for no rdma support. ",
           :type => "string"
 
+attribute "tensorflow/tensorrt",
+          :description => "TensorRT is used to optimize trained models and Needs GPU support and Cuda",
+          :type => "string"
+
 attribute "tensorflow/custom_url",
           :description => "User-supplied URL for the tensorflow .whl binaries to be installed.",
           :type => "string"

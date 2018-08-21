@@ -4,6 +4,11 @@ if node['tensorflow']['mpi'].eql? "true"
   node.override['tensorflow']['need_mpi'] = 1
 end
 
+if node['tensorflow']['tensorrt'].eql? "true"
+  node.override['tensorflow']['need_tensorrt'] = 1
+end
+
+
 # Only the first tensorflow server needs to create the directories in HDFS
 if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
 
@@ -78,11 +83,57 @@ if node.attribute?('hops') == true
 end
 
 
+if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_download_terms'] == "true"
+
+  case node['platform_family']
+  when "debian"
+
+    cached_file="#{Chef::Config['file_cache_path']}/#{node['cuda']['tensorrt_version']}"
+    remote_file cached_file do
+      source "#{node['download_url']}/#{node['cuda']['tensorrt_version']}"
+      mode 0755
+      action :create
+      retries 1
+      not_if { File.exist?(cached_file) }
+    end
+
+    tensorrt_dir="#{node['tensorflow']['dir']}/TensorRT-#{node['cuda']['tensorrt']}"
+    bash "install-tensorrt-ubuntu" do
+      user "root"
+      code <<-EOF
+       set -e
+       cd #{Chef::Config['file_cache_path']}
+       tar zxf #{cached_file}
+       mv TensorRT-#{node['cuda']['tensorrt']} #{node['tensorflow']['dir']}
+    EOF
+      not_if "test -d #{tensorrt_dir}"
+    end
+
+    magic_shell_environment 'LD_LIBRARY_PATH' do
+      value "$LD_LIBRARY_PATH:#{tensorrt_dir}/lib"
+    end
+
+    
+  end
+
+end
+
+
+
+
 python_versions = %w{ 2.7 3.6 }
 for python in python_versions
   Chef::Log.info "Environment creation for: python#{python}"
   proj = "python" + python.gsub(".", "")
-
+  rt1 = python.gsub(".", "")
+  if rt1 = "36"
+    rt1 = "35"
+  end
+  # assume that is python 2.7  
+  rt2 = "27mu"
+  if python == "3.6"
+    rt2 = "35m"
+  end
   customTf=0
   if node['tensorflow']['custom_url'].start_with?("http://", "https://", "file://")
     begin
@@ -176,10 +227,10 @@ for python in python_versions
        exit 9
     fi
 
-    #yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade #{node['mml']['url']}
-    #if [ $? -ne 0 ] ; then
-    #   exit 11
-    #fi
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade #{node['mml']['url']}
+    if [ $? -ne 0 ] ; then
+       exit 11
+    fi
 
     EOF
   end
@@ -213,11 +264,41 @@ for python in python_versions
   end
 
 
+  if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_download_terms'] == "true"
+
+    case node['platform_family']
+    when "debian"
+      
+      bash "tensorrt_py#{python}_env" do
+        user "root"
+        code <<-EOF
+        set -e
+        if [ -f /usr/local/cuda/version.txt ]  ; then
+          nvidia-smi -L | grep -i gpu
+          if [ $? -eq 0 ] ; then
+
+
+          export CONDA_DIR=#{node['conda']['base_dir']}
+          export PROJECT=#{proj}
+          su #{node['conda']['user']} -c "cd #{tensorrt_dir}/python ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install tensorrt-#{node['cuda']['tensorrt']}"-cp#{rt1}-cp#{rt2}-linux_x86_64.whl"
+
+          su #{node['conda']['user']} -c "cd #{tensorrt_dir}/uff ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install uff-0.2.0-py2.py3-none-any.whl"
+
+#         su #{node['conda']['user']} -c "cd #{tensorrt_dir}/graphsurgeon ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install graphsurgeon-0.2.0-py2.py3-none-any.whl"
+
+          fi
+        fi
+
+        EOF
+      end
+
+    end
+  end  
+
 end
 
-
 #
-# Need to synchronize conda enviornments for newly joined or rejoining nodes.
+# Need to synchronize conda environments for newly joined or rejoining nodes.
 #
 package "rsync"
 
