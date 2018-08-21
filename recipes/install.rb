@@ -62,24 +62,6 @@ if node['tensorflow']['mpi'].eql? "true"
     package "libopenmpi-dev"
     package "mpi-default-bin"
 
-  #     bash "install-nccl2-ubuntu" do
-  #       user "root"
-  #       code <<-EOF
-  # #       set -e
-  #        cd #{Chef::Config['file_cache_path']}
-  #        rm -f nccl-repo-ubuntu1604-2.0.5-ga-cuda8.0_2-1_amd64.deb
-  #        wget http://snurran.sics.se/hops/nccl-repo-ubuntu1604-2.0.5-ga-cuda8.0_2-1_amd64.deb
-  #        dpkg -i nccl-repo-ubuntu1604-2.0.5-ga-cuda8.0_2-1_amd64.deb
-  #        apt-key add /var/nccl-repo-2.0.5-ga-cuda8.0/7fa2af80.pub
-  #        apt update
-  #        apt install libnccl2 libnccl-dev
-
-  #        # https://github.com/uber/horovod/blob/master/docs/gpus.md
-  #        # HOROVOD_GPU_ALLGATHER=MPI HOROVOD_GPU_BROADCAST=MPI HOROVOD_GPU_ALLREDUCE=NCCL pip install --no-cache-dir horovod
-  #        # HOROVOD_GPU_ALLREDUCE=MPI HOROVOD_GPU_ALLGATHER=MPI HOROVOD_GPU_BROADCAST=MPI pip install --no-cache-dir horovod
-  #     EOF
-  #     end
-
   when "rhel"
     # installs binaries to /usr/local/bin
     # horovod needs mpicxx in /usr/local/bin/mpicxx - add it to the PATH
@@ -243,11 +225,10 @@ if node['tensorflow']['rdma'].eql? "true"
     systemctl start rdma.service
 
 #    lsmod | grep mlx
-#    yum install -y libmlx5 libmlx4 libibverbs libibumad librdmacm librdmacm-utils libibverbs-utils perftest infiniband-diags libibverbs-devel
 #    modprobe mlx4_ib
 #    modprobe mlx5_ib
    EOF
-      #not_if "systemctl status rdma"
+     not_if  "systemctl status rdma.service"
     end
   end
 end
@@ -321,14 +302,20 @@ end
 # On ec2 you need to disable the nouveau driver and reboot the machine
 # http://www.pyimagesearch.com/2016/07/04/how-to-install-cuda-toolkit-and-cudnn-for-deep-learning/
 #
-template "/etc/modprobe.d/blacklist-nouveau.conf" do
-  source "blacklist-nouveau.conf.erb"
-  owner "root"
-  mode 0775
-end
 
-tensorflow_compile "initram" do
-  action :kernel_initramfs
+
+if node['cuda']['accept_nvidia_download_terms'].eql?("true")
+  
+  template "/etc/modprobe.d/blacklist-nouveau.conf" do
+    source "blacklist-nouveau.conf.erb"
+    owner "root"
+    mode 0775
+  end
+
+  tensorflow_compile "initram" do
+    action :kernel_initramfs
+  end
+
 end
 
 # echo options nouveau modeset=0 | sudo tee -a /etc/modprobe.d/nouveau-kms.conf
@@ -397,23 +384,12 @@ magic_shell_environment 'HADOOP_HDFS_HOME' do
   value "#{node['hops']['base_dir']}"
 end
 
-magic_shell_environment 'LD_LIBRARY_PATH' do
-  value "$LD_LIBRARY_PATH:$JAVA_HOME/jre/lib/amd64/server::/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64"
-end
-
-magic_shell_environment 'PATH' do
-  value "$PATH:/usr/local/bin"
-end
-
-magic_shell_environment 'CUDA_HOME' do
-  value "/usr/local/cuda"
-end
-
 
 if node['cuda']['accept_nvidia_download_terms'].eql?("true")
-  # Check to see if i can find a cuda card. If not, fail with an error
+  
   package "clang"
 
+  # Check to see if i can find a cuda card. If not, fail with an error
   bash "test_nvidia" do
     user "root"
     code <<-EOF
@@ -491,17 +467,24 @@ if node['cuda']['accept_nvidia_download_terms'].eql?("true")
 
 
   magic_shell_environment 'PATH' do
-    value "$PATH:#{node['cuda']['base_dir']}/bin"
+    value "$PATH:#{node['cuda']['base_dir']}/bin:/usr/local/bin"
   end
 
+  # magic_shell_environment 'LD_LIBRARY_PATH' do
+  #   value "$LD_LIBRARY_PATH:$JAVA_HOME/jre/lib/amd64/server"
+  # end
+  
+  # magic_shell_environment 'LD_LIBRARY_PATH' do
+  #   value "#{node['cuda']['base_dir']}/lib64:#{node['cuda']['base_dir']}/extras/CUPTI/lib64:$LD_LIBRARY_PATH"
+  # end
+  
   magic_shell_environment 'LD_LIBRARY_PATH' do
-    value "#{node['cuda']['base_dir']}/lib64:$LD_LIBRARY_PATH"
+    value "$LD_LIBRARY_PATH:$JAVA_HOME/jre/lib/amd64/server:#{node['cuda']['base_dir']}/lib64:#{node['cuda']['base_dir']}/extras/CUPTI/lib64:/usr/local/nccl2/lib"
   end
 
   magic_shell_environment 'CUDA_HOME' do
     value node['cuda']['base_dir']
   end
-
 
   tensorflow_compile "cuda" do
     action :cuda
@@ -518,7 +501,6 @@ if node['cuda']['accept_nvidia_download_terms'].eql?("true")
     not_if { File.exist?(cached_cudnn_file) }
   end
 
-
   tensorflow_install "cudnn_install" do
     action :cudnn
   end
@@ -532,35 +514,24 @@ if node['cuda']['accept_nvidia_download_terms'].eql?("true")
     action :gpu
   end
 
-else
-  tensorflow_install "cpu_install" do
-    action :cpu
+  template "/etc/ld.so.conf.d/gpu.conf" do
+    source "gpu.conf.erb"
+    owner "root"
+    group "root"
+    mode "644"
   end
-end
 
-magic_shell_environment 'LD_LIBRARY_PATH' do
-  value "$LD_LIBRARY_PATH:$JAVA_HOME/jre/lib/amd64/server:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:/usr/local/nccl2/lib"
-end
-
-
-template "/etc/ld.so.conf.d/gpu.conf" do
-  source "gpu.conf.erb"
-  owner "root"
-  group "root"
-  mode "644"
-end
-
-bash "ldconfig" do
-  user "root"
-  code <<-EOF
+  bash "ldconfig" do
+    user "root"
+    code <<-EOF
         ldconfig
       EOF
-end
+  end
 
-nccl2=node['cuda']['nccl_version']
-bash "install-nccl2" do
-  user "root"
-  code <<-EOF
+  nccl2=node['cuda']['nccl_version']
+  bash "install-nccl2" do
+    user "root"
+    code <<-EOF
        set -e
        cd #{Chef::Config['file_cache_path']}
        rm -f #{nccl2}.txz
@@ -574,9 +545,14 @@ bash "install-nccl2" do
        rm -f /usr/local/nccl2
        ln -s /usr/local/#{nccl2} /usr/local/nccl2
     EOF
-  not_if { File.directory?("/usr/local/#{nccl2}") }
+    not_if { File.directory?("/usr/local/#{nccl2}") }
+  end
+  
+else
+  tensorflow_install "cpu_install" do
+    action :cpu
+  end
 end
-
 
 
 if node['tensorflow']['install'].eql?("src")
