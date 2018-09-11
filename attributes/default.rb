@@ -87,4 +87,3 @@ default['tensorflow']['serving']['version']      = "1.8.0"
 
 default['openmpi']['version']          = "openmpi-3.1.0.tar.gz"
 
-
