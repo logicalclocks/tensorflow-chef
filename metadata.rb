@@ -85,4 +85,3 @@ attribute "cuda/skip_test",
 attribute "cuda/skip_stop_xserver",
           :description => "Dont restart the xserver (probably a localhost installation)",
           :type => "string"
-

@@ -1,4 +1,3 @@
-
 group node["tensorflow"]["group"] do
   action :create
   not_if "getent group #{node["tensorflow"]["group"]}"
@@ -55,7 +54,7 @@ end
 #
 if node['tensorflow']['mpi'].eql? "true"
   node.override['tensorflow']['need_mpi'] = 1
-  
+
   case node['platform_family']
   when "debian"
     package "openmpi-bin"
@@ -67,20 +66,17 @@ if node['tensorflow']['mpi'].eql? "true"
     # horovod needs mpicxx in /usr/local/bin/mpicxx - add it to the PATH
     package "openmpi-devel"
     package "libtool"
-    
+
     magic_shell_environment 'PATH' do
       value "$PATH:#{node['cuda']['base_dir']}/bin:/usr/local/bin"
     end
-
   end
 end
-
-  
 
 
 if node['tensorflow']['mkl'].eql? "true"
   node.override['tensorflow']['need_mkl'] = 1
-  
+
   case node['platform_family']
   when "debian"
 
@@ -250,45 +246,11 @@ when "debian"
     EOF
   end
 
-  packages = %w{pkg-config zip g++ zlib1g-dev unzip swig git build-essential cmake unzip libopenblas-dev liblapack-dev linux-image-generic linux-image-extra-virtual linux-source linux-headers-generic python2.7 python2.7-numpy python2.7-dev python-pip python2.7-lxml python-pillow libcupti-dev libcurl3-dev python-wheel python-six }
-  for lib in packages do
-    package lib do
-      action :install
-    end
-  end
+  package ['pkg-config', 'zip', 'g++', 'zlib1g-dev', 'unzip', 'swig', 'git', 'build-essential', 'cmake', 'unzip', 'libopenblas-dev', 'liblapack-dev', 'linux-image-generic', 'linux-image-extra-virtual', 'linux-source', 'linux-headers-generic', 'python2.7', 'python2.7-numpy', 'python2.7-dev', 'python-pip', 'python2.7-lxml', 'python-pillow', 'libcupti-dev', 'libcurl3-dev', 'python-wheel', 'python-six']
 
 when "rhel"
-
-  bash "pip-prepare-yum-epel-release-add" do
-    user "root"
-    code <<-EOF
-    set -e
-    yum install epel-release -y
-    yum install python-pip -y
-    yum install mlocate -y
-    updatedb
-
-# For yum repo for Nvidia
-#   yum-config-manager --add-repo=https://negativo17.org/repos/epel-nvidia.repo
-EOF
-  end
-
-  packages = %w{gcc gcc-c++ kernel-devel openssl openssl-devel python python-devel python-lxml python-pillow libcurl-devel python-wheel python-six }
-  for lib in packages do
-    package lib do
-      action :install
-    end
-  end
-
-  # https://negativo17.org/nvidia-driver/
-  # nvidia_packages = %w{ nvidia-driver nvidia-driver-libs.x86_64 dkms-nvidia cuda-devel cuda-libs cuda-cudnn cuda-cudnn-devel cuda-cli-tools cuda-cupti-devel cuda-extra-libs }
-  #  for driver in nvidia_packages do
-  #    package driver do
-  #      action :install
-  #    end
-  #  end
-
-
+  package 'epel-release'
+  package ['python-pip', 'mlocate', 'gcc', 'gcc-c++', 'kernel-devel', 'openssl', 'openssl-devel', 'python', 'python-devel', 'python-lxml', 'python-pillow', 'libcurl-devel', 'python-wheel', 'python-six']
 end
 
 bash "pip-upgrade" do
@@ -296,39 +258,113 @@ bash "pip-upgrade" do
   code <<-EOF
     set -e
     pip install --upgrade pip
-    EOF
+  EOF
 end
-
-# On ec2 you need to disable the nouveau driver and reboot the machine
-# http://www.pyimagesearch.com/2016/07/04/how-to-install-cuda-toolkit-and-cudnn-for-deep-learning/
-#
-
-
-if node['cuda']['accept_nvidia_download_terms'].eql?("true")
-  
-  template "/etc/modprobe.d/blacklist-nouveau.conf" do
-    source "blacklist-nouveau.conf.erb"
-    owner "root"
-    mode 0775
-  end
-
-  tensorflow_compile "initram" do
-    action :kernel_initramfs
-  end
-
-end
-
-# echo options nouveau modeset=0 | sudo tee -a /etc/modprobe.d/nouveau-kms.conf
-# sudo update-initramfs -u
-# sudo reboot
 
 node.default['java']['jdk_version'] = 8
 node.default['java']['set_etc_environment'] = true
 node.default['java']['oracle']['accept_oracle_download_terms'] = true
 include_recipe "java::oracle"
 
+#
+# HDFS support in tensorflow
+# https://github.com/tensorflow/tensorflow/issues/2218
+#
+magic_shell_environment 'HADOOP_HDFS_HOME' do
+  value "#{node['hops']['base_dir']}"
+end
+
+
+if node['cuda']['accept_nvidia_download_terms'].eql?("true")
+
+  package "clang"
+
+  # Check to see if i can find a cuda card. If not, fail with an error
+  bash "test_nvidia" do
+    user "root"
+    code <<-EOF
+      set -e
+      lspci | grep -i nvidia
+    EOF
+    not_if { node['cuda']['skip_test'] == "true" }
+  end
+
+    bash "stop_xserver" do
+    user "root"
+    ignore_failure true
+    code <<-EOF
+      service lightdm stop
+    EOF
+  end
+
+  tensorflow_install "driver_install" do
+    driver_version node['nvidia']['driver_version']
+    action :driver
+  end
+
+  node['cuda']['versions'].split(',').each do |version|
+    tensorflow_install "cuda_install" do
+      cuda_version version
+      action :cuda
+    end
+  end
+
+  node['cudnn']['version_mapping'].split(',').each do |versionmap|
+    tensorflow_install "cudnn_install" do
+      cuda_version versionmap.split('+')[1]
+      cudnn_version versionmap.split('+')[0]
+      action :cudnn
+    end
+  end
+
+  node['nccl']['version_mapping'].split(',').each do |versionmap|
+    tensorflow_install "nccl" do
+      cuda_version versionmap.split('+')[1]
+      nccl_version versionmap.split('+')[0]
+      action :nccl
+    end
+  end
+
+  if node['tensorflow']['mpi'].eql? "true"
+    case node['platform_family']
+    when "rhel"
+      tensorflow_compile "mpi-compile" do
+        action :openmpi
+      end
+    end
+  end
+
+  # Cleanup old cuda/nccl installations which are no longer required
+  tensorflow_purge "remove_old_cuda" do
+    cuda_versions node['cuda']['versions']
+    action :cuda
+  end
+
+  tensorflow_purge "remove_old_nccl" do
+    nccl_versions node['nccl']['version_mapping']
+    :nccl
+  end
+
+  tensorflow_purge "remove_old_cudnn" do
+    cudnn_versions node['cudnn']['version_mapping']
+    :cudnn
+  end
+
+  # Test installation
+  bash 'test_nvidia_installation' do
+    user "root"
+    code <<-EOH
+      nvidia-smi -L
+    EOH
+  end
+end
+
+
 if node['tensorflow']['install'].eql?("src")
 
+  # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
+  # compile openmpi on centos 7
+  # https://bitsanddragons.wordpress.com/2017/05/08/install-openmpi-2-1-0-on-centos-7/
   bzl =  File.basename(node['bazel']['url'])
   case node['platform_family']
   when "debian"
@@ -358,6 +394,7 @@ if node['tensorflow']['install'].eql?("src")
     EOF
     end
   end
+
   bash "bazel-install" do
     user "root"
     code <<-EOF
@@ -373,194 +410,6 @@ if node['tensorflow']['install'].eql?("src")
     not_if { File::exists?("/usr/local/bin/bazel") }
   end
 
-end
-
-#
-#
-# HDFS support in tensorflow
-# https://github.com/tensorflow/tensorflow/issues/2218
-#
-magic_shell_environment 'HADOOP_HDFS_HOME' do
-  value "#{node['hops']['base_dir']}"
-end
-
-
-if node['cuda']['accept_nvidia_download_terms'].eql?("true")
-  
-  package "clang"
-
-  # Check to see if i can find a cuda card. If not, fail with an error
-  bash "test_nvidia" do
-    user "root"
-    code <<-EOF
-    set -e
-    lspci | grep -i nvidia
-  EOF
-    not_if { node['cuda']['skip_test'] == "true" }
-  end
-
-  cuda =  File.basename(node['cuda']['url'])
-  base_cuda_dir =  File.basename(cuda, "_linux-run")
-  cuda_dir = "/tmp/#{base_cuda_dir}"
-  cached_file = "#{Chef::Config['file_cache_path']}/#{cuda}"
-
-
-  remote_file cached_file do
-    source node['cuda']['url']
-    mode 0755
-    action :create
-    retries 2
-    ignore_failure true
-    not_if { File.exist?(cached_file) }
-  end
-
-
-  for i in 1..node['cuda']['num_patches'] do
-
-    patch_version  = node['cuda']['major_version'] + "." + node['cuda']['minor_version'] + ".#{i}"
-    patch = "cuda_#{patch_version}_linux.run"
-    patch_url  = "#{node['download_url']}/#{patch}"
-    patch_file = "#{Chef::Config['file_cache_path']}/#{patch}"
-
-    remote_file patch_file do
-      source patch_url
-      mode 0755
-      action :create
-      retries 2
-      ignore_failure true
-      not_if { File.exist?(patch_file) }
-    end
-  end
-
-  driver =  File.basename(node['cuda']['driver_url'])
-  cached_file = "#{Chef::Config['file_cache_path']}/#{driver}"
-
-
-  remote_file cached_file do
-    source node['cuda']['driver_url']
-    mode 0755
-    action :create
-    retries 1
-    not_if { File.exist?(cached_file) }
-  end
-
-  tensorflow_install "cuda_install" do
-    action :cuda
-  end
-
-  if node['tensorflow']['mpi'].eql? "true"
-    case node['platform_family']
-    when "rhel"
-      tensorflow_compile "mpi-compile" do
-        action :openmpi
-      end
-    end
-  end
-
-
-  
-  #    cd #{cuda_dir}
-  #    ./NVIDIA-Linux-x86_64-352.39.run
-  #    modprobe nvidia
-  #    ./cuda-linux64-rel-#{node['cuda']['version']}-19867135.run
-  #    ./cuda-samples-linux-#{node['cuda']['version']}-19867135.run
-
-
-  magic_shell_environment 'PATH' do
-    value "$PATH:#{node['cuda']['base_dir']}/bin:/usr/local/bin"
-  end
-
-  # magic_shell_environment 'LD_LIBRARY_PATH' do
-  #   value "$LD_LIBRARY_PATH:$JAVA_HOME/jre/lib/amd64/server"
-  # end
-  
-  # magic_shell_environment 'LD_LIBRARY_PATH' do
-  #   value "#{node['cuda']['base_dir']}/lib64:#{node['cuda']['base_dir']}/extras/CUPTI/lib64:$LD_LIBRARY_PATH"
-  # end
-  
-  magic_shell_environment 'LD_LIBRARY_PATH' do
-    value "$LD_LIBRARY_PATH:$JAVA_HOME/jre/lib/amd64/server:#{node['cuda']['base_dir']}/lib64:#{node['cuda']['base_dir']}/extras/CUPTI/lib64:/usr/local/nccl2/lib"
-  end
-
-  magic_shell_environment 'CUDA_HOME' do
-    value node['cuda']['base_dir']
-  end
-
-  tensorflow_compile "cuda" do
-    action :cuda
-  end
-
-  base_cudnn_file =  File.basename(node['cudnn']['url'])
-  cached_cudnn_file = "#{Chef::Config['file_cache_path']}/#{base_cudnn_file}"
-
-  remote_file cached_cudnn_file do
-    source node['cudnn']['url']
-    mode 0755
-    action :create
-    retries 2
-    not_if { File.exist?(cached_cudnn_file) }
-  end
-
-  tensorflow_install "cudnn_install" do
-    action :cudnn
-  end
-
-
-  tensorflow_compile "cdnn" do
-    action :cudnn
-  end
-
-  tensorflow_install "gpu_install" do
-    action :gpu
-  end
-
-  template "/etc/ld.so.conf.d/gpu.conf" do
-    source "gpu.conf.erb"
-    owner "root"
-    group "root"
-    mode "644"
-  end
-
-  bash "ldconfig" do
-    user "root"
-    code <<-EOF
-        ldconfig
-      EOF
-  end
-
-  nccl2=node['cuda']['nccl_version']
-  bash "install-nccl2" do
-    user "root"
-    code <<-EOF
-       set -e
-       cd #{Chef::Config['file_cache_path']}
-       rm -f #{nccl2}.txz
-       wget http://snurran.sics.se/hops/#{nccl2}.txz
-       rm -f #{nccl2}.tar
-       xz -d #{nccl2}.txz
-       rm -rf #{nccl2}
-       tar xf #{nccl2}.tar
-       rm -rf /usr/local/#{nccl2}
-       mv  #{nccl2} /usr/local
-       rm -f /usr/local/nccl2
-       ln -s /usr/local/#{nccl2} /usr/local/nccl2
-    EOF
-    not_if { File.directory?("/usr/local/#{nccl2}") }
-  end
-  
-else
-  tensorflow_install "cpu_install" do
-    action :cpu
-  end
-end
-
-
-if node['tensorflow']['install'].eql?("src")
-
-  # https://wiki.fysik.dtu.dk/niflheim/OmniPath#openmpi-configuration
-  # compile openmpi on centos 7
-  # https://bitsanddragons.wordpress.com/2017/05/08/install-openmpi-2-1-0-on-centos-7/
-
   tensorflow_compile "mpi-compile" do
     action :openmpi
   end
@@ -568,5 +417,4 @@ if node['tensorflow']['install'].eql?("src")
   tensorflow_compile "tensorflow" do
     action :tf
   end
-
 end

@@ -11,7 +11,7 @@ action :openmpi do
   when "rhel"
     package 'libsysfs-devel'
     package 'libibverbs'
-    package 'rdma-core-devel'      
+    package 'rdma-core-devel'
     package 'gcc-c++'
   end
   cuda=""
@@ -22,7 +22,7 @@ action :openmpi do
   if node['tensorflow']['rdma'].eql? "true"
     rdma=" --with-verbs"
   end
-  
+
   bash "compile_openmpi" do
     user "root"
     code <<-EOF
@@ -68,33 +68,6 @@ action :kernel_initramfs do
 
 end
 
-action :cuda do
-
-  bash "validate_cuda" do
-    user "root"
-    code <<-EOF
-    set -e
-# test the cuda nvidia compiler
-    su #{node['tensorflow']['user']} -l -c "nvcc -V"
-EOF
-    not_if { node['cuda']['skip_test'] == "true" }
-  end
-
-end
-
-action :cudnn do
-
-  bash "validate_cudnn" do
-    user "root"
-    code <<-EOF
-    set -e
-#    su #{node['tensorflow']['user']} -l -c "nvidia-smi -L | grep -i gpu"
-EOF
-    not_if { node['cuda']['skip_test'] == "true" }
-  end
-
-end
-
 action :tf do
 
   # https://github.com/lakshayg/tensorflow-build
@@ -125,7 +98,7 @@ action :tf do
 
   rescue
 
-    
+
     bash "git_clone_tensorflow_server" do
       user node['tensorflow']['user']
       code <<-EOF
@@ -206,7 +179,7 @@ EOF
       when "debian"
         # tensorflow tools say to install this - not default package in ubuntu
         #package 'cuda-command-line-tools'
-        
+
         bash "build_install_tensorflow_server_debian" do
           #    user node['tensorflow']['user']
           user "root"
@@ -223,7 +196,7 @@ EOF
 # Compile instructions - https://stackoverflow.com/questions/41293077/how-to-compile-tensorflow-with-sse4-2-and-avx-instructions
 
 
-    if [ ! -d nccl ] ; then 
+    if [ ! -d nccl ] ; then
       git clone https://github.com/NVIDIA/nccl.git
     fi
     cd nccl/
@@ -261,7 +234,7 @@ EOF
     cd /home/#{node['tensorflow']['user']}/tensorflow
     ./#{config}
 
-    if [ ! -d nccl ] ; then 
+    if [ ! -d nccl ] ; then
       git clone https://github.com/NVIDIA/nccl.git
     fi
     cd nccl/
@@ -344,13 +317,13 @@ EOF
 
       rescue
 
-        
+
         bash "transform_graph" do
           user "root"
           code <<-EOF
        set -e
-        export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH    
-        export PATH=$PATH:/usr/local/bin:/usr/local/cuda/bin  
+        export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+        export PATH=$PATH:/usr/local/bin:/usr/local/cuda/bin
         cd /home/#{node['tensorflow']['user']}/tensorflow
         bazel build tensorflow/tools/graph_transforms:transform_graph
         cp -rf bazel-bin/tensorflow #{node['tensorflow']['dir']}
@@ -358,10 +331,10 @@ EOF
         end
 
 
-        
+
       end   # End rescue
 
-    else                        
+    else
 
       # https://github.com/bazelbuild/bazel/issues/739
       bash "workaround_bazel_build" do
@@ -405,7 +378,7 @@ EOF
     end
 
 
-  end # End rescue  
+  end # End rescue
 
   bash "upgrade_protobufs" do
     user "root"
