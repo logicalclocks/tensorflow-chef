@@ -119,9 +119,7 @@ if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_downl
 end
 
 
-
-
-python_versions = %w{ 2.7 3.6 }
+python_versions = node['tensorflow']['python_conda_versions'].split(',').map(&:strip)
 for python in python_versions
   Chef::Log.info "Environment creation for: python#{python}"
   proj = "python" + python.gsub(".", "")
