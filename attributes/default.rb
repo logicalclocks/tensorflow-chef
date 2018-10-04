@@ -43,8 +43,8 @@ default['cuda']['md5sum']              = ""
 # 9.0 checksum
 #default['cuda']['md5sum']              = "33e1bd980e91af4e55f3ef835c103f9b"
 
-# cudnn-9.0-linux-x64-v7.1.tar.gz
-default['cudnn']['version']            = "7"
+# cudnn-9.0-linux-x64-v7.3.0.29.tgz
+default['cudnn']['version']            = "7.3.0.29"
 default['cudnn']['url']                = "#{node['download_url']}/cudnn-#{node['cuda']['major_version']}-linux-x64-v#{node['cudnn']['version']}.tgz"
 
 # nccl_2.2.13-1+cuda9.0_x86_64.txz
@@ -52,10 +52,10 @@ default['cuda']['nccl']                = "2.2.13-1"
 default['cuda']['nccl_version']        = "nccl_" + node['cuda']['nccl'] + "+cuda" + node['cuda']['major_version'] + "_x86_64"
 
 # TensorRT - Nvidia (ubuntu only)
-# TensorRT-3.0.4.Ubuntu-16.04.3.x86_64.cuda-9.0.cudnn7.0.tar.gz
-default['cuda']['tensorrt']            = "3.0.4"
-default['cuda']['tensorrt_version']    = "TensorRT-" + node['cuda']['tensorrt'] + ".Ubuntu-16.04.3.x86_64-gnu.cuda-"
-                                          + node['cuda']['major_version'] + ".cudnn" + "7.0" + ".tar.gz"
+# TensorRT-4.0.1.6.Ubuntu-16.04.4.x86_64-gnu.cuda-9.0.cudnn7.1.tar.gz 
+default['cuda']['tensorrt']            = "4.0.1.6"
+default['cuda']['tensorrt_version']    = "TensorRT-" + node['cuda']['tensorrt'] + ".Ubuntu-16.04.4.x86_64-gnu.cuda-"
+                                          + node['cuda']['major_version'] + ".cudnn" + "7.1" + ".tar.gz"
 
 default['cuda']['dir']                 = "/usr/local"
 default['cuda']['base_dir']            = "#{node['cuda']['dir']}/cuda"
