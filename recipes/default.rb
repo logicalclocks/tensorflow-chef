@@ -113,7 +113,7 @@ if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_downl
       value "$LD_LIBRARY_PATH:#{tensorrt_dir}/lib"
     end
 
-    
+
   end
 
 end
@@ -127,7 +127,7 @@ for python in python_versions
   if rt1 = "36"
     rt1 = "35"
   end
-  # assume that is python 2.7  
+  # assume that is python 2.7
   rt2 = "27mu"
   if python == "3.6"
     rt2 = "35m"
@@ -225,6 +225,11 @@ for python in python_versions
        exit 9
     fi
 
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade pyjks
+    if [ $? -ne 0 ] ; then
+       exit 10
+    fi
+
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade #{node['mml']['url']}
     if [ $? -ne 0 ] ; then
        exit 11
@@ -266,7 +271,7 @@ for python in python_versions
 
     case node['platform_family']
     when "debian"
-      
+
       bash "tensorrt_py#{python}_env" do
         user "root"
         code <<-EOF
@@ -291,7 +296,7 @@ for python in python_versions
       end
 
     end
-  end  
+  end
 
 end
 
@@ -311,5 +316,3 @@ kagent_keys "#{homedir}" do
   cb_recipe "default"
   action :get_publickey
 end
-
-
