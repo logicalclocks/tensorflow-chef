@@ -230,9 +230,14 @@ for python in python_versions
        exit 10
     fi
 
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade #{node['mml']['url']}
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade confluent-kafka
     if [ $? -ne 0 ] ; then
        exit 11
+    fi
+
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade #{node['mml']['url']}
+    if [ $? -ne 0 ] ; then
+       exit 12
     fi
 
     EOF
