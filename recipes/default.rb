@@ -218,7 +218,7 @@ for python in python_versions
        exit 8
     fi
 
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade hops
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install hops==0.6.0.0
     if [ $? -ne 0 ] ; then
        exit 9
     fi
