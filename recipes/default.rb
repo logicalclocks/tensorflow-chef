@@ -218,7 +218,12 @@ for python in python_versions
        exit 8
     fi
 
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade hops
+    export HOPS_UTIL_PY_VERSION=#{node['kagent']['hops-util-py-version']}
+    if [ $HOPS_UTIL_PY_VERSION == "master" ] ; then
+        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install git+https://github.com/logicalclocks/hops-util-py.git
+    else
+        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install hops==$HOPS_UTIL_PY_VERSION
+    fi
     if [ $? -ne 0 ] ; then
        exit 9
     fi
