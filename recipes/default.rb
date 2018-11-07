@@ -48,12 +48,11 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
     code <<-EOH
                 set -e
                 cd #{Chef::Config['file_cache_path']}
-                mkdir -p #{node['tensorflow']['examples_version']}
-                tar -zxf #{base_filename} -C #{Chef::Config['file_cache_path']}/#{node['tensorflow']['examples_version']}
-                chown -RL #{node['hops']['hdfs']['user']}:#{node['hops']['group']} #{Chef::Config['file_cache_path']}/#{node['tensorflow']['examples_version']}
-                touch #{node['tensorflow']['examples_version']}/.installed
+                rm -rf #{node['tensorflow']['examples_version']}
+                mkdir -p #{node['tensorflow']['hopstfdemo_dir']}-#{node['tensorflow']['examples_version']}/#{node['tensorflow']['hopstfdemo_dir']}
+                tar -zxf #{base_filename} -C #{Chef::Config['file_cache_path']}/#{node['tensorflow']['hopstfdemo_dir']}-#{node['tensorflow']['examples_version']}/#{node['tensorflow']['hopstfdemo_dir']}
+                chown -RL #{node['hops']['hdfs']['user']}:#{node['hops']['group']} #{Chef::Config['file_cache_path']}/#{node['tensorflow']['hopstfdemo_dir']}-#{node['tensorflow']['examples_version']}
         EOH
-    not_if { ::File.exists?("#{node['tensorflow']['examples_version']}/.installed") }
   end
 
   hops_hdfs_directory "/user/#{node['hops']['hdfs']['user']}/#{node['tensorflow']['hopstfdemo_dir']}" do
@@ -63,11 +62,10 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
     mode "1775"
   end
 
-  hops_hdfs_directory "#{Chef::Config['file_cache_path']}/#{node['tensorflow']['examples_version']}/*" do
-    action :put_as_superuser
+  hops_hdfs_directory "#{Chef::Config['file_cache_path']}/#{node['tensorflow']['hopstfdemo_dir']}-#{node['tensorflow']['examples_version']}/#{node['tensorflow']['hopstfdemo_dir']}" do
+    action :replace_as_superuser
     owner node['hops']['hdfs']['user']
     group node['hops']['group']
-    isDir true
     mode "1755"
     dest "/user/#{node['hops']['hdfs']['user']}/#{node['tensorflow']['hopstfdemo_dir']}"
   end
