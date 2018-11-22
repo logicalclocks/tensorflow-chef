@@ -116,6 +116,22 @@ if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_downl
 
 end
 
+remote_file "#{Chef::Config['file_cache_path']}/sparkmagic-#{node['jupyter']['sparkmagic']['version']}.tar.gz" do
+  user node['jupyter']['user']
+  group node['glassfish']['group']
+  source node['jupyter']['sparkmagic']['url']
+  mode 0755
+  action :create_if_missing
+end
+
+bash 'extract_sparkmagic' do 
+  user "root"
+  cwd Chef::Config['file_cache_path']
+  code <<-EOF
+    rm -rf sparkmagic
+    tar zxf sparkmagic-#{node['jupyter']['sparkmagic']['version']}.tar.gz
+  EOF
+end
 
 python_versions = node['kagent']['python_conda_versions'].split(',').map(&:strip)
 for python in python_versions
@@ -144,7 +160,6 @@ for python in python_versions
       customTf=0
     end
   end
-
 
   bash "conda_py#{python}_env" do
     user node['conda']['user']
@@ -255,6 +270,38 @@ for python in python_versions
     EOF
   end
 
+  bash "jupyter_sparkmagic" do
+    user 'root'
+    retries 1
+    cwd "#{Chef::Config['file_cache_path']}/sparkmagic"
+    environment ({'JAVA_HOME' => node['java']['java_home'],
+                 'HADOOP_HOME' => node['hops']['base_dir'],
+                 'PROJECT' => proj})
+    code <<-EOF
+      set -e
+      # Install packages
+
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip --no-cache-dir --upgrade hdfscontents
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip --no-cache-dir --upgrade urllib3
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip --no-cache-dir --upgrade requests 
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip --no-cache-dir --upgrade jupyter
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip --no-cache-dir --upgrade pandas
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip --no-cache-dir --upgrade ./hdijupyterutils
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip --no-cache-dir --upgrade ./autovizwidget
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip --no-cache-dir --upgrade ./sparkmagic
+
+      # Enable kernels
+      cd ${CONDA_DIR}/envs/${PROJECT}/lib/python/#{python}/site-packages
+
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/sparkkernel
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/pysparkkernel
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/pyspark3kernel
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/sparkrkernel
+
+      # Enable extensions
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter nbextension enable --py --sys-prefix widgetsnbextension
+    EOF
+  end
 
   if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_download_terms'] == "true"
 
