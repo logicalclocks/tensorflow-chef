@@ -1,13 +1,7 @@
 case node["platform_family"]
 when "debian"
   package ["build-essential","curl","libcurl3-dev","git","libfreetype6-dev","libpng12-dev","libzmq3-dev","pkg-config","python-dev","python-numpy","python-pip","software-properties-common","swig","zip","zlib1g-dev"]
-when "rhel"
-  package ["curl", "libcurl", "git", "freetype-devel", "libpng12-devel", "python2-pkgconfig", "python-devel", "python2-pip", "swig", "zip", "zlib-devel", "giflib-devel", "zeromq3-devel"]
-end
 
-case node["platform_family"]
-when "debian"
-  
   bash 'prepare_tf_serving' do
     user "root"
     #ignore_failure true
@@ -16,10 +10,11 @@ when "debian"
       curl https://storage.googleapis.com/tensorflow-serving-apt/tensorflow-serving.release.pub.gpg | sudo apt-key add -        
       add-apt-repository ppa:ubuntu-toolchain-r/test -y
       apt-get update
-      apt-get install libstdc++6 -y
     EOF
   end
 
-  package "tensorflow_model_server"
-end
+  package ["libstdc++6", "tensorflow-model-server"]
 
+when "rhel"
+  package ["curl", "libcurl", "git", "freetype-devel", "libpng12-devel", "python2-pkgconfig", "python-devel", "python2-pip", "swig", "zip", "zlib-devel", "giflib-devel", "zeromq3-devel"]
+end
