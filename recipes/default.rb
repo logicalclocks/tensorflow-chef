@@ -116,14 +116,6 @@ if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_downl
 
 end
 
-remote_file "#{Chef::Config['file_cache_path']}/sparkmagic-#{node['jupyter']['sparkmagic']['version']}.tar.gz" do
-  user node['jupyter']['user']
-  group node['glassfish']['group']
-  source node['jupyter']['sparkmagic']['url']
-  mode 0755
-  action :create_if_missing
-end
-
 bash 'extract_sparkmagic' do 
   user "root"
   cwd Chef::Config['file_cache_path']

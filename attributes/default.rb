@@ -81,3 +81,7 @@ default['bazel']['url']                = "#{node['download_url']}/bazel-#{node['
 default['tensorflow']['serving']['version']      = "1.8.0"
 
 default['openmpi']['version']          = "openmpi-3.1.0.tar.gz"
+
+
+default['jupyter']['sparkmagic']['version']            = "0.12.5"
+default['jupyter']['sparkmagic']['url']                = node['download_url'] + "/sparkmagic-" + node['jupyter']['sparkmagic']['version'] + ".tar.gz"
