@@ -72,15 +72,6 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
 
 end
 
-
-hops_version = "2.8.2.4"
-if node.attribute?('hops') == true
-  if node['hops'].attribute?('version') == true
-    hops_version = node['hops']['version']
-  end
-end
-
-
 if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_download_terms'] == "true"
 
   case node['platform_family']
@@ -110,10 +101,7 @@ if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_downl
     magic_shell_environment 'LD_LIBRARY_PATH' do
       value "$LD_LIBRARY_PATH:#{tensorrt_dir}/lib"
     end
-
-
   end
-
 end
 
 bash 'extract_sparkmagic' do 
@@ -164,9 +152,6 @@ for python in python_versions
     export PROJECT=#{proj}
     export MPI=#{node['tensorflow']['need_mpi']}
     export CUSTOM_TF=#{customTf}
-    # export HADOOP_HOME=#{node['install']['dir']}/hadoop
-    # export HADOOP_VERSION=#{hops_version}
-    # export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop
 
     ${CONDA_DIR}/bin/conda info --envs | grep "^${PROJECT}"
     if [ $? -ne 0 ] ; then
@@ -263,27 +248,34 @@ for python in python_versions
   end
 
   bash "jupyter_sparkmagic" do
-    user 'root'
+    user node['conda']['user']
+    group node['conda']['group']
     retries 1
     cwd "#{Chef::Config['file_cache_path']}/sparkmagic"
     environment ({'JAVA_HOME' => node['java']['java_home'],
+                  'CONDA_DIR' => node['conda']['base_dir'],
                  'HADOOP_HOME' => node['hops']['base_dir'],
                  'PROJECT' => proj})
     code <<-EOF
       set -e
       # Install packages
 
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip --no-cache-dir --upgrade hdfscontents
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip --no-cache-dir --upgrade urllib3
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip --no-cache-dir --upgrade requests 
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip --no-cache-dir --upgrade jupyter
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip --no-cache-dir --upgrade pandas
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip --no-cache-dir --upgrade ./hdijupyterutils
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip --no-cache-dir --upgrade ./autovizwidget
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip --no-cache-dir --upgrade ./sparkmagic
+      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade hdfscontents
+      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade urllib3
+      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade requests 
+      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade jupyter
+      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade pandas
+
+      # Install packages to allow users to manage their jupyter extensions
+      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade jupyter_contrib_nbextensions 
+      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade jupyter_nbextensions_configurator 
+
+      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade ./hdijupyterutils
+      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade ./autovizwidget
+      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade ./sparkmagic
 
       # Enable kernels
-      cd ${CONDA_DIR}/envs/${PROJECT}/lib/python/#{python}/site-packages
+      cd ${CONDA_DIR}/envs/${PROJECT}/lib/python#{python}/site-packages
 
       ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/sparkkernel
       ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/pysparkkernel
@@ -292,6 +284,9 @@ for python in python_versions
 
       # Enable extensions
       ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter nbextension enable --py --sys-prefix widgetsnbextension
+
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter contrib nbextension install --sys-prefix
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter serverextension enable jupyter_nbextensions_configurator --sys-prefix
     EOF
   end
 
