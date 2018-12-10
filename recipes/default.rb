@@ -252,35 +252,37 @@ for python in python_versions
     group node['conda']['group']
     retries 1
     cwd "#{Chef::Config['file_cache_path']}/sparkmagic"
-    environment ({'JAVA_HOME' => node['java']['java_home'],
+    environment ({ 'HOME' => ::Dir.home(node['conda']['user']), 
+                  'USER' => node['conda']['user'],
+                  'JAVA_HOME' => node['java']['java_home'],
                   'CONDA_DIR' => node['conda']['base_dir'],
-                 'HADOOP_HOME' => node['hops']['base_dir'],
-                 'PROJECT' => proj})
+                  'HADOOP_HOME' => node['hops']['base_dir'],
+                  'PROJECT' => proj})
     code <<-EOF
       set -e
       # Install packages
 
-      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade hdfscontents
-      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade urllib3
-      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade requests 
-      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade jupyter
-      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade pandas
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade hdfscontents
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade urllib3
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade requests 
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade jupyter
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade pandas
 
       # Install packages to allow users to manage their jupyter extensions
-      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade jupyter_contrib_nbextensions 
-      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade jupyter_nbextensions_configurator 
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade jupyter_contrib_nbextensions 
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade jupyter_nbextensions_configurator 
 
-      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade ./hdijupyterutils
-      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade ./autovizwidget
-      ${CONDA_DIR}/envs/${PROJECT}/bin/pip install -y --no-cache-dir --upgrade ./sparkmagic
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade ./hdijupyterutils
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade ./autovizwidget
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade ./sparkmagic
 
       # Enable kernels
       cd ${CONDA_DIR}/envs/${PROJECT}/lib/python#{python}/site-packages
 
-      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/sparkkernel
-      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/pysparkkernel
-      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/pyspark3kernel
-      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/sparkrkernel
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/sparkkernel --sys-prefix
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/pysparkkernel --sys-prefix 
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/pyspark3kernel --sys-prefix
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/sparkrkernel --sys-prefix
 
       # Enable extensions
       ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter nbextension enable --py --sys-prefix widgetsnbextension
