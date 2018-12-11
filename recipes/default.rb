@@ -110,6 +110,7 @@ bash 'extract_sparkmagic' do
   code <<-EOF
     rm -rf sparkmagic
     tar zxf sparkmagic-#{node['jupyter']['sparkmagic']['version']}.tar.gz
+    mv sparkmagic #{node['conda']['dir']}
   EOF
 end
 
@@ -251,7 +252,7 @@ for python in python_versions
     user node['conda']['user']
     group node['conda']['group']
     retries 1
-    cwd "#{Chef::Config['file_cache_path']}/sparkmagic"
+    cwd "#{node['conda']['dir']}/sparkmagic"
     environment ({ 'HOME' => ::Dir.home(node['conda']['user']), 
                   'USER' => node['conda']['user'],
                   'JAVA_HOME' => node['java']['java_home'],
@@ -261,20 +262,12 @@ for python in python_versions
     code <<-EOF
       set -e
       # Install packages
-
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade hdfscontents
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade urllib3
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade requests 
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade jupyter
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade pandas
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade hdfscontents urllib3 requests jupyter pandas
 
       # Install packages to allow users to manage their jupyter extensions
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade jupyter_contrib_nbextensions 
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade jupyter_nbextensions_configurator 
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade jupyter_contrib_nbextensions jupyter_nbextensions_configurator 
 
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade ./hdijupyterutils
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade ./autovizwidget
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade ./sparkmagic
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade ./hdijupyterutils ./autovizwidget ./sparkmagic
 
       # Enable kernels
       cd ${CONDA_DIR}/envs/${PROJECT}/lib/python#{python}/site-packages
