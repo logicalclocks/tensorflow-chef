@@ -114,6 +114,14 @@ bash 'extract_sparkmagic' do
   EOF
 end
 
+# make sure Kerberos dev are installed 
+case node['platform_family']
+when "debian"
+  package "libkrb5-dev"
+when "rhel"
+  package ["krb5-devel", "krb5-workstation"]
+end
+
 python_versions = node['kagent']['python_conda_versions'].split(',').map(&:strip)
 for python in python_versions
   Chef::Log.info "Environment creation for: python#{python}"
