@@ -418,3 +418,12 @@ if node['tensorflow']['install'].eql?("src")
     action :tf
   end
 end
+
+# Download SparkMagic
+remote_file "#{Chef::Config['file_cache_path']}/sparkmagic-#{node['jupyter']['sparkmagic']['version']}.tar.gz" do
+  user "root"
+  group "root"
+  source node['jupyter']['sparkmagic']['url']
+  mode 0755
+  action :create_if_missing
+end

@@ -72,15 +72,6 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
 
 end
 
-
-hops_version = "2.8.2.4"
-if node.attribute?('hops') == true
-  if node['hops'].attribute?('version') == true
-    hops_version = node['hops']['version']
-  end
-end
-
-
 if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_download_terms'] == "true"
 
   case node['platform_family']
@@ -110,12 +101,26 @@ if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_downl
     magic_shell_environment 'LD_LIBRARY_PATH' do
       value "$LD_LIBRARY_PATH:#{tensorrt_dir}/lib"
     end
-
-
   end
-
 end
 
+bash 'extract_sparkmagic' do 
+  user "root"
+  cwd Chef::Config['file_cache_path']
+  code <<-EOF
+    rm -rf #{node['conda']['dir']}/sparkmagic
+    tar zxf sparkmagic-#{node['jupyter']['sparkmagic']['version']}.tar.gz
+    mv sparkmagic #{node['conda']['dir']}
+  EOF
+end
+
+# make sure Kerberos dev are installed 
+case node['platform_family']
+when "debian"
+  package "libkrb5-dev"
+when "rhel"
+  package ["krb5-devel", "krb5-workstation"]
+end
 
 python_versions = node['kagent']['python_conda_versions'].split(',').map(&:strip)
 for python in python_versions
@@ -145,7 +150,6 @@ for python in python_versions
     end
   end
 
-
   bash "conda_py#{python}_env" do
     user node['conda']['user']
     group node['conda']['group']
@@ -157,9 +161,6 @@ for python in python_versions
     export PROJECT=#{proj}
     export MPI=#{node['tensorflow']['need_mpi']}
     export CUSTOM_TF=#{customTf}
-    # export HADOOP_HOME=#{node['install']['dir']}/hadoop
-    # export HADOOP_VERSION=#{hops_version}
-    # export HADOOP_CONF_DIR=${HADOOP_HOME}/etc/hadoop
 
     ${CONDA_DIR}/bin/conda info --envs | grep "^${PROJECT}"
     if [ $? -ne 0 ] ; then
@@ -255,6 +256,42 @@ for python in python_versions
     EOF
   end
 
+  bash "jupyter_sparkmagic" do
+    user node['conda']['user']
+    group node['conda']['group']
+    retries 1
+    cwd "#{node['conda']['dir']}/sparkmagic"
+    environment ({ 'HOME' => ::Dir.home(node['conda']['user']), 
+                  'USER' => node['conda']['user'],
+                  'JAVA_HOME' => node['java']['java_home'],
+                  'CONDA_DIR' => node['conda']['base_dir'],
+                  'HADOOP_HOME' => node['hops']['base_dir'],
+                  'PROJECT' => proj})
+    code <<-EOF
+      set -e
+      # Install packages
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade hdfscontents urllib3 requests jupyter pandas
+
+      # Install packages to allow users to manage their jupyter extensions
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade jupyter_contrib_nbextensions jupyter_nbextensions_configurator 
+
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade ./hdijupyterutils ./autovizwidget ./sparkmagic
+
+      # Enable kernels
+      cd ${CONDA_DIR}/envs/${PROJECT}/lib/python#{python}/site-packages
+
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/sparkkernel --sys-prefix
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/pysparkkernel --sys-prefix 
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/pyspark3kernel --sys-prefix
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/sparkrkernel --sys-prefix
+
+      # Enable extensions
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter nbextension enable --py --sys-prefix widgetsnbextension
+
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter contrib nbextension install --sys-prefix
+      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter serverextension enable jupyter_nbextensions_configurator --sys-prefix
+    EOF
+  end
 
   if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_download_terms'] == "true"
 

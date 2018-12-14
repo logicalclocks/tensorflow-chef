@@ -85,3 +85,8 @@ attribute "cuda/skip_test",
 attribute "cuda/skip_stop_xserver",
           :description => "Dont restart the xserver (probably a localhost installation)",
           :type => "string"
+
+attribute "jupyter/sparkmagic/version",
+          :description => "Version of sparkmagic for Jupyter to install. ",
+          :type => 'string'
+
