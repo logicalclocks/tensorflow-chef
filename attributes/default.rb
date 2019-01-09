@@ -90,3 +90,10 @@ default['jupyter']['sparkmagic']['url']                = node['download_url'] + 
 default['python2']['ipykernel_version']                = "4.10.0"
 default['python2']['jupyter_console_version']          = "5.2.0"
 default['python2']['ipython_version']                  = "5.8.0"
+
+
+# Feature Store example notebooks and datasets
+#
+default['featurestore']['examples_version']           = node['install']['version']
+default['featurestore']['hops_featurestore_demo_dir'] = "featurestore_demo"
+default['featurestore']['hops_featurestore_demo_url'] = "#{node['download_url']}/featurestore/#{node['featurestore']['examples_version']}/featurestore.tar.gz"

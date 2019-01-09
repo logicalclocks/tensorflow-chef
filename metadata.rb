@@ -94,3 +94,14 @@ attribute "jupyter/sparkmagic/version",
           :description => "Version of sparkmagic for Jupyter to install. ",
           :type => 'string'
 
+attribute "featurestore/examples_version",
+          :description => "Version of feature store tour artifacts.",
+          :type => 'string'
+
+attribute "featurestore/hops_featurestore_demo_dir",
+          :description => "Directory to put feature store tour artifacts",
+          :type => 'string'
+
+attribute "featurestore/hops_featurestore_demo_url",
+          :description => "URL to dowload featurestore tour artifacts",
+          :type => 'string'
