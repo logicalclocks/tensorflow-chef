@@ -182,16 +182,22 @@ for python in python_versions
         if [ $? -ne 0 ] ; then
           exit 4
         fi
+
+        # See HOPSWORKS-870 for an explanation about this line    
+        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install ipykernel==4.10.0 ipython==5.8.0 jupyter_console==5.2.0
+        if [ $? -ne 0 ] ; then
+          exit 13
+        fi
+    else
+        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade ipykernel
+        if [ $? -ne 0 ] ; then
+          exit 14
+        fi
     fi
 
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade hopsfacets
     if [ $? -ne 0 ] ; then
        exit 5
-    fi
-
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade ipykernel
-    if [ $? -ne 0 ] ; then
-       exit 7
     fi
 
     # If cuda is installed, and there is a GPU, install TF with GPUs
