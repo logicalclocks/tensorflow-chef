@@ -85,3 +85,8 @@ default['openmpi']['version']          = "openmpi-3.1.0.tar.gz"
 
 default['jupyter']['sparkmagic']['version']            = "0.12.5"
 default['jupyter']['sparkmagic']['url']                = node['download_url'] + "/sparkmagic-" + node['jupyter']['sparkmagic']['version'] + ".tar.gz"
+
+# Pinned Python libary versions to install in the base environments
+default['python2']['ipykernel_version']                = "4.10.0"
+default['python2']['jupyter_console_version']          = "5.2.0"
+default['python2']['ipython_version']                  = "5.8.0"
