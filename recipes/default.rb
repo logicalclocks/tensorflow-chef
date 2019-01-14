@@ -184,7 +184,7 @@ for python in python_versions
         fi
 
         # See HOPSWORKS-870 for an explanation about this line    
-        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install ipykernel==4.10.0 ipython==5.8.0 jupyter_console==5.2.0
+        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install ipykernel==#{node['python2']['ipykernel_version']} ipython==#{node['python2']['ipython_version']} jupyter_console==#{node['python2']['jupyter_console_version']}
         if [ $? -ne 0 ] ; then
           exit 13
         fi
