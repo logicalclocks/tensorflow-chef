@@ -261,10 +261,7 @@ bash "pip-upgrade" do
   EOF
 end
 
-node.default['java']['jdk_version'] = 8
-node.default['java']['set_etc_environment'] = true
-node.default['java']['oracle']['accept_oracle_download_terms'] = true
-include_recipe "java::oracle"
+include_recipe "java"
 
 #
 # HDFS support in tensorflow
