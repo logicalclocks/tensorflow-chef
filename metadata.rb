@@ -74,6 +74,10 @@ attribute "install/user",
           :description => "User to install the services as",
           :type => "string"
 
+attribute "nvidia/driver_version",
+          :description => "NVIDIA driver version to use",
+          :type => "string"
+
 attribute "cuda/accept_nvidia_download_terms",
           :description => "Accept cuda licensing terms and conditions. Default: 'false'. Change to 'true' to enable cuda.",
           :type => "string"
