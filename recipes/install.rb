@@ -249,7 +249,10 @@ when "debian"
   package ['pkg-config', 'zip', 'g++', 'zlib1g-dev', 'unzip', 'swig', 'git', 'build-essential', 'cmake', 'unzip', 'libopenblas-dev', 'liblapack-dev', 'linux-image-generic', 'linux-image-extra-virtual', 'linux-source', 'linux-headers-generic', 'python2.7', 'python2.7-numpy', 'python2.7-dev', 'python-pip', 'python2.7-lxml', 'python-pillow', 'libcupti-dev', 'libcurl3-dev', 'python-wheel', 'python-six']
 
 when "rhel"
-  package 'epel-release'
+  if node['rhel']['epel'] 
+    package 'epel-release'
+  end
+
   package ['python-pip', 'mlocate', 'gcc', 'gcc-c++', 'kernel-devel', 'openssl', 'openssl-devel', 'python', 'python-devel', 'python-lxml', 'python-pillow', 'libcurl-devel', 'python-wheel', 'python-six']
 end
 
@@ -383,7 +386,6 @@ if node['tensorflow']['install'].eql?("src")
       set -e
       yum install patch -y
       yum -y install gcc gcc-c++ kernel-devel make automake autoconf swig git unzip libtool binutils
-      yum -y install epel-release
       yum -y install python-devel python-pip
       yum -y install freetype-devel libpng12-devel zip zlib-devel giflib-devel zeromq3-devel
       pip install --target /usr/lib/python2.7/site-packages numpy
