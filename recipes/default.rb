@@ -275,7 +275,7 @@ for python in python_versions
       # Install packages to allow users to manage their jupyter extensions
       yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade jupyter_contrib_nbextensions jupyter_nbextensions_configurator 
 
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade ./hdijupyterutils ./autovizwidget ./sparkmagic
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade ./hdijupyterutils ./autovizwidget ./sparkmagic
 
       # Enable kernels
       cd ${CONDA_DIR}/envs/${PROJECT}/lib/python#{python}/site-packages
