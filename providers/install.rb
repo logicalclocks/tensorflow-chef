@@ -53,7 +53,11 @@ action :driver do
   when "rhel"
 
     # Obs! Versioned header install doesn't work [Jim]
-    package ['kernel-devel', 'kernel-headers', 'libglvnd-glx', 'epel-release', 'dkms', 'rpm-build', 'redhat-rpm-config', 'asciidoc', 'hmaccalc', 'perl-ExtUtils-Embed', 'pesign', 'xmlto', 'bison', 'bc', 'audit-libs-devel', 'binutils-devel', 'elfutils-devel', 'elfutils-libelf-devel', 'ncurses-devel', 'newt-devel', 'numactl-devel', 'pciutils-devel', 'python-devel', 'zlib-devel']
+    if node['rhel']['epel'] 
+      package 'epel-release'
+    end
+
+    package ['kernel-devel', 'kernel-headers', 'libglvnd-glx', 'dkms', 'rpm-build', 'redhat-rpm-config', 'asciidoc', 'hmaccalc', 'perl-ExtUtils-Embed', 'pesign', 'xmlto', 'bison', 'bc', 'audit-libs-devel', 'binutils-devel', 'elfutils-devel', 'elfutils-libelf-devel', 'ncurses-devel', 'newt-devel', 'numactl-devel', 'pciutils-devel', 'python-devel', 'zlib-devel']
 
     bash "install_driver_centos" do
       user "root"
