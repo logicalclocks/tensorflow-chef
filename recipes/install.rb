@@ -258,6 +258,7 @@ end
 
 bash "pip-upgrade" do
   user "root"
+  umask "022"
   code <<-EOF
     set -e
     pip install --upgrade pip
@@ -382,6 +383,7 @@ if node['tensorflow']['install'].eql?("src")
     # https://gist.github.com/jarutis/6c2934705298720ff92a1c10f6a009d4
     bash "bazel-install-centos" do
       user "root"
+      umask "022"
       code <<-EOF
       set -e
       yum install patch -y

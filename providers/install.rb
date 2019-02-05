@@ -120,6 +120,7 @@ action :cuda do
       user "root"
       timeout 72000
       cwd Chef::Config['file_cache_path']
+      umask "022"
       code <<-EOF
         set -e
         # Remove link from previous installations
@@ -136,6 +137,7 @@ action :cuda do
       user "root"
       timeout 72000
       cwd Chef::Config['file_cache_path']
+      umask "022"
       code <<-EOF
         set -e
         rm -f /usr/local/cuda
@@ -162,6 +164,7 @@ action :cuda do
       user "root"
       timeout 72000
       cwd Chef::Config['file_cache_path']
+      umask "022"
       code <<-EOF
         set -e
         ./#{patch} --silent --accept-eula
@@ -194,6 +197,7 @@ action :cudnn do
     user "root"
     cwd Chef::Config['file_cache_path']
     timeout 14400
+    umask "022"
     code <<-EOF
       set -e
       # Remove any old cuda directory that may have been lying around in the tmp directory
@@ -229,6 +233,7 @@ action :nccl do
   bash "install-#{nccl_dir_name}" do
     user "root"
     cwd Chef::Config['file_cache_path']
+    umask "022"
     code <<-EOF
        set -e
        tar xf #{nccl_file_name_ext}

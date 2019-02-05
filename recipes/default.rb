@@ -193,6 +193,7 @@ for python in python_versions
   bash "conda_py#{python}_env" do
     user node['conda']['user']
     group node['conda']['group']
+    umask "022"
     environment ({ 'HOME' => ::Dir.home(node['conda']['user']), 'USER' => node['conda']['user'] })
     code <<-EOF
     cd $HOME
@@ -294,6 +295,7 @@ for python in python_versions
 
   bash "pydoop_py#{python}_env" do
     user "root"
+    umask "022"
     code <<-EOF
     set -e
     export CONDA_DIR=#{node['conda']['base_dir']}
@@ -305,6 +307,7 @@ for python in python_versions
   bash "jupyter_sparkmagic" do
     user node['conda']['user']
     group node['conda']['group']
+    umask "022"
     retries 1
     cwd "#{node['conda']['dir']}/sparkmagic"
     environment ({ 'HOME' => ::Dir.home(node['conda']['user']), 
@@ -316,7 +319,8 @@ for python in python_versions
     code <<-EOF
       set -e
       # Install packages
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade hdfscontents urllib3 requests jupyter pandas
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade jupyter 
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade hdfscontents urllib3 requests pandas
 
       # Install packages to allow users to manage their jupyter extensions
       yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade jupyter_contrib_nbextensions jupyter_nbextensions_configurator 
@@ -346,6 +350,7 @@ for python in python_versions
 
       bash "tensorrt_py#{python}_env" do
         user "root"
+        umask "022"
         code <<-EOF
         set -e
         if [ -f /usr/local/cuda/version.txt ]  ; then
