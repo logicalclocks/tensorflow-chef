@@ -105,3 +105,30 @@ attribute "featurestore/hops_featurestore_demo_dir",
 attribute "featurestore/hops_featurestore_demo_url",
           :description => "URL to dowload featurestore tour artifacts",
           :type => 'string'
+
+#
+#
+# Python library versions
+#
+#
+attribute "tensorflow/version",
+          :description => "TensorFlow version to install in python base environments",
+          :type => "string"
+
+attribute "torch/version",
+          :description => "PyTorch version to install in python base environments",
+          :type => "string"
+
+attribute "torchvision/version",
+          :description => "Torchvision version to install in python base environments",
+          :type => "string"
+
+attribute "pydoop/version",
+          :description => "Pydoop version to install in python base environments",
+          :type => "string"
+
+attribute "matplotlib/python2/version",
+          :description => "Python 2 matplotlib version to install in python base environments",
+          :type => "string"
+
+

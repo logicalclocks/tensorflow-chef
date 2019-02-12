@@ -278,7 +278,7 @@ if node['cuda']['accept_nvidia_download_terms'].eql?("true")
     not_if { node['cuda']['skip_test'] == "true" }
   end
 
-    bash "stop_xserver" do
+  bash "stop_xserver" do
     user "root"
     ignore_failure true
     code <<-EOF
