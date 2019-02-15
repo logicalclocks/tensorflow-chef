@@ -162,6 +162,21 @@ when "rhel"
   package ["krb5-devel", "krb5-workstation"]
 end
 
+
+if node['amd']['rocm'].eql? "true"
+  case node['platform_family']
+  when "debian"
+    package "rocm-libs"
+    package "miopen-hip"
+    package "cxlactivitylogger"
+
+  when "rhel"
+
+  end
+
+end  
+
+
 python_versions = node['kagent']['python_conda_versions'].split(',').map(&:strip)
 for python in python_versions
   Chef::Log.info "Environment creation for: python#{python}"
@@ -190,6 +205,9 @@ for python in python_versions
     end
   end
 
+
+
+  
   bash "conda_py#{python}_env" do
     user node['conda']['user']
     group node['conda']['group']
@@ -254,6 +272,15 @@ for python in python_versions
         fi
     fi
 
+    if [ -f /sys/module/amdkfd/version ]  ; then
+      rocm-smi
+      if [ $? -eq 0 ] ; then
+            yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip3 install --upgrade tensorflow-rocm
+      fi
+    fi
+
+
+
    # Install a custom build of tensorflow with this line.
     if [ $CUSTOM_TF -eq 1 ] ; then
       yes | #{node['conda']['base_dir']}/envs/${PROJECT}/bin/pip install --upgrade #{node['tensorflow']['custom_url']}/tensorflow${GPU}-#{node['tensorflow']['version']}-cp${PY}-cp${PY}mu-manylinux1_x86_64.whl --force-reinstall
@@ -293,6 +320,7 @@ for python in python_versions
   end
 
 
+  
   bash "pydoop_py#{python}_env" do
     user "root"
     umask "022"
@@ -374,43 +402,6 @@ for python in python_versions
 
     end
   end
-
-  if node['amd']['rocm'].eql? "true"
-    case node['platform_family']
-    when "debian"
-      package "rocm-libs"
-      package "miopen-hip"
-      package "cxlactivitylogger"
-
-      bash "tensorrt_py#{python}_env" do
-        user "root"
-        umask "022"
-        code <<-EOF
-        set -e
-        if [ -f /sys/module/amdkfd/version ]  ; then
-          rocm-smi
-          if [ $? -eq 0 ] ; then
-
-          export CONDA_DIR=#{node['conda']['base_dir']}
-          export PROJECT=#{proj}
-          su #{node['conda']['user']} -c "cd #{tensorrt_dir}/python ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install tensorrt-#{node['cuda']['tensorrt']}"-cp#{rt1}-cp#{rt2}-linux_x86_64.whl"
-
-          su #{node['conda']['user']} -c "cd #{tensorrt_dir}/uff ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install uff-0.2.0-py2.py3-none-any.whl"
-
-#         su #{node['conda']['user']} -c "cd #{tensorrt_dir}/graphsurgeon ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install graphsurgeon-0.2.0-py2.py3-none-any.whl"
-
-          fi
-        fi
-
-        EOF
-      end
-        
-    when "rhel"
-      pip3 install --user tensorflow-rocm
-    end
-
-  end  
-
 
   
 end
