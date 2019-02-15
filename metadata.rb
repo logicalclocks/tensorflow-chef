@@ -74,6 +74,10 @@ attribute "install/user",
           :description => "User to install the services as",
           :type => "string"
 
+#
+# Nvidia
+#
+
 attribute "nvidia/driver_version",
           :description => "NVIDIA driver version to use",
           :type => "string"
@@ -89,6 +93,23 @@ attribute "cuda/skip_test",
 attribute "cuda/skip_stop_xserver",
           :description => "Dont restart the xserver (probably a localhost installation)",
           :type => "string"
+
+#
+# AMD
+#
+
+attribute "amd/driver_version",
+          :description => "AMD driver version to use",
+          :type => "string"
+
+attribute "amd/rocm",
+          :description => "Set to 'true' to Install the AMD ROCm framework",
+          :type => "string"
+
+
+#
+# Jupyter and Feature Store
+#
 
 attribute "jupyter/sparkmagic/version",
           :description => "Version of sparkmagic for Jupyter to install. ",

@@ -60,6 +60,19 @@ default['nccl']['base_url']         = "#{node['download_url']}/nccl"
 default['cuda']['tensorrt']            = "3.0.4"
 default['cuda']['tensorrt_version']    = "TensorRT-#{node['cuda']['tensorrt']}.Ubuntu-16.04.3.x86_64-gnu.cuda-9.0.cudnn7.0.tar.gz"
 
+
+#
+# AMD - ROCm
+#
+
+default['amd']['driver_version']       = "2.1"
+default['rocm']['install']             = "false"
+
+
+#
+# Other
+#
+
 default['tensorflow']['mkl']           = "false"
 default['tensorflow']['mpi']           = "false"
 default['tensorflow']['rdma']          = "false"

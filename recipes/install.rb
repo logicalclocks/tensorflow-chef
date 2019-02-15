@@ -428,3 +428,18 @@ remote_file "#{Chef::Config['file_cache_path']}/sparkmagic-#{node['jupyter']['sp
   mode 0755
   action :create_if_missing
 end
+
+
+#
+# ROCm
+#
+
+if node['amd']['rocm'].eql? "true"
+
+  tensorflow_amd "install_amd_driver" do
+    action :install_driver
+  end
+  tensorflow_amd "install_rocm" do
+    action :install_rocm
+  end
+end
