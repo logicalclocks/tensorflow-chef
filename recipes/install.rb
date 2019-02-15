@@ -416,3 +416,40 @@ remote_file "#{Chef::Config['file_cache_path']}/sparkmagic-#{node['jupyter']['sp
   mode 0755
   action :create_if_missing
 end
+
+
+#
+# ROCm
+#
+
+if node['rocm']['install'].eql? "true"
+
+  directory node["rocm"]["dir"]  do
+    owner "_apt"
+    group "root"
+    mode "755"
+    action :create
+    not_if { File.directory?("#{node["rocm"]["dir"]}") }
+  end
+
+  directory node["rocm"]["home"] do
+    owner "_apt"
+    group "root"
+    mode "750"
+    action :create
+  end
+
+  link node["rocm"]["base_dir"] do
+    owner "_apt"
+    group "root"
+    to node["rocm"]["home"]
+  end
+
+  tensorflow_purge "remove_old_rocm" do
+    action :rocm
+  end
+
+  tensorflow_amd "install_rocm" do
+    action :install_rocm
+  end
+end
