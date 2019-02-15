@@ -375,6 +375,44 @@ for python in python_versions
     end
   end
 
+  if node['amd']['rocm'].eql? "true"
+    case node['platform_family']
+    when "debian"
+      package "rocm-libs"
+      package "miopen-hip"
+      package "cxlactivitylogger"
+
+      bash "tensorrt_py#{python}_env" do
+        user "root"
+        umask "022"
+        code <<-EOF
+        set -e
+        if [ -f /sys/module/amdkfd/version ]  ; then
+          rocm-smi
+          if [ $? -eq 0 ] ; then
+
+          export CONDA_DIR=#{node['conda']['base_dir']}
+          export PROJECT=#{proj}
+          su #{node['conda']['user']} -c "cd #{tensorrt_dir}/python ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install tensorrt-#{node['cuda']['tensorrt']}"-cp#{rt1}-cp#{rt2}-linux_x86_64.whl"
+
+          su #{node['conda']['user']} -c "cd #{tensorrt_dir}/uff ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install uff-0.2.0-py2.py3-none-any.whl"
+
+#         su #{node['conda']['user']} -c "cd #{tensorrt_dir}/graphsurgeon ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install graphsurgeon-0.2.0-py2.py3-none-any.whl"
+
+          fi
+        fi
+
+        EOF
+      end
+        
+    when "rhel"
+      pip3 install --user tensorflow-rocm
+    end
+
+  end  
+
+
+  
 end
 
 #
@@ -393,3 +431,5 @@ kagent_keys "#{homedir}" do
   cb_recipe "default"
   action :get_publickey
 end
+
+

@@ -436,6 +436,7 @@ end
 
 if node['amd']['rocm'].eql? "true"
 
+  
   tensorflow_amd "install_amd_driver" do
     action :install_driver
   end

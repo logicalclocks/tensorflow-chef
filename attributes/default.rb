@@ -65,6 +65,10 @@ default['cuda']['tensorrt_version']    = "TensorRT-#{node['cuda']['tensorrt']}.U
 # AMD - ROCm
 #
 
+default['amd']['driver']               = "amdgpu-pro-18.50-725072"
+default['amd']['driver_rhel_url']      = "#{node['download_url']}/amd/#{node['amd']['driver']}-rhel-7.6.tar.xz"
+default['amd']['driver_ubuntu_url']    = "#{node['download_url']}/amd/#{node['amd']['driver']}-ubuntu-18.04.tar.xz"
+
 default['amd']['driver_version']       = "2.1"
 default['rocm']['install']             = "false"
 
