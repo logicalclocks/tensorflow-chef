@@ -16,28 +16,22 @@ action :install_driver do
       platform="bionic"
     end
 
-#     package "linux-headers-4.13.0-32-generic"
-#     package "linux-image-4.13.0-32-generic"
-#     package "linux-image-extra-4.13.0-32-generic"
-#     package "linux-signed-image-4.13.0-32-generic"
-    package "linux-headers"
+    package "linux-headers-generic"
     package "libnuma-dev"
-    #    sudo reboot
-
     #
     # Now REBOOT the server
     #
 
     
-    driver_filename = File.basename(node['amd']['driver_ubuntu_url'])
+    driver_filename = ::File.basename(node['amd']['driver_ubuntu_url'])
     cached_file = "#{Chef::Config['file_cache_path']}/#{driver_filename}"
-    base =  File.basename(cached_file, ".tar.xz")
+    base =  ::File.basename(cached_file, ".tar.xz")
     remote_file cached_file do
       source node['amd']['driver_ubuntu_url']
       mode 0755
       action :create
       retries 1
-      not_if { File.exist?(cached_file) }
+      not_if { ::File.exist?(cached_file) }
     end
 
     bash "install-radeon-vii-driver" do
@@ -61,7 +55,7 @@ action :install_driver do
     bash "install_amd_stuff" do
       user "root"
       code <<-EOF
-        DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libelf1 rocm-dev build-essential 
+        DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libelf1 build-essential 
       EOF
     end
     
@@ -86,7 +80,17 @@ action :install_driver do
 
     apt_update
 
-    package "rocm-dkms"
+
+    # https://community.amd.com/thread/229198
+    bash "force_rock_driver_conflict_amd_pro" do
+      user "root"
+      code <<-EOF
+        sudo dpkg -i --force-overwrite /var/cache/apt/archives/rock-dkms_2.1-96_all.deb 
+        apt install rocm-dkms rocm-opencl-dev -y
+      EOF
+    end
+
+#    package "rocm-dkms"
 
     tensorflow_compile 'initramfs' do
       action :kernel_initramfs
@@ -121,7 +125,7 @@ action :install_rocm do
       user "root"
       code <<-EOF
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends curl \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  libelf1 rocm-dev  build-essential 
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  libelf1  build-essential 
     apt-get clean &&  rm -rf /var/lib/apt/lists/*
       EOF
     not_if { "/opt/rocm/bin/rocm-smi" }
@@ -131,7 +135,7 @@ action :install_rocm do
       user "root"
       code <<-EOF
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends curl \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  libelf1 rocm-dev  build-essential  gnupg
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  libelf1 build-essential  gnupg
     apt-get clean &&  rm -rf /var/lib/apt/lists/*
       EOF
     not_if { "/opt/rocm/bin/rocm-smi" }
