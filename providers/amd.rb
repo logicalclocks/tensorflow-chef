@@ -34,22 +34,18 @@ action :install_driver do
       not_if { ::File.exist?(cached_file) }
     end
 
-    bash "install-radeon-vii-driver" do
-      user "root"
-      code <<-EOF
-       set -e
-       cd #{Chef::Config['file_cache_path']}
-       tar -Jxf #{cached_file}
-       cd #{base}
-#       ./amdgpu-install -y
-       ./amdgpu--pro-install --px --headless -y
-       #reboot
-#
-# Now, reboot the system
-# 
-       EOF
-      not_if { "dpkg -l amdpu-prod" }
-    end
+#     bash "install-radeon-vii-driver" do
+#       user "root"
+#       code <<-EOF
+#        set -e
+#        cd #{Chef::Config['file_cache_path']}
+#        tar -Jxf #{cached_file}
+#        cd #{base}
+#        ./amdgpu--pro-install --px --headless -y
+# # Now, reboot the system
+#        EOF
+#       not_if { "dpkg -l amdpu-prod" }
+#     end
 
     
     bash "install_amd_stuff" do
@@ -60,13 +56,6 @@ action :install_driver do
     end
     
     
-  # if [ -e /sys/module/amdkfd/version ]; then
-  #   KERNEL_VERSION=$(cat /sys/module/amdkfd/version)
-  #   KERNEL_SRC_VERSION=$(cat /sys/module/amdkfd/srcversion)    
-  #   if [ "$KERNEL_VERSION" == "2.0.0" ]; then
-  #       add_repo http://repo.radeon.com/rocm/apt/debian/
-  # end
-
     apt_repository 'rocm' do
       uri "http://repo.radeon.com/rocm/apt/debian/"
       key "http://repo.radeon.com/rocm/apt/debian/rocm.gpg.key"
@@ -80,6 +69,7 @@ action :install_driver do
 
     apt_update
 
+    package "rocm-dkms"    
 
     # https://community.amd.com/thread/229198
     bash "force_rock_driver_conflict_amd_pro" do
@@ -90,7 +80,6 @@ action :install_driver do
       EOF
     end
 
-#    package "rocm-dkms"
 
     tensorflow_compile 'initramfs' do
       action :kernel_initramfs
@@ -128,17 +117,18 @@ action :install_rocm do
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  libelf1  build-essential 
     apt-get clean &&  rm -rf /var/lib/apt/lists/*
       EOF
-    not_if { "/opt/rocm/bin/rocm-smi" }
+#    not_if { "/opt/rocm/bin/rocm-smi" }
     end
   else
     bash "install_rocm" do
       user "root"
       code <<-EOF
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends curl \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends curl 
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  libelf1 build-essential  gnupg
+    DEBIAN_FRONTEND=noninteractive apt-get install -y rocm-libs miopen-hip cxlactivitylogger
     apt-get clean &&  rm -rf /var/lib/apt/lists/*
       EOF
-    not_if { "/opt/rocm/bin/rocm-smi" }
+#    not_if { "/opt/rocm/bin/rocm-smi" }
     end
 
   end
