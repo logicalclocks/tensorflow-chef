@@ -48,12 +48,13 @@ action :install_driver do
        tar -Jxf #{cached_file}
        cd #{base}
 #       ./amdgpu-install -y
-        ./amdgpu--pro-install --px --headless -y
+       ./amdgpu--pro-install --px --headless -y
+       #reboot
 #
 # Now, reboot the system
 # 
        EOF
-      not_if "lsmod | grep amdgpu"
+      not_if { "dpkg -l amdpu-prod" }
     end
 
     
@@ -96,6 +97,8 @@ action :install_driver do
     
   when "rhel"
 
+   # TODO
+    
   end
 
   group "video" do
@@ -103,21 +106,10 @@ action :install_driver do
     not_if "getent group video"
   end
 
-  group "video" do
-    action :modify
-    members ["#{node['hops']['yarn']['user']}", "#{node['hops']['yarnapp']['user']}"]
-    append true
-  end
-
 
   magic_shell_environment 'PATH' do
     value "$PATH:/opt/rocm/bin:/opt/rocm/profiler/bin:/opt/rocm/opencl/bin/x86_64"
   end
-
-    #
-    # Test now with the command:
-    #   rocm-smi
-    #
   
 end
 
@@ -132,7 +124,7 @@ action :install_rocm do
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  libelf1 rocm-dev  build-essential 
     apt-get clean &&  rm -rf /var/lib/apt/lists/*
       EOF
-      #    not_if { ::File.directory?("/usr/local/include/openmpi") }
+    not_if { "/opt/rocm/bin/rocm-smi" }
     end
   else
     bash "install_rocm" do
@@ -142,10 +134,22 @@ action :install_rocm do
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  libelf1 rocm-dev  build-essential  gnupg
     apt-get clean &&  rm -rf /var/lib/apt/lists/*
       EOF
-      #    not_if { ::File.directory?("/usr/local/include/openmpi") }
+    not_if { "/opt/rocm/bin/rocm-smi" }
     end
 
   end
 
+  #
+  # Test now with the command:
+  #   rocm-smi
+  #
+  bash "test_rocm" do
+    user "root"
+    code <<-EOF
+      set -e
+      /opt/rocm/bin/rocm-smi
+    EOF
+  end
+  
 end
 

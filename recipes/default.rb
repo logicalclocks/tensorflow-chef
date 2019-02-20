@@ -424,3 +424,10 @@ kagent_keys "#{homedir}" do
 end
 
 
+if node['amd']['rocm'].eql? "true"
+  group "video" do
+    action :modify
+    members ["#{node['hops']['yarn']['user']}", "#{node['hops']['yarnapp']['user']}"]
+    append true
+  end
+end
