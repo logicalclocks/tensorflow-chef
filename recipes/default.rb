@@ -144,7 +144,7 @@ if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_downl
   end
 end
 
-bash 'extract_sparkmagic' do 
+bash 'extract_sparkmagic' do
   user "root"
   cwd Chef::Config['file_cache_path']
   code <<-EOF
@@ -288,6 +288,16 @@ for python in python_versions
     if [ $? -ne 0 ] ; then
        exit 12
     fi
+    
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade git+https://github.com/logicalclocks/petastorm@hops-0.6.0
+    if [ $? -ne 0 ] ; then
+       exit 13
+    fi
+
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade opencv-python
+    if [ $? -ne 0 ] ; then
+       exit 14
+    fi
 
     EOF
   end
@@ -310,7 +320,7 @@ for python in python_versions
     umask "022"
     retries 1
     cwd "#{node['conda']['dir']}/sparkmagic"
-    environment ({ 'HOME' => ::Dir.home(node['conda']['user']), 
+    environment ({ 'HOME' => ::Dir.home(node['conda']['user']),
                   'USER' => node['conda']['user'],
                   'JAVA_HOME' => node['java']['java_home'],
                   'CONDA_DIR' => node['conda']['base_dir'],
