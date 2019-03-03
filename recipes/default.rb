@@ -157,9 +157,9 @@ end
 # make sure Kerberos dev are installed 
 case node['platform_family']
 when "debian"
-  package "libkrb5-dev"
+  package ["libkrb5-dev", "libsasl2-dev"]
 when "rhel"
-  package ["krb5-devel", "krb5-workstation"]
+  package ["krb5-devel", "krb5-workstation", "cyrus-sasl-devel"]
 end
 
 python_versions = node['kagent']['python_conda_versions'].split(',').map(&:strip)
