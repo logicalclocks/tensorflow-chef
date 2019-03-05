@@ -289,7 +289,7 @@ for python in python_versions
        exit 12
     fi
     
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade git+https://github.com/logicalclocks/petastorm@hops-0.6.0
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade hops-petastorm
     if [ $? -ne 0 ] ; then
        exit 13
     fi
