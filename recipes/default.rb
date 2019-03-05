@@ -327,6 +327,12 @@ for python in python_versions
 
       yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade ./hdijupyterutils ./autovizwidget ./sparkmagic
 
+      # THIS IS A WORKAROUND FOR UNTIL NOTEBOOK GETS FIXED UPSTREAM TO WORK WITH THE NEW VERSION OF TORNADO
+      # SEE: https://logicalclocks.atlassian.net/browse/HOPSWORKS-977
+
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip uninstall tornado 
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir tornado==5.1.1
+
       # Enable kernels
       cd ${CONDA_DIR}/envs/${PROJECT}/lib/python#{python}/site-packages
 
