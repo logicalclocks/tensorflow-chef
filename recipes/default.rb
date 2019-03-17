@@ -144,7 +144,7 @@ if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_downl
   end
 end
 
-bash 'extract_sparkmagic' do 
+bash 'extract_sparkmagic' do
   user "root"
   cwd Chef::Config['file_cache_path']
   code <<-EOF
@@ -157,9 +157,9 @@ end
 # make sure Kerberos dev are installed 
 case node['platform_family']
 when "debian"
-  package "libkrb5-dev"
+  package ["libkrb5-dev", "libsasl2-dev"]
 when "rhel"
-  package ["krb5-devel", "krb5-workstation"]
+  package ["krb5-devel", "krb5-workstation", "cyrus-sasl-devel"]
 end
 
 
@@ -243,12 +243,12 @@ for python in python_versions
         fi
 
         # See HOPSWORKS-870 for an explanation about this line    
-        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install ipykernel==#{node['python2']['ipykernel_version']} ipython==#{node['python2']['ipython_version']} jupyter_console==#{node['python2']['jupyter_console_version']}
+        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install ipykernel==#{node['python2']['ipykernel_version']} ipython==#{node['python2']['ipython_version']} jupyter_console==#{node['python2']['jupyter_console_version']} hops-ipython-sql
         if [ $? -ne 0 ] ; then
           exit 13
         fi
     else
-        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade ipykernel
+        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade ipykernel hops-ipython-sql
         if [ $? -ne 0 ] ; then
           exit 14
         fi
@@ -315,6 +315,16 @@ for python in python_versions
     if [ $? -ne 0 ] ; then
        exit 12
     fi
+    
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade hops-petastorm
+    if [ $? -ne 0 ] ; then
+       exit 13
+    fi
+
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade opencv-python
+    if [ $? -ne 0 ] ; then
+       exit 14
+    fi
 
     EOF
   end
@@ -338,7 +348,7 @@ for python in python_versions
     umask "022"
     retries 1
     cwd "#{node['conda']['dir']}/sparkmagic"
-    environment ({ 'HOME' => ::Dir.home(node['conda']['user']), 
+    environment ({ 'HOME' => ::Dir.home(node['conda']['user']),
                   'USER' => node['conda']['user'],
                   'JAVA_HOME' => node['java']['java_home'],
                   'CONDA_DIR' => node['conda']['base_dir'],
@@ -354,6 +364,12 @@ for python in python_versions
       yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade jupyter_contrib_nbextensions jupyter_nbextensions_configurator 
 
       yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade ./hdijupyterutils ./autovizwidget ./sparkmagic
+
+      # THIS IS A WORKAROUND FOR UNTIL NOTEBOOK GETS FIXED UPSTREAM TO WORK WITH THE NEW VERSION OF TORNADO
+      # SEE: https://logicalclocks.atlassian.net/browse/HOPSWORKS-977
+
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip uninstall tornado 
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir tornado==5.1.1
 
       # Enable kernels
       cd ${CONDA_DIR}/envs/${PROJECT}/lib/python#{python}/site-packages
