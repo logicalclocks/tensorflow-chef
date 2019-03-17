@@ -46,7 +46,6 @@ action :install_driver do
 #        EOF
 #       not_if { "dpkg -l amdpu-prod" }
 #     end
-
     
     bash "install_amd_stuff" do
       user "root"
@@ -54,8 +53,7 @@ action :install_driver do
         DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libelf1 build-essential 
       EOF
     end
-    
-    
+
     apt_repository 'rocm' do
       uri "http://repo.radeon.com/rocm/apt/debian/"
       key "http://repo.radeon.com/rocm/apt/debian/rocm.gpg.key"
@@ -69,17 +67,28 @@ action :install_driver do
 
     apt_update
 
-    package "rocm-dkms"    
-
+    #
     # https://community.amd.com/thread/229198
+    # If the amdgpu-pro-install driver is already installed, it conflicts with the rocm-dkms. They both try to load a 'amd-dks' module, i think.
+    # The solution below is to force the installation of the rock-dms package.
+    #
+    #
     bash "force_rock_driver_conflict_amd_pro" do
       user "root"
       code <<-EOF
         sudo dpkg -i --force-overwrite /var/cache/apt/archives/rock-dkms_2.1-96_all.deb 
         apt install rocm-dkms rocm-opencl-dev -y
       EOF
+      only_if { "dpkg -l amdpu-prod" }
     end
-
+    
+    package "rocm-dkms"
+    package "rocm-dev"
+    package "rocm-libs"            
+    package "rocm-device-libs"
+    package "rocm-utils"
+    package "miopen-hip"
+    package "cxlactivitylogger"
 
     tensorflow_compile 'initramfs' do
       action :kernel_initramfs
@@ -125,7 +134,7 @@ action :install_rocm do
       code <<-EOF
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends curl 
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends  libelf1 build-essential  gnupg
-    DEBIAN_FRONTEND=noninteractive apt-get install -y rocm-libs miopen-hip cxlactivitylogger
+#    DEBIAN_FRONTEND=noninteractive apt-get install -y rocm-libs miopen-hip cxlactivitylogger
     apt-get clean &&  rm -rf /var/lib/apt/lists/*
       EOF
 #    not_if { "/opt/rocm/bin/rocm-smi" }

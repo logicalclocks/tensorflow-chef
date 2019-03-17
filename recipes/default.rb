@@ -430,4 +430,10 @@ if node['amd']['rocm'].eql? "true"
     members ["#{node['hops']['yarn']['user']}", "#{node['hops']['yarnapp']['user']}"]
     append true
   end
+
+  Chef::Log.info('Checking if your AMD driver is loaded in the kernel. If not, you probably need to reboot the server.')
+  execute 'check_amd_driver_loaded_in_kernel' do
+    command 'lsmod | grep kfd'
+  end
+
 end

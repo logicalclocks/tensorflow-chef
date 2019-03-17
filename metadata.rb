@@ -98,7 +98,7 @@ attribute "cuda/skip_stop_xserver",
 # AMD
 #
 
-attribute "amd/driver_version",
+attribute "amd/rocm_version",
           :description => "AMD driver version to use",
           :type => "string"
 
