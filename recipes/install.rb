@@ -234,10 +234,10 @@ end
 case node['platform_family']
 when "debian"
 
-  package ['linux-base', 'pkg-config', 'zip', 'g++', 'zlib1g-dev', 'unzip', 'swig', 'git', 'build-essential', 'cmake', 'unzip', 'libopenblas-dev', 'liblapack-dev', 'linux-image-generic', 'linux-image-extra-virtual', 'linux-source', 'linux-headers-generic', 'python2.7', 'python2.7-numpy', 'python2.7-dev', 'python-pip', 'python2.7-lxml', 'python-pillow', 'libcupti-dev', 'libcurl3-dev', 'python-wheel', 'python-six']
+  package ["pkg-config", "zip", "g++", "zlib1g-dev", "unzip", "swig", "git", "build-essential", "cmake", "unzip", "libopenblas-dev", "liblapack-dev", "linux-image-#{node['kernel']['release']}", "linux-image-extra-virtual", "linux-headers-#{node['kernel']['release']}", "python2.7", "python2.7-numpy", "python2.7-dev", "python-pip", "python2.7-lxml", "python-pillow", "libcupti-dev", "libcurl3-dev", "python-wheel", "python-six"]
 
 when "rhel"
-  if node['rhel']['epel'] 
+  if node['rhel']['epel']
     package 'epel-release'
   end
 
