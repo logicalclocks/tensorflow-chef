@@ -234,19 +234,7 @@ end
 case node['platform_family']
 when "debian"
 
-  #
-  # This failed on my laptop as i had a google repo installed. I assume it can happen on other broken
-  # machines, so we can ignore failure and hope it doesn't prevent it working
-  #
-  bash "apt_update_repos" do
-    user "root"
-    ignore_failure true
-    code <<-EOF
-      apt-get update -y
-    EOF
-  end
-
-  package ['pkg-config', 'zip', 'g++', 'zlib1g-dev', 'unzip', 'swig', 'git', 'build-essential', 'cmake', 'unzip', 'libopenblas-dev', 'liblapack-dev', 'linux-image-generic', 'linux-image-extra-virtual', 'linux-source', 'linux-headers-generic', 'python2.7', 'python2.7-numpy', 'python2.7-dev', 'python-pip', 'python2.7-lxml', 'python-pillow', 'libcupti-dev', 'libcurl3-dev', 'python-wheel', 'python-six']
+  package ['linux-base', 'pkg-config', 'zip', 'g++', 'zlib1g-dev', 'unzip', 'swig', 'git', 'build-essential', 'cmake', 'unzip', 'libopenblas-dev', 'liblapack-dev', 'linux-image-generic', 'linux-image-extra-virtual', 'linux-source', 'linux-headers-generic', 'python2.7', 'python2.7-numpy', 'python2.7-dev', 'python-pip', 'python2.7-lxml', 'python-pillow', 'libcupti-dev', 'libcurl3-dev', 'python-wheel', 'python-six']
 
 when "rhel"
   if node['rhel']['epel'] 
