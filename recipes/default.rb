@@ -218,27 +218,37 @@ for python in python_versions
        exit 3
     fi
 
-    if [ "#{python}" == "2.7" ] ; then
-        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade tensorflow-serving-api
-        if [ $? -ne 0 ] ; then
-          exit 4
-        fi
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install tensorflow-serving-api==#{node['tensorflow']['version']}
+    if [ $? -ne 0 ] ; then
+      exit 4
+    fi
 
-        # See HOPSWORKS-870 for an explanation about this line    
+    if [ "#{python}" == "2.7" ] ; then
+        # See HOPSWORKS-870 for an explanation about this line
         yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install ipykernel==#{node['python2']['ipykernel_version']} ipython==#{node['python2']['ipython_version']} jupyter_console==#{node['python2']['jupyter_console_version']} hops-ipython-sql
         if [ $? -ne 0 ] ; then
-          exit 13
+          exit 6
+        fi
+
+        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install matplotlib==#{node['matplotlib']['python2']['version']}
+        if [ $? -ne 0 ] ; then
+          exit 7
         fi
     else
         yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade ipykernel hops-ipython-sql
         if [ $? -ne 0 ] ; then
-          exit 14
+          exit 8
+        fi
+
+        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade matplotlib
+        if [ $? -ne 0 ] ; then
+          exit 9
         fi
     fi
 
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade hopsfacets
     if [ $? -ne 0 ] ; then
-       exit 5
+       exit 10
     fi
 
     # If cuda is installed, and there is a GPU, install TF with GPUs
@@ -261,7 +271,7 @@ for python in python_versions
       yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install tensorflow${GPU}==#{node['tensorflow']['version']}  --upgrade --force-reinstall
     fi
     if [ $? -ne 0 ] ; then
-       exit 8
+       exit 11
     fi
 
     export HOPS_UTIL_PY_VERSION=#{node['kagent']['hops-util-py-version']}
@@ -271,34 +281,56 @@ for python in python_versions
         yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install hops==$HOPS_UTIL_PY_VERSION
     fi
     if [ $? -ne 0 ] ; then
-       exit 9
+       exit 12
     fi
 
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade pyjks
     if [ $? -ne 0 ] ; then
-       exit 10
+       exit 13
     fi
 
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade confluent-kafka
     if [ $? -ne 0 ] ; then
-       exit 11
-    fi
-
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade #{node['mml']['url']}
-    if [ $? -ne 0 ] ; then
-       exit 12
+       exit 14
     fi
     
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade hops-petastorm
     if [ $? -ne 0 ] ; then
-       exit 13
+       exit 15
     fi
 
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade opencv-python
     if [ $? -ne 0 ] ; then
-       exit 14
+       exit 16
     fi
 
+    export PYTORCH_CHANNEL=#{node['conda']['channels']['pytorch']}
+    if [ "${PYTORCH_CHANNEL}" == "" ] ; then
+      PYTORCH_CHANNEL="pytorch"
+    fi
+
+    if [ $GPU == "-gpu" ] ; then
+      if [ "#{python}" == "2.7" ] ; then
+        ${CONDA_DIR}/bin/conda install -y -n ${PROJECT} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python2"]["build"]} torchvision=#{node['torchvision']['version']} cudatoolkit=#{node['cudatoolkit']['version']}
+        if [ $? -ne 0 ] ; then
+          exit 17
+        fi
+      else
+        ${CONDA_DIR}/bin/conda install -y -n ${PROJECT} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python3"]["build"]} torchvision=#{node['torchvision']['version']} cudatoolkit=#{node['cudatoolkit']['version']}
+        if [ $? -ne 0 ] ; then
+          exit 18
+        fi
+      fi
+      ${CONDA_DIR}/bin/conda remove -y -n ${PROJECT} cudatoolkit=#{node['cudatoolkit']['version']} --force
+      if [ $? -ne 0 ] ; then
+        exit 19
+      fi
+    else
+      ${CONDA_DIR}/bin/conda install -y -n ${PROJECT} -c ${PYTORCH_CHANNEL} pytorch-cpu=#{node['pytorch']['version']} torchvision-cpu=#{node['torchvision']['version']}
+      if [ $? -ne 0 ] ; then
+        exit 20
+      fi
+    fi
     EOF
   end
 

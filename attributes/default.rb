@@ -3,7 +3,15 @@ include_attribute "kagent"
 default['tensorflow']['user']          = node['tensorflow'].attribute?('user') ? node['install']['user'] : node['kagent']['user']
 default['tensorflow']['group']         = node['install']['user'].empty? ? node['kagent']['group'] : node['install']['user']
 
-default["tensorflow"]["version"]       = "1.11.0"
+default["tensorflow"]["version"]                 = "1.11.0"
+default["tensorflow"]['serving']["version"]      = "1.11.1"
+default["cudatoolkit"]["version"]                = "9.0"
+default["pytorch"]["version"]                    = "1.0.1"
+default["pytorch"]["python2"]["build"]           = "py2.7_cuda9.0.176_cudnn7.4.2_2"
+default["pytorch"]["python3"]["build"]           = "py3.6_cuda9.0.176_cudnn7.4.2_2"
+default["torchvision"]["version"]                = "0.2.1"
+default['pydoop']['version']                     = "2.0a3"
+default["matplotlib"]['python2']["version"]      = "2.2.3"
 
 default['tensorflow']['install']       = "dist" # or 'src' or 'custom'
 
@@ -77,8 +85,6 @@ default['bazel']['major_version']      = "0.11"
 default['bazel']['minor_version']      = "1"
 default['bazel']['version']            = node['bazel']['major_version'] + "." + node['bazel']['minor_version']
 default['bazel']['url']                = "#{node['download_url']}/bazel-#{node['bazel']['version']}-installer-linux-x86_64.sh"
-
-default['tensorflow']['serving']['version']      = "1.8.0"
 
 default['openmpi']['version']          = "openmpi-3.1.0.tar.gz"
 
