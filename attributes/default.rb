@@ -10,7 +10,7 @@ default["pytorch"]["version"]                    = "1.0.1"
 default["pytorch"]["python2"]["build"]           = "py2.7_cuda9.0.176_cudnn7.4.2_2"
 default["pytorch"]["python3"]["build"]           = "py3.6_cuda9.0.176_cudnn7.4.2_2"
 default["torchvision"]["version"]                = "0.2.1"
-default['pydoop']['version']                     = "2.0a3"
+default['pydoop']['version']                     = "2.0a4"
 default["matplotlib"]['python2']["version"]      = "2.2.3"
 
 default['tensorflow']['install']       = "dist" # or 'src' or 'custom'
