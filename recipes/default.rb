@@ -274,9 +274,12 @@ for python in python_versions
        exit 11
     fi
 
-    export HOPS_UTIL_PY_VERSION=#{node['kagent']['hops-util-py-version']}
-    if [ $HOPS_UTIL_PY_VERSION == "master" ] ; then
-        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install git+https://github.com/logicalclocks/hops-util-py.git
+    export HOPS_UTIL_PY_VERSION=#{node['kagent']['hops-util-py']['version']}
+    export HOPS_UTIL_PY_BRANCH=#{node['kagent']['hops-util-py']['branch']}
+    export HOPS_UTIL_PY_REPO=#{node['kagent']['hops-util-py']['repo']}
+    export HOPS_UTIL_PY_INSTALL_MODE=#{node['kagent']['hops-util-py']['install-mode']}
+    if [ $HOPS_UTIL_PY_INSTALL_MODE == "git" ] ; then
+        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install git+https://github.com/${HOPS_UTIL_PY_REPO}/hops-util-py@$HOPS_UTIL_PY_BRANCH
     else
         yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install hops==$HOPS_UTIL_PY_VERSION
     fi
