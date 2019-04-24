@@ -65,14 +65,23 @@ end
 
 action :rocm do
   case node['platform_family']
+  # Remove ROCm installation and all dependencies
   when "debian"
-    # Remove ROCm installation and all dependencies
     bash "autoremove rocm and dependencies" do
       user "root"
+      ignore_failure true
       cwd node['rocm']['home']
       code <<-EOF
-        set -e
         apt autoremove -y rocm-dkms rocm-dev rocm-utils
+      EOF
+    end
+  when "rhel"
+    bash "autoremove rocm and dependencies" do
+      user "root"
+      ignore_failure true
+      cwd node['rocm']['home']
+      code <<-EOF
+        yum autoremove -y rocm-dkms rock-dkms
       EOF
     end
   end

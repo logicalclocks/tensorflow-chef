@@ -141,7 +141,11 @@ attribute "featurestore/hops_featurestore_demo_url",
 #
 #
 attribute "tensorflow/version",
-          :description => "TensorFlow version to install in python base environments",
+          :description => "tensorflow and tensorflow-gpu version to install in python base environments",
+          :type => "string"
+
+attribute "tensorflow/rocm/version",
+          :description => "tensorflow-rocm version to install in python base environments",
           :type => "string"
 
 attribute "torch/version",

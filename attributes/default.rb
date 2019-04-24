@@ -3,14 +3,19 @@ include_attribute "kagent"
 default['tensorflow']['user']          = node['tensorflow'].attribute?('user') ? node['install']['user'] : node['kagent']['user']
 default['tensorflow']['group']         = node['install']['user'].empty? ? node['kagent']['group'] : node['install']['user']
 
+# tensorflow and tensorflow-gpu version
 default["tensorflow"]["version"]                 = "1.11.0"
+
+# tensorflow-rocm version
+default['tensorflow']['rocm']['version']         = "1.13.3"
+
 default["tensorflow"]['serving']["version"]      = "1.11.1"
 default["cudatoolkit"]["version"]                = "9.0"
 default["pytorch"]["version"]                    = "1.0.1"
 default["pytorch"]["python2"]["build"]           = "py2.7_cuda9.0.176_cudnn7.4.2_2"
 default["pytorch"]["python3"]["build"]           = "py3.6_cuda9.0.176_cudnn7.4.2_2"
 default["torchvision"]["version"]                = "0.2.1"
-default['pydoop']['version']                     = "2.0a3"
+default['pydoop']['version']                     = "2.0a4"
 default["matplotlib"]['python2']["version"]      = "2.2.3"
 
 default['tensorflow']['install']       = "dist" # or 'src' or 'custom'
@@ -39,7 +44,7 @@ default['tensorflow']['base_dir']      = node['tensorflow']['dir'] + "/tensorflo
 
 # Comma separated list of supported cuda versions (~ # of patches )
 default['cuda']['versions']            = "9.0.176_384.81~2"
-default['cuda']['base_url']            = "#{node['download_url']}/cuda/"
+default['cuda']['base_url']            = "#{node['download_url']}/cuda"
 
 default['cuda']['base_dir']                 = "/usr/local"
 
@@ -59,7 +64,7 @@ default['nvidia']['driver_url']          = "#{node['download_url']}/NVIDIA-Linux
 default['cudnn']['version_mapping']         = "7+9.0,7.3.0+9.0"
 default['cudnn']['base_url']                = "#{node['download_url']}/cudnn"
 
-# As for cudnn comma separated list of mapping nccl version + cuda version
+# As for nccl comma separated list of mapping nccl version + cuda version
 default['nccl']['version_mapping']          = "2.2.13-1+9.0"
 default['nccl']['base_url']         = "#{node['download_url']}/nccl"
 
@@ -68,20 +73,31 @@ default['nccl']['base_url']         = "#{node['download_url']}/nccl"
 default['cuda']['tensorrt']            = "3.0.4"
 default['cuda']['tensorrt_version']    = "TensorRT-#{node['cuda']['tensorrt']}.Ubuntu-16.04.3.x86_64-gnu.cuda-9.0.cudnn7.0.tar.gz"
 
+
+
 #
-# AMD - ROCm http://repo.radeon.com/rocm/archive/
+# AMD - ROCm dist found at http://repo.radeon.com/rocm/
 #
 default['rocm']['install']               = "false"
-default['rocm']['version']               = "2.2.31"
-default['rocm']['dist']                  = "#{node['download_url']}/rocm_#{node['rocm']['version']}.zip"
-default['miopen-hip']['version']         = "1.7.1"
-default['cxlactivitylogger']['version']  = "5.6.7259"
+
+#
+# ROCm package versions
+#
+default['rocm']['debian']['version']               = "2.4.25"
+default['miopen-hip']['debian']['version']         = "1.8.1-84fcb51"
+default['cxlactivitylogger']['debian']['version']  = "5.6.7259"
+default['rocm']['rhel']['version']               = "2.4.25-1"
+default['miopen-hip']['rhel']['version']         = "1.8.1_84fcb516-1"
+default['cxlactivitylogger']['rhel']['version']  = "5.6.7259-gf50cd35"
+
+# ROCm dist found at http://repo.radeon.com/rocm/
+default['rocm']['dist']['rhel']          = "#{node['download_url']}/rocm/rhel/rocm_#{node['rocm']['rhel']['version']}.tar.gz"
+default['rocm']['dist']['debian']        = "#{node['download_url']}/rocm/debian/rocm_#{node['rocm']['debian']['version']}.tar.gz"
 
 #
 # ROCm directory where to put ROCm distribution
 #
 default['rocm']['dir']           = node['install']['dir'].empty? ? "/srv/hops" : node['install']['dir']
-default['rocm']['home']          = node['rocm']['dir'] + "/rocm-" + node['rocm']['version']
 default['rocm']['base_dir']      = node['rocm']['dir'] + "/rocm"
 
 default['tensorflow']['mkl']           = "false"
