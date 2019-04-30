@@ -107,4 +107,4 @@ default['featurestore']['hops_featurestore_demo_url'] = "#{node['download_url']}
 
 # Maggy - dist optimization for TensorFlow/Spark
 #
-default['maggy']['version']                           = "0.1.2"
+default['maggy']['version']                           = "0.1.1"
