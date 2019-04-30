@@ -89,7 +89,7 @@ default['bazel']['url']                = "#{node['download_url']}/bazel-#{node['
 default['openmpi']['version']          = "openmpi-3.1.0.tar.gz"
 
 
-default['jupyter']['sparkmagic']['version']            = "0.12.5"
+default['jupyter']['sparkmagic']['version']            = "0.12.6"
 default['jupyter']['sparkmagic']['url']                = node['download_url'] + "/sparkmagic-" + node['jupyter']['sparkmagic']['version'] + ".tar.gz"
 
 # Pinned Python libary versions to install in the base environments
