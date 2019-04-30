@@ -103,3 +103,8 @@ default['python2']['ipython_version']                  = "5.8.0"
 default['featurestore']['examples_version']           = node['install']['version']
 default['featurestore']['hops_featurestore_demo_dir'] = "featurestore_demo"
 default['featurestore']['hops_featurestore_demo_url'] = "#{node['download_url']}/featurestore/#{node['featurestore']['examples_version']}/featurestore.tar.gz"
+
+
+# Maggy - dist optimization for TensorFlow/Spark
+#
+default['maggy']['version']                           = "0.1.2"

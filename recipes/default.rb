@@ -312,6 +312,12 @@ for python in python_versions
       PYTORCH_CHANNEL="pytorch"
     fi
 
+
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install maggy==#{node['maggy']['version']}
+    if [ $? -ne 0 ] ; then
+      exit 4
+    fi
+
     if [ $GPU == "-gpu" ] ; then
       if [ "#{python}" == "2.7" ] ; then
         ${CONDA_DIR}/bin/conda install -y -n ${PROJECT} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python2"]["build"]} torchvision=#{node['torchvision']['version']} cudatoolkit=#{node['cudatoolkit']['version']}
