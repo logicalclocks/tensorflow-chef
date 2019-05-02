@@ -53,7 +53,7 @@ action :driver do
   when "rhel"
 
     # Obs! Versioned header install doesn't work [Jim]
-    if node['rhel']['epel'] 
+    if node['rhel']['epel'].downcase == "true"
       package 'epel-release'
     end
 
