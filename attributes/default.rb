@@ -68,6 +68,22 @@ default['nccl']['base_url']         = "#{node['download_url']}/nccl"
 default['cuda']['tensorrt']            = "3.0.4"
 default['cuda']['tensorrt_version']    = "TensorRT-#{node['cuda']['tensorrt']}.Ubuntu-16.04.3.x86_64-gnu.cuda-9.0.cudnn7.0.tar.gz"
 
+#
+# AMD - ROCm http://repo.radeon.com/rocm/archive/
+#
+default['rocm']['install']               = "false"
+default['rocm']['version']               = "2.2.31"
+default['rocm']['dist']                  = "#{node['download_url']}/rocm_#{node['rocm']['version']}.zip"
+default['miopen-hip']['version']         = "1.7.1"
+default['cxlactivitylogger']['version']  = "5.6.7259"
+
+#
+# ROCm directory where to put ROCm distribution
+#
+default['rocm']['dir']           = node['install']['dir'].empty? ? "/srv/hops" : node['install']['dir']
+default['rocm']['home']          = node['rocm']['dir'] + "/rocm-" + node['rocm']['version']
+default['rocm']['base_dir']      = node['rocm']['dir'] + "/rocm"
+
 default['tensorflow']['mkl']           = "false"
 default['tensorflow']['mpi']           = "false"
 default['tensorflow']['rdma']          = "false"

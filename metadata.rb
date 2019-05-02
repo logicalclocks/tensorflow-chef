@@ -74,6 +74,10 @@ attribute "install/user",
           :description => "User to install the services as",
           :type => "string"
 
+#
+# Nvidia
+#
+
 attribute "nvidia/driver_version",
           :description => "NVIDIA driver version to use",
           :type => "string"
@@ -90,10 +94,35 @@ attribute "cuda/skip_stop_xserver",
           :description => "Dont restart the xserver (probably a localhost installation)",
           :type => "string"
 
+#
+# AMD - ROCM
+#
+attribute "rocm/install",
+          :description => "Set to 'true' to Install the AMD ROCm framework",
+          :type => "string"
+attribute "rocm/version",
+          :description => "Version of ROCm to install",
+          :type => "string"
+attribute "rocm/dist",
+          :description => "Distribution of ROCm to install",
+          :type => "string"
+attribute "miopen-hip/version",
+          :description => "Version of miopen-hip to install",
+          :type => "string"
+attribute "cxlactivitylogger/version",
+          :description => "Version of cxlactivitylogger to install",
+          :type => "string"
+
+#
+# Jupyter
+#
 attribute "jupyter/sparkmagic/version",
           :description => "Version of sparkmagic for Jupyter to install. ",
           :type => 'string'
 
+#
+# Feature Store
+#
 attribute "featurestore/examples_version",
           :description => "Version of feature store tour artifacts.",
           :type => 'string'
