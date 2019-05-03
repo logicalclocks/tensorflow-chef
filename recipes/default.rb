@@ -154,7 +154,7 @@ bash 'extract_sparkmagic' do
   EOF
 end
 
-# make sure Kerberos dev are installed 
+# make sure Kerberos dev are installed
 case node['platform_family']
 when "debian"
   package ["libkrb5-dev", "libsasl2-dev"]
@@ -204,7 +204,7 @@ for python in python_versions
     end
   end
 
-  
+
   bash "create_base_env-#{envName}" do
     user node['conda']['user']
     group node['conda']['group']
@@ -349,7 +349,7 @@ for python in python_versions
     if [ $? -ne 0 ] ; then
        exit 14
     fi
-    
+
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade hops-petastorm
     if [ $? -ne 0 ] ; then
        exit 15
@@ -404,11 +404,28 @@ for python in python_versions
     if [ $? -ne 0 ] ; then
        exit 21
     fi
+
+    # for sklearn serving
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade Flask
+    if [ $? -ne 0 ] ; then
+       exit 22
+    fi
+
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade scikit-learn
+    if [ $? -ne 0 ] ; then
+       exit 23
+    fi
+
+    # for kafka module in hops-util-py
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade avro
+    if [ $? -ne 0 ] ; then
+       exit 24
+    fi
     EOF
   end
 
 
-  
+
   bash "pydoop_base_env-#{envName}" do
     user "root"
     umask "022"
@@ -491,7 +508,7 @@ for python in python_versions
 
   end
 
-  
+
   if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_download_terms'] == "true"
 
     case node['platform_family']
@@ -524,7 +541,7 @@ for python in python_versions
     end
   end
 
-  
+
 end
 
 #
