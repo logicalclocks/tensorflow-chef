@@ -1,4 +1,4 @@
-actions :cuda, :nccl, :cudnn
+actions :cuda, :nccl, :cudnn, :rocm
 
 attribute :name, :kind_of => String, :name_attribute => true
 attribute :cuda_versions, :kind_of => String

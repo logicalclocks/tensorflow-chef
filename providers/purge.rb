@@ -62,3 +62,18 @@ action :nccl do
     end
   end
 end
+
+action :rocm do
+  case node['platform_family']
+  when "debian"
+    # Remove ROCm installation and all dependencies
+    bash "autoremove rocm and dependencies" do
+      user "root"
+      cwd node['rocm']['home']
+      code <<-EOF
+        set -e
+        apt autoremove -y rocm-dkms rocm-dev rocm-utils
+      EOF
+    end
+  end
+end

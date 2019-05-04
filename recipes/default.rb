@@ -189,7 +189,7 @@ for python in python_versions
       customTf=0
     end
   end
-
+  
   bash "conda_py#{python}_env" do
     user node['conda']['user']
     group node['conda']['group']
@@ -251,33 +251,41 @@ for python in python_versions
        exit 10
     fi
 
-    # If cuda is installed, and there is a GPU, install TF with GPUs
-    GPU=
+    # If system is setup for Cuda/Nvidia install tensorflow-gpu
+    TYPE=
     if [ -f /usr/local/cuda/version.txt ]  ; then
-        nvidia-smi -L | grep -i gpu
-    	if [ $? -eq 0 ] ; then
-            GPU="-gpu"
-            yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip uninstall tensorflow
-    	    if [ $? -ne 0 ] ; then
-                echo "Problem uninstalling tensorflow to prepare for gpu version"
-            fi
-        fi
+      nvidia-smi -L | grep -i gpu
+      if [ $? -eq 0 ] ; then
+        TYPE="-gpu"
+      fi
+    # If system is setup for rocm already or we are installing it
+    else
+      export ROCM=#{node['rocm']['install']}
+      if [ -f /opt/rocm/bin/rocminfo ] || [$ROCM == "true"]  ; then
+        TYPE="-rocm"
+      fi
+    fi
+
+    # These two dependencies are pulled in by tensorflow-serving-api and needs to be uninstalled to prepare for the actual TF installation
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip uninstall tensorflow
+    if [ $? -ne 0 ] ; then
+        echo "Problem uninstalling tensorflow"
     fi
 
    # Install a custom build of tensorflow with this line.
     if [ $CUSTOM_TF -eq 1 ] ; then
-      yes | #{node['conda']['base_dir']}/envs/${PROJECT}/bin/pip install --upgrade #{node['tensorflow']['custom_url']}/tensorflow${GPU}-#{node['tensorflow']['version']}-cp${PY}-cp${PY}mu-manylinux1_x86_64.whl --force-reinstall
+      yes | #{node['conda']['base_dir']}/envs/${PROJECT}/bin/pip install --upgrade #{node['tensorflow']['custom_url']}/tensorflow${TYPE}-#{node['tensorflow']['version']}-cp${PY}-cp${PY}mu-manylinux1_x86_64.whl --force-reinstall
     else
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install tensorflow${GPU}==#{node['tensorflow']['version']}  --upgrade --force-reinstall
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install tensorflow${TYPE}==#{node['tensorflow']['version']}  --upgrade --force-reinstall
     fi
     if [ $? -ne 0 ] ; then
        exit 11
     fi
 
-    export HOPS_UTIL_PY_VERSION=#{node['kagent']['hops-util-py']['version']}
-    export HOPS_UTIL_PY_BRANCH=#{node['kagent']['hops-util-py']['branch']}
-    export HOPS_UTIL_PY_REPO=#{node['kagent']['hops-util-py']['repo']}
-    export HOPS_UTIL_PY_INSTALL_MODE=#{node['kagent']['hops-util-py']['install-mode']}
+    export HOPS_UTIL_PY_VERSION=#{node['conda']['hops-util-py']['version']}
+    export HOPS_UTIL_PY_BRANCH=#{node['conda']['hops-util-py']['branch']}
+    export HOPS_UTIL_PY_REPO=#{node['conda']['hops-util-py']['repo']}
+    export HOPS_UTIL_PY_INSTALL_MODE=#{node['conda']['hops-util-py']['install-mode']}
     if [ $HOPS_UTIL_PY_INSTALL_MODE == "git" ] ; then
         yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install git+https://github.com/${HOPS_UTIL_PY_REPO}/hops-util-py@$HOPS_UTIL_PY_BRANCH
     else
@@ -344,6 +352,7 @@ for python in python_versions
   end
 
 
+  
   bash "pydoop_py#{python}_env" do
     user "root"
     umask "022"
@@ -432,6 +441,7 @@ for python in python_versions
     end
   end
 
+  
 end
 
 #
