@@ -237,7 +237,7 @@ when "debian"
   package ["pkg-config", "zip", "g++", "zlib1g-dev", "unzip", "swig", "git", "build-essential", "cmake", "unzip", "libopenblas-dev", "liblapack-dev", "linux-image-#{node['kernel']['release']}", "linux-image-extra-#{node['kernel']['release']}", "linux-headers-#{node['kernel']['release']}", "python2.7", "python2.7-numpy", "python2.7-dev", "python-pip", "python2.7-lxml", "python-pillow", "libcupti-dev", "libcurl3-dev", "python-wheel", "python-six"]
 
 when "rhel"
-  if node['rhel']['epel']
+  if node['rhel']['epel'].downcase == "true"
     package 'epel-release'
   end
 
