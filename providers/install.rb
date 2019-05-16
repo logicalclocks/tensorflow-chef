@@ -8,7 +8,7 @@ action :driver do
 
   service "nodemanager" do
     action :stop
-    only_if "[[ ( -f /usr/lib/systemd/system/nodemanager.service || -f /lib/systemd/system/nodemanager.service ) && \"$(modinfo nvidia | grep \"^version:\" | awk '{split($0,a,\" \"); print a[2]}')\" != \"#{new_resource.driver_version}\" ]]"
+    only_if "[ ( -f /usr/lib/systemd/system/nodemanager.service || -f /lib/systemd/system/nodemanager.service ) && \"$(modinfo nvidia | grep \"^version:\" | awk '{split($0,a,\" \"); print a[2]}')\" != \"#{new_resource.driver_version}\" ]"
   end
 
   yarnapp_user = node['install']['user'].empty? ? "yarnapp" : node['install']['user']
@@ -22,7 +22,7 @@ action :driver do
     code <<-EOF
       pkill -9 -u #{yarnapp_user}
     EOF
-    only_if "[[ getent passwd #{yarnapp_user} &&  \"$(modinfo nvidia | grep \"^version:\" | awk '{split($0,a,\" \"); print a[2]}')\" == \"#{new_resource.driver_version}\" ]]"
+    only_if "[ getent passwd #{yarnapp_user} &&  \"$(modinfo nvidia | grep \"^version:\" | awk '{split($0,a,\" \"); print a[2]}')\" == \"#{new_resource.driver_version}\" ]"
   end
 
   cached_file = "#{Chef::Config['file_cache_path']}/#{driver}"
@@ -31,7 +31,7 @@ action :driver do
     mode 0755
     action :create
     retries 1
-    only_if  "[[ \"$(modinfo nvidia | grep \"^version:\" | awk '{split($0,a,\" \"); print a[2]}')\" != \"#{new_resource.driver_version}\" ]]"
+    only_if  "[ \"$(modinfo nvidia | grep \"^version:\" | awk '{split($0,a,\" \"); print a[2]}')\" != \"#{new_resource.driver_version}\" ]"
   end
 
   case node['platform_family']
@@ -47,7 +47,7 @@ action :driver do
         set -e
         ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s --ui=none
       EOF
-      only_if  "[[ \"$(modinfo nvidia | grep \"^version:\" | awk '{split($0,a,\" \"); print a[2]}')\" != \"#{new_resource.driver_version}\" ]]"
+      only_if  "[ \"$(modinfo nvidia | grep \"^version:\" | awk '{split($0,a,\" \"); print a[2]}')\" != \"#{new_resource.driver_version}\" ]"
     end
 
   when "rhel"
@@ -79,7 +79,7 @@ action :driver do
         #
         ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s --ui=none
       EOF
-      only_if  "[[ \"$(modinfo nvidia | grep \"^version:\" | awk '{split($0,a,\" \"); print a[2]}')\" != \"#{new_resource.driver_version}\" ]]"
+      only_if  "[ \"$(modinfo nvidia | grep \"^version:\" | awk '{split($0,a,\" \"); print a[2]}')\" != \"#{new_resource.driver_version}\" ]"
     end
   end
 end
