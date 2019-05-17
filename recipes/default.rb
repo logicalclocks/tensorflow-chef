@@ -229,20 +229,26 @@ for python in python_versions
         if [ $? -ne 0 ] ; then
           exit 6
         fi
-
         yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install matplotlib==#{node['matplotlib']['python2']['version']}
         if [ $? -ne 0 ] ; then
           exit 7
         fi
+        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install nvidia-ml-py==#{node['conda']['nvidia-ml-py']['version']}
+        if [ $? -ne 0 ] ; then
+           exit 8
+        fi
     else
         yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade ipykernel hops-ipython-sql
         if [ $? -ne 0 ] ; then
-          exit 8
+          exit 6
         fi
-
         yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade matplotlib
         if [ $? -ne 0 ] ; then
-          exit 9
+          exit 7
+        fi
+        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install nvidia-ml-py3==#{node['conda']['nvidia-ml-py']['version']}
+        if [ $? -ne 0 ] ; then
+          exit 8
         fi
     fi
 
