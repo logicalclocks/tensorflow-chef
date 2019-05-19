@@ -189,6 +189,7 @@ for python in python_versions
       customTf=0
     end
   end
+
   
   bash "conda_py#{python}_env" do
     user node['conda']['user']
@@ -414,6 +415,34 @@ for python in python_versions
     EOF
   end
 
+  if node['conda']['additional_libs'].empty? == false
+    add_libs = node['conda']['additional_libs'].split(',').map(&:strip)
+    for lib in add_libs
+      bash "libs_py#{python}_env" do
+        user node['conda']['user']
+        group node['conda']['group']
+        umask "022"
+        environment ({ 'HOME' => ::Dir.home(node['conda']['user']),
+                  'USER' => node['conda']['user'],
+                  'JAVA_HOME' => node['java']['java_home'],
+                  'CONDA_DIR' => node['conda']['base_dir'],
+                  'HADOOP_HOME' => node['hops']['base_dir'],
+                  'PROJECT' => proj})
+        code <<-EOF
+    cd $HOME
+    export CONDA_DIR=#{node['conda']['base_dir']}
+    export PY=`echo #{python} | sed -e "s/\.//"`
+    export PROJECT=#{proj}
+    export MPI=#{node['tensorflow']['need_mpi']}
+    export CUSTOM_TF=#{customTf}
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade #{lib}
+    EOF
+      end
+    end
+
+  end
+
+  
   if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_download_terms'] == "true"
 
     case node['platform_family']
