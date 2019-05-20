@@ -326,6 +326,7 @@ for python in python_versions
     if [ $? -ne 0 ] ; then
       exit 4
     fi
+
     yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade tqdm
     if [ $? -ne 0 ] ; then
        exit 15
