@@ -163,9 +163,23 @@ when "rhel"
 end
 
 python_versions = node['kagent']['python_conda_versions'].split(',').map(&:strip)
+
 for python in python_versions
+
+  envName = "python" + python.gsub(".", "")
+
+  bash "remove_base_env-#{envName}" do
+    user 'root'
+    group 'root'
+    umask "022"
+    cwd "/home/#{node['conda']['user']}"
+    code <<-EOF
+      #{node['conda']['base_dir']}/bin/conda env remove -y -q -n #{envName}
+    EOF
+    only_if "test -d #{node['conda']['base_dir']}/envs/#{envName}", :user => node['conda']['user']
+  end
+
   Chef::Log.info "Environment creation for: python#{python}"
-  proj = "python" + python.gsub(".", "")
   rt1 = python.gsub(".", "")
   if rt1 = "36"
     rt1 = "35"
@@ -190,7 +204,7 @@ for python in python_versions
     end
   end
   
-  bash "conda_py#{python}_env" do
+  bash "create_base_env-#{envName}" do
     user node['conda']['user']
     group node['conda']['group']
     umask "022"
@@ -199,90 +213,104 @@ for python in python_versions
     cd $HOME
     export CONDA_DIR=#{node['conda']['base_dir']}
     export PY=`echo #{python} | sed -e "s/\.//"`
-    export PROJECT=#{proj}
+    export ENV=#{envName}
     export MPI=#{node['tensorflow']['need_mpi']}
     export CUSTOM_TF=#{customTf}
 
-    ${CONDA_DIR}/bin/conda info --envs | grep "^${PROJECT}"
+    ${CONDA_DIR}/bin/conda info --envs | grep "^${ENV}"
     if [ $? -ne 0 ] ; then
-      ${CONDA_DIR}/bin/conda create -n $PROJECT python=#{python} -y -q
+      ${CONDA_DIR}/bin/conda create -n $ENV python=#{python} -y -q
       if [ $? -ne 0 ] ; then
          exit 2
       fi
     fi
 
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade pip
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade pip
 
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade requests
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade requests
     if [ $? -ne 0 ] ; then
        exit 3
     fi
 
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install tensorflow-serving-api==#{node['tensorflow']['version']}
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tensorflow-serving-api==#{node['tensorflow']['serving']["version"]}
     if [ $? -ne 0 ] ; then
       exit 4
     fi
 
     if [ "#{python}" == "2.7" ] ; then
         # See HOPSWORKS-870 for an explanation about this line
-        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install ipykernel==#{node['python2']['ipykernel_version']} ipython==#{node['python2']['ipython_version']} jupyter_console==#{node['python2']['jupyter_console_version']} hops-ipython-sql
+        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install ipykernel==#{node['python2']['ipykernel_version']} ipython==#{node['python2']['ipython_version']} jupyter_console==#{node['python2']['jupyter_console_version']} hops-ipython-sql
         if [ $? -ne 0 ] ; then
           exit 6
         fi
-        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install matplotlib==#{node['matplotlib']['python2']['version']}
+        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install matplotlib==#{node['matplotlib']['python2']['version']}
         if [ $? -ne 0 ] ; then
           exit 7
         fi
-        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install nvidia-ml-py==#{node['conda']['nvidia-ml-py']['version']}
+        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install nvidia-ml-py==#{node['conda']['nvidia-ml-py']['version']}
         if [ $? -ne 0 ] ; then
            exit 8
         fi
     else
-        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade ipykernel hops-ipython-sql
+        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade ipykernel hops-ipython-sql
         if [ $? -ne 0 ] ; then
           exit 6
         fi
-        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade matplotlib
+        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade matplotlib
         if [ $? -ne 0 ] ; then
           exit 7
         fi
-        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install nvidia-ml-py3==#{node['conda']['nvidia-ml-py']['version']}
+        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install nvidia-ml-py3==#{node['conda']['nvidia-ml-py']['version']}
         if [ $? -ne 0 ] ; then
           exit 8
         fi
     fi
 
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade hopsfacets
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade hopsfacets
     if [ $? -ne 0 ] ; then
        exit 10
     fi
 
-    # If system is setup for Cuda/Nvidia install tensorflow-gpu
-    TYPE=
+    # Takes on the value "" for CPU machines, "-gpu" for Nvidia GPU machines, "-rocm" for ROCm GPU machines
+    TENSORFLOW_LIBRARY_SUFFIX=
     if [ -f /usr/local/cuda/version.txt ]  ; then
       nvidia-smi -L | grep -i gpu
       if [ $? -eq 0 ] ; then
-        TYPE="-gpu"
+        TENSORFLOW_LIBRARY_SUFFIX="-gpu"
       fi
     # If system is setup for rocm already or we are installing it
     else
       export ROCM=#{node['rocm']['install']}
       if [ -f /opt/rocm/bin/rocminfo ] || [$ROCM == "true"]  ; then
-        TYPE="-rocm"
+        TENSORFLOW_LIBRARY_SUFFIX="-rocm"
       fi
     fi
 
-    # These two dependencies are pulled in by tensorflow-serving-api and needs to be uninstalled to prepare for the actual TF installation
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip uninstall tensorflow
+    # Uninstall tensorflow pulled in by tensorflow-serving-api to prepare for the actual TF installation
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip uninstall tensorflow
     if [ $? -ne 0 ] ; then
         echo "Problem uninstalling tensorflow"
+    fi
+    # Uninstall tensorflow-estimator pulled in by tensorflow-serving-api to prepare for the actual TF installation
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip uninstall tensorflow-estimator
+    if [ $? -ne 0 ] ; then
+        echo "Problem uninstalling tensorflow-estimator"
+    fi
+    # Uninstall tensorboard pulled in by tensorflow-serving-api to prepare for the actual TF installation
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip uninstall tensorboard
+    if [ $? -ne 0 ] ; then
+        echo "Problem uninstalling tensorboard"
     fi
 
    # Install a custom build of tensorflow with this line.
     if [ $CUSTOM_TF -eq 1 ] ; then
-      yes | #{node['conda']['base_dir']}/envs/${PROJECT}/bin/pip install --upgrade #{node['tensorflow']['custom_url']}/tensorflow${TYPE}-#{node['tensorflow']['version']}-cp${PY}-cp${PY}mu-manylinux1_x86_64.whl --force-reinstall
+      yes | #{node['conda']['base_dir']}/envs/${ENV}/bin/pip install --upgrade #{node['tensorflow']['custom_url']}/tensorflow${TENSORFLOW_LIBRARY_SUFFIX}-#{node['tensorflow']['version']}-cp${PY}-cp${PY}mu-manylinux1_x86_64.whl --force-reinstall
     else
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install tensorflow${TYPE}==#{node['tensorflow']['version']}  --upgrade --force-reinstall
+      if [ $TENSORFLOW_LIBRARY_SUFFIX == "-rocm" ] ; then
+        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tensorflow${TENSORFLOW_LIBRARY_SUFFIX}==#{node['tensorflow']['rocm']['version']}  --upgrade --force-reinstall
+      else
+        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tensorflow${TENSORFLOW_LIBRARY_SUFFIX}==#{node['tensorflow']['version']}  --upgrade --force-reinstall
+      fi
     fi
     if [ $? -ne 0 ] ; then
        exit 11
@@ -293,30 +321,30 @@ for python in python_versions
     export HOPS_UTIL_PY_REPO=#{node['conda']['hops-util-py']['repo']}
     export HOPS_UTIL_PY_INSTALL_MODE=#{node['conda']['hops-util-py']['install-mode']}
     if [ $HOPS_UTIL_PY_INSTALL_MODE == "git" ] ; then
-        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install git+https://github.com/${HOPS_UTIL_PY_REPO}/hops-util-py@$HOPS_UTIL_PY_BRANCH
+        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install git+https://github.com/${HOPS_UTIL_PY_REPO}/hops-util-py@$HOPS_UTIL_PY_BRANCH
     else
-        yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install hops==$HOPS_UTIL_PY_VERSION
+        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install hops==$HOPS_UTIL_PY_VERSION
     fi
     if [ $? -ne 0 ] ; then
        exit 12
     fi
 
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade pyjks
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade pyjks
     if [ $? -ne 0 ] ; then
        exit 13
     fi
 
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade confluent-kafka
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade confluent-kafka
     if [ $? -ne 0 ] ; then
        exit 14
     fi
     
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade hops-petastorm
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade hops-petastorm
     if [ $? -ne 0 ] ; then
        exit 15
     fi
 
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade opencv-python
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade opencv-python
     if [ $? -ne 0 ] ; then
        exit 16
     fi
@@ -326,45 +354,51 @@ for python in python_versions
       PYTORCH_CHANNEL="pytorch"
     fi
 
-    if [ $GPU == "-gpu" ] ; then
+    if [ $TENSORFLOW_LIBRARY_SUFFIX == "-gpu" ] ; then
       if [ "#{python}" == "2.7" ] ; then
-        ${CONDA_DIR}/bin/conda install -y -n ${PROJECT} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python2"]["build"]} torchvision=#{node['torchvision']['version']} cudatoolkit=#{node['cudatoolkit']['version']}
+        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python2"]["build"]} torchvision=#{node['torchvision']['version']} cudatoolkit=#{node['cudatoolkit']['version']}
         if [ $? -ne 0 ] ; then
           exit 17
         fi
       else
-        ${CONDA_DIR}/bin/conda install -y -n ${PROJECT} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python3"]["build"]} torchvision=#{node['torchvision']['version']} cudatoolkit=#{node['cudatoolkit']['version']}
+        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python3"]["build"]} torchvision=#{node['torchvision']['version']} cudatoolkit=#{node['cudatoolkit']['version']}
         if [ $? -ne 0 ] ; then
           exit 18
         fi
       fi
-      ${CONDA_DIR}/bin/conda remove -y -n ${PROJECT} cudatoolkit=#{node['cudatoolkit']['version']} --force
+      ${CONDA_DIR}/bin/conda remove -y -n ${ENV} cudatoolkit=#{node['cudatoolkit']['version']} --force
       if [ $? -ne 0 ] ; then
         exit 19
       fi
     else
-      ${CONDA_DIR}/bin/conda install -y -n ${PROJECT} -c ${PYTORCH_CHANNEL} pytorch-cpu=#{node['pytorch']['version']} torchvision-cpu=#{node['torchvision']['version']}
+      ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch-cpu=#{node['pytorch']['version']} torchvision-cpu=#{node['torchvision']['version']}
       if [ $? -ne 0 ] ; then
         exit 20
       fi
+    fi
+
+    # This is a temporary fix for pytorch 1.0.1 https://github.com/pytorch/pytorch/issues/16775
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install typing
+    if [ $? -ne 0 ] ; then
+       exit 21
     fi
     EOF
   end
 
 
   
-  bash "pydoop_py#{python}_env" do
+  bash "pydoop_base_env-#{envName}" do
     user "root"
     umask "022"
     code <<-EOF
     set -e
     export CONDA_DIR=#{node['conda']['base_dir']}
-    export PROJECT=#{proj}
-    su #{node['conda']['user']} -c "export HADOOP_HOME=#{node['install']['dir']}/hadoop; yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install pydoop==#{node['pydoop']['version']}"
+    export ENV=#{envName}
+    su #{node['conda']['user']} -c "export HADOOP_HOME=#{node['install']['dir']}/hadoop; yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install pydoop==#{node['pydoop']['version']}"
     EOF
   end
 
-  bash "jupyter_sparkmagic" do
+  bash "jupyter_sparkmagic_base_env-#{envName}" do
     user node['conda']['user']
     group node['conda']['group']
     umask "022"
@@ -375,37 +409,37 @@ for python in python_versions
                   'JAVA_HOME' => node['java']['java_home'],
                   'CONDA_DIR' => node['conda']['base_dir'],
                   'HADOOP_HOME' => node['hops']['base_dir'],
-                  'PROJECT' => proj})
+                  'ENV' => envName})
     code <<-EOF
       set -e
       # Install packages
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade jupyter 
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade hdfscontents urllib3 requests pandas
+      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade jupyter
+      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade hdfscontents urllib3 requests pandas
 
       # Install packages to allow users to manage their jupyter extensions
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade jupyter_contrib_nbextensions jupyter_nbextensions_configurator 
+      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade jupyter_contrib_nbextensions jupyter_nbextensions_configurator
 
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade ./hdijupyterutils ./autovizwidget ./sparkmagic
+      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade ./hdijupyterutils ./autovizwidget ./sparkmagic
 
       # THIS IS A WORKAROUND FOR UNTIL NOTEBOOK GETS FIXED UPSTREAM TO WORK WITH THE NEW VERSION OF TORNADO
       # SEE: https://logicalclocks.atlassian.net/browse/HOPSWORKS-977
 
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip uninstall tornado 
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir tornado==5.1.1
+      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip uninstall tornado
+      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir tornado==5.1.1
 
       # Enable kernels
-      cd ${CONDA_DIR}/envs/${PROJECT}/lib/python#{python}/site-packages
+      cd ${CONDA_DIR}/envs/${ENV}/lib/python#{python}/site-packages
 
-      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/sparkkernel --sys-prefix
-      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/pysparkkernel --sys-prefix 
-      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/pyspark3kernel --sys-prefix
-      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter-kernelspec install sparkmagic/kernels/sparkrkernel --sys-prefix
+      ${CONDA_DIR}/envs/${ENV}/bin/jupyter-kernelspec install sparkmagic/kernels/sparkkernel --sys-prefix
+      ${CONDA_DIR}/envs/${ENV}/bin/jupyter-kernelspec install sparkmagic/kernels/pysparkkernel --sys-prefix
+      ${CONDA_DIR}/envs/${ENV}/bin/jupyter-kernelspec install sparkmagic/kernels/pyspark3kernel --sys-prefix
+      ${CONDA_DIR}/envs/${ENV}/bin/jupyter-kernelspec install sparkmagic/kernels/sparkrkernel --sys-prefix
 
       # Enable extensions
-      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter nbextension enable --py --sys-prefix widgetsnbextension
+      ${CONDA_DIR}/envs/${ENV}/bin/jupyter nbextension enable --py --sys-prefix widgetsnbextension
 
-      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter contrib nbextension install --sys-prefix
-      ${CONDA_DIR}/envs/${PROJECT}/bin/jupyter serverextension enable jupyter_nbextensions_configurator --sys-prefix
+      ${CONDA_DIR}/envs/${ENV}/bin/jupyter contrib nbextension install --sys-prefix
+      ${CONDA_DIR}/envs/${ENV}/bin/jupyter serverextension enable jupyter_nbextensions_configurator --sys-prefix
     EOF
   end
 
@@ -425,12 +459,12 @@ for python in python_versions
 
 
           export CONDA_DIR=#{node['conda']['base_dir']}
-          export PROJECT=#{proj}
-          su #{node['conda']['user']} -c "cd #{tensorrt_dir}/python ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install tensorrt-#{node['cuda']['tensorrt']}"-cp#{rt1}-cp#{rt2}-linux_x86_64.whl"
+          export ENV=#{envName}
+          su #{node['conda']['user']} -c "cd #{tensorrt_dir}/python ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tensorrt-#{node['cuda']['tensorrt']}"-cp#{rt1}-cp#{rt2}-linux_x86_64.whl"
 
-          su #{node['conda']['user']} -c "cd #{tensorrt_dir}/uff ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install uff-0.2.0-py2.py3-none-any.whl"
+          su #{node['conda']['user']} -c "cd #{tensorrt_dir}/uff ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install uff-0.2.0-py2.py3-none-any.whl"
 
-#         su #{node['conda']['user']} -c "cd #{tensorrt_dir}/graphsurgeon ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install graphsurgeon-0.2.0-py2.py3-none-any.whl"
+#         su #{node['conda']['user']} -c "cd #{tensorrt_dir}/graphsurgeon ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install graphsurgeon-0.2.0-py2.py3-none-any.whl"
 
           fi
         fi

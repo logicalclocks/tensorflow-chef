@@ -234,7 +234,7 @@ end
 case node['platform_family']
 when "debian"
 
-  package ["pkg-config", "zip", "g++", "zlib1g-dev", "unzip", "swig", "git", "build-essential", "cmake", "unzip", "libopenblas-dev", "liblapack-dev", "linux-image-#{node['kernel']['release']}", "linux-image-extra-#{node['kernel']['release']}", "linux-headers-#{node['kernel']['release']}", "python2.7", "python2.7-numpy", "python2.7-dev", "python-pip", "python2.7-lxml", "python-pillow", "libcupti-dev", "libcurl3-dev", "python-wheel", "python-six"]
+  package ["pkg-config", "zip", "g++", "zlib1g-dev", "unzip", "swig", "git", "build-essential", "cmake", "unzip", "libopenblas-dev", "liblapack-dev", "linux-image-#{node['kernel']['release']}", "linux-headers-#{node['kernel']['release']}", "python2.7", "python2.7-numpy", "python2.7-dev", "python-pip", "python2.7-lxml", "python-pillow", "libcupti-dev", "libcurl3-dev", "python-wheel", "python-six"]
 
 when "rhel"
   if node['rhel']['epel'].downcase == "true"
@@ -291,27 +291,21 @@ if node['cuda']['accept_nvidia_download_terms'].eql?("true")
     action :driver
   end
 
-  node['cuda']['versions'].split(',').each do |version|
-    tensorflow_install "cuda_install" do
-      cuda_version version
-      action :cuda
-    end
+  tensorflow_install "cuda_install" do
+    cuda_version node['cuda']['versions'].split(',').last
+    action :cuda
   end
 
-  node['cudnn']['version_mapping'].split(',').each do |versionmap|
-    tensorflow_install "cudnn_install" do
-      cuda_version versionmap.split('+')[1]
-      cudnn_version versionmap.split('+')[0]
-      action :cudnn
-    end
+  tensorflow_install "cudnn_install" do
+    cuda_version node['cudnn']['version_mapping'].split(',').last.split('+')[1]
+    cudnn_version node['cudnn']['version_mapping'].split(',').last.split('+')[0]
+    action :cudnn
   end
 
-  node['nccl']['version_mapping'].split(',').each do |versionmap|
-    tensorflow_install "nccl" do
-      cuda_version versionmap.split('+')[1]
-      nccl_version versionmap.split('+')[0]
-      action :nccl
-    end
+  tensorflow_install "nccl" do
+    cuda_version node['nccl']['version_mapping'].split(',').last.split('+')[1]
+    nccl_version node['nccl']['version_mapping'].split(',').last.split('+')[0]
+    action :nccl
   end
 
   if node['tensorflow']['mpi'].eql? "true"
@@ -323,20 +317,22 @@ if node['cuda']['accept_nvidia_download_terms'].eql?("true")
     end
   end
 
-  # Cleanup old cuda/nccl installations which are no longer required
+  # Cleanup old cuda versions
   tensorflow_purge "remove_old_cuda" do
     cuda_versions node['cuda']['versions']
     action :cuda
   end
 
-  tensorflow_purge "remove_old_nccl" do
-    nccl_versions node['nccl']['version_mapping']
-    :nccl
-  end
-
+  # Cleanup old cudnn versions
   tensorflow_purge "remove_old_cudnn" do
     cudnn_versions node['cudnn']['version_mapping']
     :cudnn
+  end
+
+# Cleanup old nccl versions
+  tensorflow_purge "remove_old_nccl" do
+    nccl_versions node['nccl']['version_mapping']
+    :nccl
   end
 
   # Test installation
@@ -424,25 +420,51 @@ end
 
 if node['rocm']['install'].eql? "true"
 
-  directory node["rocm"]["dir"]  do
-    owner "_apt"
-    group "root"
-    mode "755"
-    action :create
-    not_if { File.directory?("#{node["rocm"]["dir"]}") }
-  end
+  case node['platform_family']
+  when "debian"
+      install_dir = node['rocm']['dir'] + "/rocm-" + node['rocm']['debian']['version']
+      directory node["rocm"]["dir"]  do
+        owner "_apt"
+        group "root"
+        mode "755"
+        action :create
+        not_if { File.directory?("#{node["rocm"]["dir"]}") }
+      end
 
-  directory node["rocm"]["home"] do
-    owner "_apt"
-    group "root"
-    mode "750"
-    action :create
-  end
+      directory install_dir do
+        owner "_apt"
+        group "root"
+        mode "750"
+        action :create
+      end
 
-  link node["rocm"]["base_dir"] do
-    owner "_apt"
-    group "root"
-    to node["rocm"]["home"]
+      link node["rocm"]["base_dir"] do
+        owner "_apt"
+        group "root"
+        to install_dir
+      end
+  when "rhel"
+      install_dir = node['rocm']['dir'] + "/rocm-" + node['rocm']['rhel']['version']
+      directory node["rocm"]["dir"]  do
+        owner "root"
+        group "root"
+        mode "755"
+        action :create
+        not_if { File.directory?("#{node["rocm"]["dir"]}") }
+      end
+
+      directory install_dir do
+        owner "root"
+        group "root"
+        mode "750"
+        action :create
+      end
+
+      link node["rocm"]["base_dir"] do
+        owner "root"
+        group "root"
+        to install_dir
+      end
   end
 
   tensorflow_purge "remove_old_rocm" do
@@ -451,5 +473,6 @@ if node['rocm']['install'].eql? "true"
 
   tensorflow_amd "install_rocm" do
     action :install_rocm
+    rocm_home install_dir
   end
 end
