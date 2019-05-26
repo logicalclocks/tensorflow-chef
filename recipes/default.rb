@@ -406,21 +406,22 @@ for python in python_versions
     fi
 
     # for sklearn serving
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade Flask
+
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade Flask
     if [ $? -ne 0 ] ; then
        exit 22
     fi
 
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade scikit-learn
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade scikit-learn
     if [ $? -ne 0 ] ; then
        exit 23
     fi
 
-    # for kafka module in hops-util-py
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade avro
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade avro
     if [ $? -ne 0 ] ; then
        exit 24
     fi
+
     EOF
   end
 
