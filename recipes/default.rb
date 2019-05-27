@@ -355,12 +355,12 @@ for python in python_versions
       PYTORCH_CHANNEL="pytorch"
     fi
 
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install maggy==#{node['maggy']['version']}
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install maggy==#{node['maggy']['version']}
     if [ $? -ne 0 ] ; then
       exit 4
     fi
 
-    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade tqdm
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade tqdm
     if [ $? -ne 0 ] ; then
        exit 15
     fi
@@ -467,14 +467,14 @@ for python in python_versions
                   'JAVA_HOME' => node['java']['java_home'],
                   'CONDA_DIR' => node['conda']['base_dir'],
                   'HADOOP_HOME' => node['hops']['base_dir'],
-                  'PROJECT' => proj,
+                  'ENV' => envName,
                   'MPI' => node['tensorflow']['need_mpi']
                   })
         code <<-EOF
     cd $HOME
     export PY=`echo #{python} | sed -e "s/\.//"`
     export CUSTOM_TF=#{customTf}
-      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade #{lib}
+      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade #{lib}
     EOF
       end
     end
