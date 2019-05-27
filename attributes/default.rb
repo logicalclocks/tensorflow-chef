@@ -1,3 +1,4 @@
+include_attribute "conda"
 include_attribute "kagent"
 
 default['tensorflow']['user']          = node['tensorflow'].attribute?('user') ? node['install']['user'] : node['kagent']['user']
@@ -121,7 +122,7 @@ default['bazel']['url']                = "#{node['download_url']}/bazel-#{node['
 default['openmpi']['version']          = "openmpi-3.1.0.tar.gz"
 
 
-default['jupyter']['sparkmagic']['version']            = "0.12.5"
+default['jupyter']['sparkmagic']['version']            = "0.12.6"
 default['jupyter']['sparkmagic']['url']                = node['download_url'] + "/sparkmagic-" + node['jupyter']['sparkmagic']['version'] + ".tar.gz"
 
 # Pinned Python libary versions to install in the base environments
@@ -135,3 +136,8 @@ default['python2']['ipython_version']                  = "5.8.0"
 default['featurestore']['examples_version']           = node['install']['version']
 default['featurestore']['hops_featurestore_demo_dir'] = "featurestore_demo"
 default['featurestore']['hops_featurestore_demo_url'] = "#{node['download_url']}/featurestore/#{node['featurestore']['examples_version']}/featurestore.tar.gz"
+
+
+# Maggy - dist optimization for TensorFlow/Spark
+#
+default['maggy']['version']                           = "0.1.1"

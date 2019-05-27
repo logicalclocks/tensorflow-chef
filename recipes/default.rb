@@ -203,6 +203,7 @@ for python in python_versions
       customTf=0
     end
   end
+
   
   bash "create_base_env-#{envName}" do
     user node['conda']['user']
@@ -354,6 +355,17 @@ for python in python_versions
       PYTORCH_CHANNEL="pytorch"
     fi
 
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install maggy==#{node['maggy']['version']}
+    if [ $? -ne 0 ] ; then
+      exit 4
+    fi
+
+    yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --upgrade tqdm
+    if [ $? -ne 0 ] ; then
+       exit 15
+    fi
+
+
     if [ $TENSORFLOW_LIBRARY_SUFFIX == "-gpu" ] ; then
       if [ "#{python}" == "2.7" ] ; then
         ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python2"]["build"]} torchvision=#{node['torchvision']['version']} cudatoolkit=#{node['cudatoolkit']['version']}
@@ -443,6 +455,33 @@ for python in python_versions
     EOF
   end
 
+  if node['conda']['additional_libs'].empty? == false
+    add_libs = node['conda']['additional_libs'].split(',').map(&:strip)
+    for lib in add_libs
+      bash "libs_py#{python}_env" do
+        user node['conda']['user']
+        group node['conda']['group']
+        umask "022"
+        environment ({ 'HOME' => ::Dir.home(node['conda']['user']),
+                  'USER' => node['conda']['user'],
+                  'JAVA_HOME' => node['java']['java_home'],
+                  'CONDA_DIR' => node['conda']['base_dir'],
+                  'HADOOP_HOME' => node['hops']['base_dir'],
+                  'PROJECT' => proj,
+                  'MPI' => node['tensorflow']['need_mpi']
+                  })
+        code <<-EOF
+    cd $HOME
+    export PY=`echo #{python} | sed -e "s/\.//"`
+    export CUSTOM_TF=#{customTf}
+      yes | ${CONDA_DIR}/envs/${PROJECT}/bin/pip install --no-cache-dir --upgrade #{lib}
+    EOF
+      end
+    end
+
+  end
+
+  
   if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_download_terms'] == "true"
 
     case node['platform_family']
