@@ -87,6 +87,8 @@ end
 action :cuda do
   # new_resouce.version contains something like: 9.2.148_396.37~2
   # cuda_version_full will be 9.2.148_396.37
+
+  # install latest cuda version only
   cuda_version_full = new_resource.cuda_version.split('~')[0]
 
   # cuda_version_short: 9.2
@@ -193,7 +195,7 @@ action :cudnn do
     not_if { cudnn_version_installed }
   end
 
-  bash "unpack_install_cdnn-#{base_cudnn_file}" do
+  bash "unpack_install_cudnn-#{base_cudnn_file}" do
     user "root"
     cwd Chef::Config['file_cache_path']
     timeout 14400
