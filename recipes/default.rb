@@ -272,6 +272,16 @@ for python in python_versions
        exit 10
     fi
 
+# https://github.com/tensorflow/tensorboard/tree/master/tensorboard/plugins/interactive_inference
+# pip install witwidget
+# jupyter nbextension install --py --symlink --sys-prefix witwidget
+# jupyter nbextension enable --py --sys-prefix witwidget
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade witwidget
+    if [ $? -ne 0 ] ; then
+       exit 10
+    fi
+
+
     # Takes on the value "" for CPU machines, "-gpu" for Nvidia GPU machines, "-rocm" for ROCm GPU machines
     TENSORFLOW_LIBRARY_SUFFIX=
     if [ -f /usr/local/cuda/version.txt ]  ; then
