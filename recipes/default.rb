@@ -360,11 +360,6 @@ for python in python_versions
        exit 17
     fi
 
-    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade koalas
-    if [ $? -ne 0 ] ; then
-       exit 10
-    fi
-
     export PYTORCH_CHANNEL=#{node['conda']['channels']['pytorch']}
     if [ "${PYTORCH_CHANNEL}" == "" ] ; then
       PYTORCH_CHANNEL="pytorch"
