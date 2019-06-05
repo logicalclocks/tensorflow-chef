@@ -244,15 +244,6 @@ when "rhel"
   package ['python-pip', 'mlocate', 'gcc', 'gcc-c++', 'kernel-devel', 'openssl', 'openssl-devel', 'python', 'python-devel', 'python-lxml', 'python-pillow', 'libcurl-devel', 'python-wheel', 'python-six']
 end
 
-bash "pip-upgrade" do
-  user "root"
-  umask "022"
-  code <<-EOF
-    set -e
-    pip install --upgrade pip
-  EOF
-end
-
 include_recipe "java"
 
 #
