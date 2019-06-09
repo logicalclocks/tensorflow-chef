@@ -422,6 +422,11 @@ for python in python_versions
        exit 27
     fi
 
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade seaborn
+    if [ $? -ne 0 ] ; then
+       exit 28
+    fi
+
     EOF
   end
 
