@@ -233,12 +233,12 @@ for python in python_versions
        exit 3
     fi
 
-    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tensorflow-serving-api==#{node['tensorflow']['serving']["version"]}
-    if [ $? -ne 0 ] ; then
-      exit 4
-    fi
-
     if [ "#{python}" == "2.7" ] ; then
+        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tensorflow-serving-api==#{node['tensorflow']['serving']["version"]}
+        if [ $? -ne 0 ] ; then
+          exit 4
+        fi
+
         # See HOPSWORKS-870 for an explanation about this line
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install ipykernel==#{node['python2']['ipykernel_version']} ipython==#{node['python2']['ipython_version']} jupyter_console==#{node['python2']['jupyter_console_version']} hops-ipython-sql
         if [ $? -ne 0 ] ; then
@@ -253,6 +253,11 @@ for python in python_versions
            exit 8
         fi
     else
+        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tensorflow-serving-api-python3==1.8.0
+        if [ $? -ne 0 ] ; then
+          exit 4
+        fi
+
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade ipykernel hops-ipython-sql
         if [ $? -ne 0 ] ; then
           exit 6
