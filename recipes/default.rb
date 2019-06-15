@@ -207,7 +207,7 @@ for python in python_versions
 
   Chef::Log.info "Environment creation for: python#{python}"
   rt1 = python.gsub(".", "")
-  if rt1 = "36"
+  if rt1 == "36"
     rt1 = "35"
   end
   # assume that is python 2.7
@@ -257,12 +257,20 @@ for python in python_versions
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install matplotlib==#{node['matplotlib']['python2']['version']}
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install nvidia-ml-py==#{node['conda']['nvidia-ml-py']['version']}
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install avro
+
     else
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade ipykernel hops-ipython-sql
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade matplotlib
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install nvidia-ml-py3==#{node['conda']['nvidia-ml-py']['version']}
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install avro-python3
     fi
+
+    # Install hops-apache-beam and tfx
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tfx==#{node['tfx']['version']}
+    #uninstall apache-beam as it is brought by tfx and then install hops-apache-beam later
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip uninstall apache-beam
+    #yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install pyspark==#{node['pyspark']['version']}
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install hops-apache-beam==#{node['conda']['beam']['python']['version']}
 
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip uninstall tensorflow
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip uninstall tensorboard
@@ -419,6 +427,13 @@ for python in python_versions
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter-kernelspec install sparkmagic/kernels/pysparkkernel --sys-prefix
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter-kernelspec install sparkmagic/kernels/pyspark3kernel --sys-prefix
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter-kernelspec install sparkmagic/kernels/sparkrkernel --sys-prefix
+
+      # Enable extensions
+      ${CONDA_DIR}/envs/${ENV}/bin/jupyter nbextension enable --py --sys-prefix widgetsnbextension
+
+      ${CONDA_DIR}/envs/${ENV}/bin/jupyter contrib nbextension install --sys-prefix
+      ${CONDA_DIR}/envs/${ENV}/bin/jupyter serverextension enable jupyter_nbextensions_configurator --sys-prefix
+      
     EOF
   end
 
@@ -441,6 +456,29 @@ for python in python_versions
       yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade #{::Dir.home(node['conda']['user'])}/jupyterlab_git-#{node['conda']['jupyter']['jupyterlab-git']['version']}-py3-none-any.whl
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter serverextension enable --sys-prefix --py jupyterlab_git
     EOF
+   end
+  end
+  
+  if "#{python}".eql? "2.7"
+    bash "tfx_tfma_jupyter_extension" do
+      user node['conda']['user']
+      group node['conda']['group']
+      umask "022"
+      retries 1
+      environment ({'HOME' => ::Dir.home(node['conda']['user']),
+                    'USER' => node['conda']['user'],
+                    'CONDA_DIR' => node['conda']['base_dir'],
+                    'HADOOP_HOME' => node['hops']['base_dir'],
+                    #'PATH' => PATH:node['hops']['base_dir']
+                    'ENV' => envName})
+
+      code <<-EOF
+        set -e
+        export PATH=$PATH:$HADOOP_HOME/bin
+        #Instal TensorFlow Extended Model Analysis extension
+          ${CONDA_DIR}/envs/${ENV}/bin/jupyter nbextension install --py --sys-prefix --symlink tensorflow_model_analysis
+          ${CONDA_DIR}/envs/${ENV}/bin/jupyter nbextension enable --py --sys-prefix tensorflow_model_analysis
+      EOF
     end
   end
 
