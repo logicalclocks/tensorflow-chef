@@ -127,7 +127,7 @@ action :cuda do
         set -e
         # Remove link from previous installations
         rm -f /usr/local/cuda
-        ./#{cuda_binary} --silent --toolkit --verbose --toolkitpath /usr/local/cuda-#{cuda_version_short}
+        ./#{cuda_binary} --silent --toolkit --verbose --toolkitpath=/usr/local/cuda-#{cuda_version_short}
       EOF
       not_if { cuda_version_installed }
     end
@@ -143,7 +143,7 @@ action :cuda do
       code <<-EOF
         set -e
         rm -f /usr/local/cuda
-        ./#{cuda_binary} --silent --toolkit --verbose  --no-opengl-libs --no-drm --toolkitpath /usr/local/cuda-#{cuda_version_short}
+        ./#{cuda_binary} --silent --toolkit --verbose  --no-opengl-libs --no-drm --toolkitpath=/usr/local/cuda-#{cuda_version_short}
       EOF
       not_if { cuda_version_installed }
     end
