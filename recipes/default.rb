@@ -252,6 +252,10 @@ for python in python_versions
         if [ $? -ne 0 ] ; then
            exit 8
         fi
+        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install avro
+        if [ $? -ne 0 ] ; then
+           exit 9
+        fi
     else
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade ipykernel hops-ipython-sql
         if [ $? -ne 0 ] ; then
@@ -264,6 +268,10 @@ for python in python_versions
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install nvidia-ml-py3==#{node['conda']['nvidia-ml-py']['version']}
         if [ $? -ne 0 ] ; then
           exit 8
+        fi
+        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install avro-python3
+        if [ $? -ne 0 ] ; then
+           exit 9
         fi
     fi
 
@@ -415,9 +423,9 @@ for python in python_versions
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade scikit-learn
     if [ $? -ne 0 ] ; then
        exit 26
-    fi
+    fi    
 
-    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade avro
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade seaborn
     if [ $? -ne 0 ] ; then
        exit 27
     fi
