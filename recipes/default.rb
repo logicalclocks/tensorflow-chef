@@ -146,8 +146,12 @@ end
 
 bash 'extract_sparkmagic' do
   user "root"
+  group "root"
   cwd Chef::Config['file_cache_path']
+  umask "022"
   code <<-EOF
+    set -e
+    rm -rf sparkmagic 
     rm -rf #{node['conda']['dir']}/sparkmagic
     tar zxf sparkmagic-#{node['jupyter']['sparkmagic']['version']}.tar.gz
     mv sparkmagic #{node['conda']['dir']}
