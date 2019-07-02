@@ -12,8 +12,8 @@ action :driver do
   end
 
   yarnapp_user = node['install']['user'].empty? ? "yarnapp" : node['install']['user']
-  if node.attribute?('hops') && node['hops'].attribute?('yarn') && node['hops']['yarn'].attribute?('linux_container_local_user')
-    yarnapp_user = node['hops']['yarn']['linux_container_local_user']
+  if node.attribute?('hops') && node['hops'].attribute?('yarnapp') && node['hops']['yarnapp'].attribute?('user')
+    yarnapp_user = node['hops']['yarnapp']['user']
   end
 
   bash "kill_apps" do
