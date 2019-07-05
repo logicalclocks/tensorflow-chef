@@ -5,18 +5,17 @@ default['tensorflow']['user']          = node['tensorflow'].attribute?('user') ?
 default['tensorflow']['group']         = node['install']['user'].empty? ? node['kagent']['group'] : node['install']['user']
 
 # tensorflow and tensorflow-gpu version
-default["tensorflow"]["version"]                 = "1.11.0"
+default["tensorflow"]["version"]                 = "1.14.0"
 
 # tensorflow-rocm version
 default['tensorflow']['rocm']['version']         = "1.13.3"
 
-default["tensorflow"]['serving']["version"]      = "1.11.1"
-default["cudatoolkit"]["version"]                = "9.0"
+default["tensorflow"]['serving']["version"]      = "1.14.0"
+default["cudatoolkit"]["version"]                = "10.0"
 default["pytorch"]["version"]                    = "1.0.1"
-default["pytorch"]["python2"]["build"]           = "py2.7_cuda9.0.176_cudnn7.4.2_2"
-default["pytorch"]["python3"]["build"]           = "py3.6_cuda9.0.176_cudnn7.4.2_2"
+default["pytorch"]["python2"]["build"]           = "py2.7_cuda10.0.130_cudnn7.4.2_2"
+default["pytorch"]["python3"]["build"]           = "py3.6_cuda10.0.130_cudnn7.4.2_2"
 default["torchvision"]["version"]                = "0.2.1"
-default['pydoop']['version']                     = "2.0a4"
 default["matplotlib"]['python2']["version"]      = "2.2.3"
 
 default['tensorflow']['install']       = "dist" # or 'src' or 'custom'
@@ -30,8 +29,6 @@ default['tensorflow']['git_url']       = "https://github.com/tensorflow/tensorfl
 #
 # TensorFlow/PyTorch example notebooks and datasets
 #
-default['tensorflow']['hopstf_version'] = '0.0.1'
-default['tensorflow']['hopstf_url']    = "#{node['download_url']}/tensorflow/hops-tensorflow-#{node['tensorflow']['hopstf_version']}.jar"
 default['tensorflow']['examples_version']  = node['install']['version']
 default['tensorflow']['hopstfdemo_dir'] = "tensorflow_demo"
 default['tensorflow']['hopstfdemo_url'] = "#{node['download_url']}/tensorflow/#{node['tensorflow']['examples_version']}/demo.tar.gz"
@@ -44,7 +41,7 @@ default['tensorflow']['home']          = node['tensorflow']['dir'] + "/tensorflo
 default['tensorflow']['base_dir']      = node['tensorflow']['dir'] + "/tensorflow"
 
 # Comma separated list of supported cuda versions (~ # of patches )
-default['cuda']['versions']            = "9.0.176_384.81~2"
+default['cuda']['versions']            = "9.0.176_384.81~2,10.0.130_410.48~1"
 default['cuda']['base_url']            = "#{node['download_url']}/cuda"
 
 default['cuda']['base_dir']                 = "/usr/local"
@@ -54,7 +51,7 @@ default['cuda']['skip_test']           = "false"
 default['cuda']['skip_stop_xserver']   = "false"
 
 # Nvidia driver
-default['nvidia']['driver_version']      = "390.59"
+default['nvidia']['driver_version']      = "410.78"
 default['nvidia']['driver_url']          = "#{node['download_url']}/NVIDIA-Linux-x86_64-#{node['nvidia']['driver_version']}.run"
 
 # Each cudnn version is compiled for a specific cuda version
@@ -62,19 +59,17 @@ default['nvidia']['driver_url']          = "#{node['download_url']}/NVIDIA-Linux
 
 # EXAMPLE: cuda version 9.0 cudnn version 7 will be written with 7+9.0
 # which will download a file named cudnn-9.0-linux-x64-v7.tgz
-default['cudnn']['version_mapping']         = "7+9.0,7.3.0+9.0"
+default['cudnn']['version_mapping']         = "7+9.0,7.3.0+9.0,7.6.0.64+10.0"
 default['cudnn']['base_url']                = "#{node['download_url']}/cudnn"
 
 # As for nccl comma separated list of mapping nccl version + cuda version
-default['nccl']['version_mapping']          = "2.2.13-1+9.0"
+default['nccl']['version_mapping']          = "2.2.13-1+9.0,2.3.5-2+10.0"
 default['nccl']['base_url']         = "#{node['download_url']}/nccl"
 
 # TensorRT - Nvidia (ubuntu only)
 # TensorRT-3.0.4.Ubuntu-16.04.3.x86_64.cuda-9.0.cudnn7.0.tar.gz
 default['cuda']['tensorrt']            = "3.0.4"
 default['cuda']['tensorrt_version']    = "TensorRT-#{node['cuda']['tensorrt']}.Ubuntu-16.04.3.x86_64-gnu.cuda-9.0.cudnn7.0.tar.gz"
-
-
 
 #
 # AMD - ROCm dist found at http://repo.radeon.com/rocm/
