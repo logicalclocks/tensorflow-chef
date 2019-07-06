@@ -12,8 +12,8 @@ action :driver do
   end
 
   yarnapp_user = node['install']['user'].empty? ? "yarnapp" : node['install']['user']
-  if node.attribute?('hops') && node['hops'].attribute?('yarn') && node['hops']['yarn'].attribute?('linux_container_local_user')
-    yarnapp_user = node['hops']['yarn']['linux_container_local_user']
+  if node.attribute?('hops') && node['hops'].attribute?('yarnapp') && node['hops']['yarnapp'].attribute?('user')
+    yarnapp_user = node['hops']['yarnapp']['user']
   end
 
   bash "kill_apps" do
@@ -127,7 +127,7 @@ action :cuda do
         set -e
         # Remove link from previous installations
         rm -f /usr/local/cuda
-        ./#{cuda_binary} --silent --toolkit --verbose --toolkitpath /usr/local/cuda-#{cuda_version_short}
+        ./#{cuda_binary} --silent --toolkit --verbose --toolkitpath=/usr/local/cuda-#{cuda_version_short}
       EOF
       not_if { cuda_version_installed }
     end
@@ -143,7 +143,7 @@ action :cuda do
       code <<-EOF
         set -e
         rm -f /usr/local/cuda
-        ./#{cuda_binary} --silent --toolkit --verbose  --no-opengl-libs --no-drm --toolkitpath /usr/local/cuda-#{cuda_version_short}
+        ./#{cuda_binary} --silent --toolkit --verbose  --no-opengl-libs --no-drm --toolkitpath=/usr/local/cuda-#{cuda_version_short}
       EOF
       not_if { cuda_version_installed }
     end
