@@ -224,8 +224,6 @@ for python in python_versions
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install avro-python3
     fi
 
-    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade hopsfacets
-
     # https://github.com/tensorflow/tensorboard/tree/master/tensorboard/plugins/interactive_inference
     # pip install witwidget
     # jupyter nbextension install --py --symlink --sys-prefix witwidget
