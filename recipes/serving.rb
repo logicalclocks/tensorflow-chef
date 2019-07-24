@@ -1,6 +1,12 @@
 case node["platform_family"]
 when "debian"
-  package ["build-essential","curl","libcurl3-dev","git","libfreetype6-dev","libpng12-dev","libzmq3-dev","pkg-config","python-dev","python-numpy","python-pip","software-properties-common","swig","zip","zlib1g-dev"]
+
+  libpng_pkg_name = "libpng-dev"
+  if node['platform_version'].eql?("16.04")
+    libpng_pkg_name = "libpng12-dev"
+  end
+
+  package ["build-essential","curl","libcurl3-dev","git","libfreetype6-dev", libpng_pkg_name,"libzmq3-dev","pkg-config","python-dev","python-numpy","python-pip","software-properties-common","swig","zip","zlib1g-dev"]
 
   bash 'prepare_tf_serving' do
     user "root"
