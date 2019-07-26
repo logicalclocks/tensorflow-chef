@@ -8,7 +8,7 @@ default['tensorflow']['group']         = node['install']['user'].empty? ? node['
 default["tensorflow"]["version"]                 = "1.14.0"
 
 # tensorflow-rocm version
-default['tensorflow']['rocm']['version']         = "1.13.3"
+default['tensorflow']['rocm']['version']         = "1.14.0"
 
 default["tensorflow"]['serving']["version"]      = "1.14.0"
 default["cudatoolkit"]["version"]                = "10.0"
@@ -79,11 +79,11 @@ default['rocm']['install']               = "false"
 #
 # ROCm package versions
 #
-default['rocm']['debian']['version']               = "2.4.25"
-default['miopen-hip']['debian']['version']         = "1.8.1-84fcb51"
+default['rocm']['debian']['version']               = "2.6.22"
+default['miopen-hip']['debian']['version']         = "2.0.0-7a8f787"
 default['cxlactivitylogger']['debian']['version']  = "5.6.7259"
-default['rocm']['rhel']['version']               = "2.4.25-1"
-default['miopen-hip']['rhel']['version']         = "1.8.1_84fcb516-1"
+default['rocm']['rhel']['version']               = "2.6.22-1"
+default['miopen-hip']['rhel']['version']         = "2.0.0_7a8f7878-1"
 default['cxlactivitylogger']['rhel']['version']  = "5.6.7259-gf50cd35"
 
 # ROCm dist found at http://repo.radeon.com/rocm/
