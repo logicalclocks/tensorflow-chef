@@ -241,7 +241,18 @@ when "rhel"
     package 'epel-release'
   end
 
-  package ['python-pip', 'mlocate', 'gcc', 'gcc-c++', 'kernel-devel', 'openssl', 'openssl-devel', 'python', 'python-devel', 'python-lxml', 'python-pillow', 'libcurl-devel', 'python-wheel', 'python-six']
+  package 'kernel-devel' do
+    version node['kernel']['release']
+    action :install
+    ignore_failure true
+  end
+
+  package 'kernel-devel' do
+    action :install
+    not_if  "ls -l /usr/src/kernels/$(uname -r)"
+  end
+
+  package ['pciutils', 'python-pip', 'mlocate', 'gcc', 'gcc-c++', 'openssl', 'openssl-devel', 'python', 'python-devel', 'python-lxml', 'python-pillow', 'libcurl-devel', 'python-wheel', 'python-six']
 end
 
 include_recipe "java"
