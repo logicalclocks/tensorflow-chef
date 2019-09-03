@@ -241,6 +241,12 @@ when "rhel"
     package 'epel-release'
   end
 
+  # With our current CentOS box "CentOS Linux release 7.5.1804 (Core)",
+  # sudo yum install "kernel-devel-uname-r == $(uname -r)" doesn't work as it cannot find the kernel-devel version
+  # returned by uname-r.
+  # It works in AWS CentOS Linux release 7.6.1810 (Core) though.
+  # We can install the specific version and if that fails, then install the kernel devel package without
+  # specifying a version
   package 'kernel-devel' do
     version node['kernel']['release']
     action :install
