@@ -467,3 +467,18 @@ if node['rocm']['install'].eql? "true"
     rocm_home install_dir
   end
 end
+
+# Download Hopsworks jupyter-git-commands plugin
+if node['install']['enterprise']['install'].casecmp? "true"
+  cached_file = "jupyter_git_commands-#{node['jupyter']['git-commands']['version']}-py3-none-any.whl"
+  source = "#{node['install']['enterprise']['download_url']}/jupyter-git-commands/#{node['jupyter']['git-commands']['version']}/#{cached_file}"
+  remote_file "#{Chef::Config['file_cache_path']}/#{cached_file}" do
+    user "root"
+    group "root"
+    source source
+    headers get_ee_basic_auth_header()
+    sensitive true
+    mode 0755
+    action :create_if_missing
+  end
+end
