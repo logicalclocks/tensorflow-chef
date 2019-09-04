@@ -119,7 +119,9 @@ attribute "cxlactivitylogger/version",
 attribute "jupyter/sparkmagic/version",
           :description => "Version of sparkmagic for Jupyter to install. ",
           :type => 'string'
-
+attribute "jupyter/git-commands/version",
+          :description => "Version of Hopsworks git-commands Jupyter plugin",
+          :type => 'string'
 #
 # Feature Store
 #

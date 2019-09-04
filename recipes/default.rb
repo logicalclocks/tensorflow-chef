@@ -372,6 +372,23 @@ for python in python_versions
     EOF
   end
 
+  # Install jupyter-git-commands plugin
+  if node['install']['enterprise']['install'].casecmp? "true" and python.start_with? "3."
+    bash "install jupyter-git-commands python#{python}" do
+      user node['conda']['user']
+      group node['conda']['user']
+      environment ({ 'HOME' => ::Dir.home(node['conda']['user']),
+                     'USER' => node['conda']['user'],
+                     'CONDA_DIR' => node['conda']['base_dir'],
+                     'ENV' => envName,
+                     'GIT_PYTHON_REFRESH' => 's'})
+      code <<-EOF
+      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade #{Chef::Config['file_cache_path']}/jupyter_git_commands-#{node['jupyter']['git-commands']['version']}-py3-none-any.whl
+      ${CONDA_DIR}/envs/${ENV}/bin/jupyter serverextension enable --sys-prefix --py jupyter_git_commands
+    EOF
+    end
+  end
+
   if node['conda']['additional_libs'].empty? == false
     add_libs = node['conda']['additional_libs'].split(',').map(&:strip)
     for lib in add_libs
