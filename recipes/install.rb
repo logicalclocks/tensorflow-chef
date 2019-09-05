@@ -241,7 +241,24 @@ when "rhel"
     package 'epel-release'
   end
 
-  package ['python-pip', 'mlocate', 'gcc', 'gcc-c++', 'kernel-devel', 'openssl', 'openssl-devel', 'python', 'python-devel', 'python-lxml', 'python-pillow', 'libcurl-devel', 'python-wheel', 'python-six']
+  # With our current CentOS box "CentOS Linux release 7.5.1804 (Core)",
+  # sudo yum install "kernel-devel-uname-r == $(uname -r)" doesn't work as it cannot find the kernel-devel version
+  # returned by uname-r.
+  # It works in AWS CentOS Linux release 7.6.1810 (Core) though.
+  # We can install the specific version and if that fails, then install the kernel devel package without
+  # specifying a version
+  package 'kernel-devel' do
+    version node['kernel']['release']
+    action :install
+    ignore_failure true
+  end
+
+  package 'kernel-devel' do
+    action :install
+    not_if  "ls -l /usr/src/kernels/$(uname -r)"
+  end
+
+  package ['pciutils', 'python-pip', 'mlocate', 'gcc', 'gcc-c++', 'openssl', 'openssl-devel', 'python', 'python-devel', 'python-lxml', 'python-pillow', 'libcurl-devel', 'python-wheel', 'python-six']
 end
 
 include_recipe "java"
