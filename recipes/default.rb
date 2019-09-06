@@ -349,6 +349,8 @@ for python in python_versions
       set -e
       # Install packages
       yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade jupyter
+      # Downgrade notebook to 5.7.8 (HOPSWORKS-1251)
+      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade notebook==5.7.8
       yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade hdfscontents urllib3 requests pandas
 
       # Install packages to allow users to manage their jupyter extensions
