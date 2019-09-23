@@ -1,6 +1,7 @@
 group node["tensorflow"]["group"] do
   action :create
   not_if "getent group #{node["tensorflow"]["group"]}"
+  not_if { node['install']['external_users'].casecmp("true") == 0 }
 end
 
 user node["tensorflow"]["user"] do
@@ -10,12 +11,14 @@ user node["tensorflow"]["user"] do
   action :create
   shell "/bin/bash"
   not_if "getent passwd #{node["tensorflow"]["user"]}"
+  not_if { node['install']['external_users'].casecmp("true") == 0 }
 end
 
 group node["tensorflow"]["group"] do
   action :modify
   members ["#{node["tensorflow"]["user"]}"]
   append true
+  not_if { node['install']['external_users'].casecmp("true") == 0 }
 end
 
 directory node["tensorflow"]["dir"]  do
