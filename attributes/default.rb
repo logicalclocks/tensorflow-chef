@@ -51,7 +51,7 @@ default['cuda']['skip_test']           = "false"
 default['cuda']['skip_stop_xserver']   = "false"
 
 # Nvidia driver
-default['nvidia']['driver_version']      = "410.78"
+default['nvidia']['driver_version']      = "430.26"
 default['nvidia']['driver_url']          = "#{node['download_url']}/NVIDIA-Linux-x86_64-#{node['nvidia']['driver_version']}.run"
 
 # Each cudnn version is compiled for a specific cuda version
