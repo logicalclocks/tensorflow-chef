@@ -427,12 +427,6 @@ for python in python_versions
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter-kernelspec install sparkmagic/kernels/pysparkkernel --sys-prefix
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter-kernelspec install sparkmagic/kernels/pyspark3kernel --sys-prefix
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter-kernelspec install sparkmagic/kernels/sparkrkernel --sys-prefix
-
-      # Enable extensions
-      ${CONDA_DIR}/envs/${ENV}/bin/jupyter nbextension enable --py --sys-prefix widgetsnbextension
-
-      ${CONDA_DIR}/envs/${ENV}/bin/jupyter contrib nbextension install --sys-prefix
-      ${CONDA_DIR}/envs/${ENV}/bin/jupyter serverextension enable jupyter_nbextensions_configurator --sys-prefix
       
     EOF
   end
@@ -459,27 +453,25 @@ for python in python_versions
    end
   end
   
-  if "#{python}".eql? "2.7"
-    bash "tfx_tfma_jupyter_extension" do
-      user node['conda']['user']
-      group node['conda']['group']
-      umask "022"
-      retries 1
-      environment ({'HOME' => ::Dir.home(node['conda']['user']),
-                    'USER' => node['conda']['user'],
-                    'CONDA_DIR' => node['conda']['base_dir'],
-                    'HADOOP_HOME' => node['hops']['base_dir'],
-                    #'PATH' => PATH:node['hops']['base_dir']
-                    'ENV' => envName})
+  bash "tfx_tfma_jupyter_extension" do
+    user node['conda']['user']
+    group node['conda']['group']
+    umask "022"
+    retries 1
+    environment ({'HOME' => ::Dir.home(node['conda']['user']),
+                  'USER' => node['conda']['user'],
+                  'CONDA_DIR' => node['conda']['base_dir'],
+                  'HADOOP_HOME' => node['hops']['base_dir'],
+                  #'PATH' => PATH:node['hops']['base_dir']
+                  'ENV' => envName})
 
-      code <<-EOF
-        set -e
-        export PATH=$PATH:$HADOOP_HOME/bin
-        #Instal TensorFlow Extended Model Analysis extension
-          ${CONDA_DIR}/envs/${ENV}/bin/jupyter nbextension install --py --sys-prefix --symlink tensorflow_model_analysis
-          ${CONDA_DIR}/envs/${ENV}/bin/jupyter nbextension enable --py --sys-prefix tensorflow_model_analysis
-      EOF
-    end
+    code <<-EOF
+      set -e
+      export PATH=$PATH:$HADOOP_HOME/bin
+      #Instal TensorFlow Extended Model Analysis extension
+        ${CONDA_DIR}/envs/${ENV}/bin/jupyter nbextension install --py --sys-prefix --symlink tensorflow_model_analysis
+        ${CONDA_DIR}/envs/${ENV}/bin/jupyter nbextension enable --py --sys-prefix tensorflow_model_analysis
+    EOF
   end
 
   if node['conda']['additional_libs'].empty? == false
