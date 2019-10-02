@@ -362,6 +362,8 @@ for python in python_versions
 
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade seaborn
 
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade pyopenssl
+
     EOF
   end
 
