@@ -17,6 +17,8 @@ default["pytorch"]["python2"]["build"]           = "py2.7_cuda10.0.130_cudnn7.4.
 default["pytorch"]["python3"]["build"]           = "py3.6_cuda10.0.130_cudnn7.4.2_2"
 default["torchvision"]["version"]                = "0.2.1"
 default["matplotlib"]['python2']["version"]      = "2.2.3"
+default["numpy"]["version"]                      = "1.16.5"
+
 #Beam/TFX
 default['pyspark']['version']                    = "2.4.3"
 default['tfx']['version']                        = "0.14.0"
