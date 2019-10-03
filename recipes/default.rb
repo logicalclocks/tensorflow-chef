@@ -364,6 +364,8 @@ for python in python_versions
 
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade pyopenssl
 
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade numpy==#{node['numpy']['version']}
+
     EOF
   end
 
