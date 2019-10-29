@@ -297,21 +297,9 @@ for python in python_versions
       yes | #{node['conda']['base_dir']}/envs/${ENV}/bin/pip install --upgrade #{node['tensorflow']['custom_url']}/tensorflow${TENSORFLOW_LIBRARY_SUFFIX}-#{node['tensorflow']['version']}-cp${PY}-cp${PY}mu-manylinux1_x86_64.whl --force-reinstall
     else
       if [ $TENSORFLOW_LIBRARY_SUFFIX == "-rocm" ] ; then
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tensorflow-serving-api==#{node['tensorflow']['serving']["version"]}
-
-        # Uninstall tensorflow pulled in by tensorflow-serving-api to prepare for the actual TF installation
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip uninstall tensorflow
-
-        # Uninstall tensorflow-estimator pulled in by tensorflow-serving-api to prepare for the actual TF installation
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip uninstall tensorflow-estimator
-
-        # Uninstall tensorboard pulled in by tensorflow-serving-api to prepare for the actual TF installation
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip uninstall tensorboard
-
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tensorflow${TENSORFLOW_LIBRARY_SUFFIX}==#{node['tensorflow']['rocm']['version']}
       else
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tensorflow${TENSORFLOW_LIBRARY_SUFFIX}==#{node['tensorflow']["version"]} --upgrade --force-reinstall
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tensorflow-serving-api${TENSORFLOW_LIBRARY_SUFFIX}==#{node['tensorflow']['serving']["version"]} --upgrade --force-reinstall
       fi
     fi
 
