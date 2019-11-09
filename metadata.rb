@@ -120,7 +120,7 @@ attribute "jupyter/sparkmagic/version",
           :description => "Version of sparkmagic for Jupyter to install. ",
           :type => 'string'
 #
-# Feature Store
+# Feature Store examples
 #
 attribute "featurestore/examples_version",
           :description => "Version of feature store tour artifacts.",
@@ -131,7 +131,22 @@ attribute "featurestore/hops_featurestore_demo_dir",
           :type => 'string'
 
 attribute "featurestore/hops_featurestore_demo_url",
-          :description => "URL to dowload featurestore tour artifacts",
+          :description => "URL to download featurestore tour artifacts",
+          :type => 'string'
+
+#
+# Deep Learning examples
+#
+attribute "tensorflow/examples_version",
+          :description => "Version of deep learning tour artifacts.",
+          :type => 'string'
+
+attribute "tensorflow/hopstfdemo_dir",
+          :description => "Directory to put deep learning tour artifacts",
+          :type => 'string'
+
+attribute "tensorflow/hopstfdemo_url",
+          :description => "URL to download deep learning tour artifacts",
           :type => 'string'
 
 #
