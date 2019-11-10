@@ -15,7 +15,7 @@ default["cudatoolkit"]["version"]                = "10.0"
 default["pytorch"]["version"]                    = "1.3.0"
 default["pytorch"]["python2"]["build"]           = "py2.7_cuda10.0.130_cudnn7.6.3_0"
 default["pytorch"]["python3"]["build"]           = "py3.6_cuda10.0.130_cudnn7.6.3_0"
-default["torchvision"]["version"]                = "0.4."2
+default["torchvision"]["version"]                = "0.4.2"
 default["matplotlib"]['python2']["version"]      = "2.2.3"
 default["numpy"]["version"]                      = "1.17.3"
 
