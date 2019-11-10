@@ -1,4 +1,4 @@
-pinclude_attribute "conda"
+include_attribute "conda"
 include_attribute "kagent"
 
 default['tensorflow']['user']          = node['tensorflow'].attribute?('user') ? node['install']['user'] : node['kagent']['user']
