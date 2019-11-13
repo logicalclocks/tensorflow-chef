@@ -280,6 +280,11 @@ if node['cuda']['accept_nvidia_download_terms'].eql?("true")
   package "clang"
 
   # Check to see if i can find a cuda card. If not, fail with an error
+  package "pcitools" do
+    action :install
+    not_if { node['cuda']['skip_test'] == "true" }
+  end
+  
   bash "test_nvidia" do
     user "root"
     code <<-EOF
