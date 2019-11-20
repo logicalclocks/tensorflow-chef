@@ -340,8 +340,7 @@ for python in python_versions
       if [ "#{python}" == "2.7" ] ; then
         ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch==#{node['pytorch']['version']} torchvision==#{node['torchvision']['version']} cpuonly
       else
-#        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch==#{node['pytorch']['version']} torchvision==#{node['torchvision']['version']} cpuonly
-        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c pytorch pytorch==#{node['pytorch']['version']} torchvision==#{node['torchvision']['version']} cpuonly
+        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch==#{node['pytorch']['version']} torchvision==#{node['torchvision']['version']} cpuonly
       fi
     fi
 
