@@ -332,17 +332,13 @@ for python in python_versions
 
     if [ $TENSORFLOW_LIBRARY_SUFFIX == "-gpu" ] ; then
       if [ "#{python}" == "2.7" ] ; then
-        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python2"]["build"]} torchvision=#{node['torchvision']['version']} cudatoolkit=#{node['cudatoolkit']['version']}
+        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python2"]["build"]} torchvision=#{node['torchvision']['version']} 
       else
-        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python3"]["build"]} torchvision=#{node['torchvision']['version']} cudatoolkit=#{node['cudatoolkit']['version']}
+        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python3"]["build"]} torchvision=#{node['torchvision']['version']} 
       fi
-      ${CONDA_DIR}/bin/conda remove -y -n ${ENV} cudatoolkit=#{node['cudatoolkit']['version']} --force
     else
-      ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch-cpu=#{node['pytorch']['version']} torchvision-cpu=#{node['torchvision']['version']}
+        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch==#{node['pytorch']['version']} torchvision==#{node['torchvision']['version']} cpuonly
     fi
-
-    # This is a temporary fix for pytorch 1.0.1 https://github.com/pytorch/pytorch/issues/16775
-    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install typing
 
     # for sklearn serving
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade Flask
