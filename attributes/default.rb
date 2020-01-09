@@ -22,7 +22,7 @@ default["numpy"]["version"]                      = "1.16.5"
 
 #Beam/TFX
 default['pyspark']['version']                    = "2.4.3"
-default['tfx']['version']                        = "0.15.0"
+default['tfx']['version']                        = "0.14.0"
 
 default['tensorflow']['install']       = "dist" # or 'src' or 'custom'
 
