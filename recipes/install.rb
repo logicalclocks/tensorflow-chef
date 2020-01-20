@@ -237,7 +237,7 @@ end
 case node['platform_family']
 when "debian"
 
-  package ["pkg-config", "zip", "g++", "zlib1g-dev", "unzip", "swig", "git", "build-essential", "cmake", "unzip", "libopenblas-dev", "liblapack-dev", "linux-image-#{node['kernel']['release']}", "linux-headers-#{node['kernel']['release']}", "python2.7", "python2.7-numpy", "python2.7-dev", "python-pip", "python2.7-lxml", "python-pillow", "libcupti-dev", "libcurl3-dev", "python-wheel", "python-six"]
+  package ["pkg-config", "zip", "g++", "zlib1g-dev", "unzip", "swig", "git", "build-essential", "cmake", "unzip", "libopenblas-dev", "liblapack-dev", "linux-image-#{node['kernel']['release']}", "linux-headers-#{node['kernel']['release']}", "python2.7", "python2.7-numpy", "python2.7-dev", "python-pip", "python2.7-lxml", "python-pillow", "libcupti-dev", "libcurl3-dev", "python-wheel", "python-six", "pciutils"]
 
 when "rhel"
   if node['rhel']['epel'].downcase == "true"
@@ -280,11 +280,6 @@ if node['cuda']['accept_nvidia_download_terms'].eql?("true")
   package "clang"
 
   # Check to see if i can find a cuda card. If not, fail with an error
-  package "pcitools" do
-    action :install
-    not_if { node['cuda']['skip_test'] == "true" }
-  end
-  
   bash "test_nvidia" do
     user "root"
     code <<-EOF
