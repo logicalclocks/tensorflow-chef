@@ -184,20 +184,11 @@ for python in python_versions
 
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade requests
 
-    if [ "#{python}" == "2.7" ] ; then
-        # See HOPSWORKS-870 for an explanation about this line
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install ipykernel==#{node['python2']['ipykernel_version']} ipython==#{node['python2']['ipython_version']} jupyter_console==#{node['python2']['jupyter_console_version']} hops-ipython-sql
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install matplotlib==#{node['matplotlib']['python2']['version']}
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install nvidia-ml-py==#{node['conda']['nvidia-ml-py']['version']}
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install avro
-
-    else
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade ipykernel hops-ipython-sql
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade matplotlib
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install nvidia-ml-py3==#{node['conda']['nvidia-ml-py']['version']}
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install pycodestyle==#{node['pycodestyle']['version']}
-	      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install avro-python3==#{node['avro-python3']['version']}
-    fi
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade ipykernel hops-ipython-sql
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade matplotlib
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install nvidia-ml-py3==#{node['conda']['nvidia-ml-py']['version']}
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install pycodestyle==#{node['pycodestyle']['version']}
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install avro-python3==#{node['avro-python3']['version']}
 
     # Install hops-apache-beam and tfx
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tfx==#{node['tfx']['version']}
@@ -266,13 +257,9 @@ for python in python_versions
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade tqdm
 
     if [ $TENSORFLOW_LIBRARY_SUFFIX == "-gpu" ] ; then
-      if [ "#{python}" == "2.7" ] ; then
-        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python2"]["build"]} torchvision=#{node['torchvision']['version']} 
-      else
-        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python3"]["build"]} torchvision=#{node['torchvision']['version']} 
-      fi
+      ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python3"]["build"]} torchvision=#{node['torchvision']['version']}
     else
-        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch==#{node['pytorch']['version']} torchvision==#{node['torchvision']['version']} cpuonly
+      ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch==#{node['pytorch']['version']} torchvision==#{node['torchvision']['version']} cpuonly
     fi
 
     # for sklearn serving
@@ -300,11 +287,7 @@ for python in python_versions
     EOF
   end
 
-  if python.split(".")[0].eql? "3"
-    JUPYTERLAB_VERSION = node['conda']['jupyter']['version']['py3']
-  else
-    JUPYTERLAB_VERSION = node['conda']['jupyter']['version']['py2']
-  end
+  JUPYTERLAB_VERSION = node['conda']['jupyter']['version']['py3']
 
   bash "jupyter_sparkmagic_base_env-#{envName}" do
     user node['conda']['user']
@@ -355,7 +338,7 @@ for python in python_versions
   end
 
   # Install Hopsworks jupyterlab-git plugin
-  if node['install']['enterprise']['install'].casecmp? "true" and python.start_with? "3."
+  if node['install']['enterprise']['install'].casecmp? "true"
     # Fourth digit of the version is Hopsworks versioning
     upstream_extension_version = node['conda']['jupyter']['jupyterlab-git']['version'].split(".")[0...3].join(".")
     bash "install jupyterlab-git python#{python}" do
