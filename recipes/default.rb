@@ -247,8 +247,6 @@ for python in python_versions
 
     ${CONDA_DIR}/bin/conda create -n $ENV python=#{python} -y -q
 
-    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade pip
-
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade requests
 
     if [ "#{python}" == "2.7" ] ; then
