@@ -195,7 +195,8 @@ for python in python_versions
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade ipykernel hops-ipython-sql
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade matplotlib
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install nvidia-ml-py3==#{node['conda']['nvidia-ml-py']['version']}
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install avro-python3
+        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install pycodestyle==#{node['pycodestyle']['version']}
+	      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install avro-python3
     fi
 
     # Install hops-apache-beam and tfx
