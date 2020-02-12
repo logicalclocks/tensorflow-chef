@@ -23,6 +23,7 @@ default['tfx']['version']                        = "0.14.0"
 
 #Avro dependencies
 default["pycodestyle"]["version"]                = "2.5.0"
+default["avro-python3"]["version"]               = "1.9.2"
 
 # tensorflow-1.2.1-debian-gcc_version-python_version.whl
 # #{node['download_url']}/tensorflow-#{node['tensorflow']['version']}-#{node['platform']}-5.4-2.7.whl"
