@@ -88,6 +88,7 @@ attribute "cxlactivitylogger/version",
 attribute "jupyter/sparkmagic/version",
           :description => "Version of sparkmagic for Jupyter to install. ",
           :type => 'string'
+
 #
 # Feature Store examples
 #
