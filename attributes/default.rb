@@ -10,11 +10,8 @@ default['tensorflow']['rocm']['version']         = "1.14.0"
 default["tensorflow"]['serving']["version"]      = "1.14.0"
 default["cudatoolkit"]["version"]                = "10.0"
 default["pytorch"]["version"]                    = "1.4.0"
-default["pytorch"]["python2"]["build"]           = "py2.7_cuda10.0.130_cudnn7.6.3_0"
-#pytorch-1.3.1-py3.6_cpu_0
 default["pytorch"]["python3"]["build"]           = "py3.6_cuda10.0.130_cudnn7.6.3_0"
 default["torchvision"]["version"]                = "0.5.0"
-default["matplotlib"]['python2']["version"]      = "2.2.3"
 default["numpy"]["version"]                      = "1.16.5"
 
 #Beam/TFX
@@ -96,11 +93,6 @@ default['tensorflow']['need_rdma']     = 0
 
 default['jupyter']['sparkmagic']['version']            = "0.12.8"
 default['jupyter']['sparkmagic']['url']                = node['download_url'] + "/sparkmagic-" + node['jupyter']['sparkmagic']['version'] + ".tar.gz"
-
-# Pinned Python libary versions to install in the base environments
-default['python2']['ipykernel_version']                = "4.10.0"
-default['python2']['jupyter_console_version']          = "5.2.0"
-default['python2']['ipython_version']                  = "5.8.0"
 
 # Feature Store example notebooks and datasets
 #
