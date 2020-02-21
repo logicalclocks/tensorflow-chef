@@ -187,23 +187,12 @@ action :cudnn do
   cached_cudnn_file = "#{Chef::Config['file_cache_path']}/#{base_cudnn_file}"
   url_cudnn_file = "#{node['cudnn']['base_url']}/#{base_cudnn_file}"
 
-  begin
-    remote_file cached_cudnn_file do
-      source url_cudnn_file
-      mode 755
-      action :create
-      retries 2
-      not_if { cudnn_version_installed }
-    end
-  rescue
-    cached_cudnn_file["+"]="%2B"
-    remote_file cached_cudnn_file do
-      source url_cudnn_file
-      mode 755
-      action :create
-      retries 2
-      not_if { cudnn_version_installed }
-    end
+  remote_file cached_cudnn_file do
+    source url_cudnn_file
+    mode 755
+    action :create
+    retries 2
+    not_if { cudnn_version_installed }
   end
   
   bash "unpack_install_cudnn-#{base_cudnn_file}" do
@@ -244,6 +233,7 @@ action :nccl do
       not_if { nccl_version_installed }
     end
   rescue
+    # If we download binaries from S3, it replaces "+" in the URL with "%2B"
     url_nccl_file["+"]="%2B"
     remote_file cached_nccl_file do
       source url_nccl_file
