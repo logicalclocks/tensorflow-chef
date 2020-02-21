@@ -187,14 +187,25 @@ action :cudnn do
   cached_cudnn_file = "#{Chef::Config['file_cache_path']}/#{base_cudnn_file}"
   url_cudnn_file = "#{node['cudnn']['base_url']}/#{base_cudnn_file}"
 
-  remote_file cached_cudnn_file do
-    source url_cudnn_file
-    mode 755
-    action :create
-    retries 2
-    not_if { cudnn_version_installed }
+  begin
+    remote_file cached_cudnn_file do
+      source url_cudnn_file
+      mode 755
+      action :create
+      retries 2
+      not_if { cudnn_version_installed }
+    end
+  rescue
+    cached_cudnn_file["+"]="%2B"
+    remote_file cached_cudnn_file do
+      source url_cudnn_file
+      mode 755
+      action :create
+      retries 2
+      not_if { cudnn_version_installed }
+    end
   end
-
+  
   bash "unpack_install_cudnn-#{base_cudnn_file}" do
     user "root"
     cwd Chef::Config['file_cache_path']
@@ -224,12 +235,23 @@ action :nccl do
   cached_nccl_file = "#{Chef::Config['file_cache_path']}/#{nccl_file_name_ext}"
   url_nccl_file = "#{node['nccl']['base_url']}/#{nccl_file_name_ext}"
 
-  remote_file cached_nccl_file do
-    source url_nccl_file
-    mode 755
-    action :create
-    retries 2
-    not_if { nccl_version_installed }
+  begin
+    remote_file cached_nccl_file do
+      source url_nccl_file
+      mode 755
+      action :create
+      retries 2
+      not_if { nccl_version_installed }
+    end
+  rescue
+    url_nccl_file["+"]="%2B"
+    remote_file cached_nccl_file do
+      source url_nccl_file
+      mode 755
+      action :create
+      retries 2
+      not_if { nccl_version_installed }
+    end
   end
 
   bash "install-#{nccl_dir_name}" do
