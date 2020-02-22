@@ -192,6 +192,15 @@ when "rhel"
     not_if  "ls -l /usr/src/kernels/$(uname -r)"
   end
 
+  bash "kernel_devel_versioned" do
+    user "root"
+    code <<-EOF
+      yum install kernel-devel-uname-r == $(uname -r) -y"
+    EOF
+  end
+  
+  
+
   package ['pciutils', 'python-pip', 'mlocate', 'gcc', 'gcc-c++', 'openssl', 'openssl-devel', 'python', 'python-devel', 'python-lxml', 'python-pillow', 'libcurl-devel', 'python-wheel', 'python-six']
 end
 
