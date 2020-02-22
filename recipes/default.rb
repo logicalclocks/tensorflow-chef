@@ -1,14 +1,5 @@
 private_ip = my_private_ip()
 
-if node['tensorflow']['mpi'].eql? "true"
-  node.override['tensorflow']['need_mpi'] = 1
-end
-
-if node['tensorflow']['tensorrt'].eql? "true"
-  node.override['tensorflow']['need_tensorrt'] = 1
-end
-
-
 # Only the first tensorflow server needs to create the directories in HDFS
 if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
 
@@ -93,38 +84,6 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
 
 end
 
-if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_download_terms'] == "true"
-
-  case node['platform_family']
-  when "debian"
-
-    cached_file="#{Chef::Config['file_cache_path']}/#{node['cuda']['tensorrt_version']}"
-    remote_file cached_file do
-      source "#{node['download_url']}/#{node['cuda']['tensorrt_version']}"
-      mode 0755
-      action :create
-      retries 1
-      not_if { File.exist?(cached_file) }
-    end
-
-    tensorrt_dir="#{node['tensorflow']['dir']}/TensorRT-#{node['cuda']['tensorrt']}"
-    bash "install-tensorrt-ubuntu" do
-      user "root"
-      code <<-EOF
-       set -e
-       cd #{Chef::Config['file_cache_path']}
-       tar zxf #{cached_file}
-       mv TensorRT-#{node['cuda']['tensorrt']} #{node['tensorflow']['dir']}
-    EOF
-      not_if "test -d #{tensorrt_dir}"
-    end
-
-    magic_shell_environment 'LD_LIBRARY_PATH' do
-      value "$LD_LIBRARY_PATH:#{tensorrt_dir}/lib"
-    end
-  end
-end
-
 # Install nvm to manage different Node.js versions
 bash "install nvm" do
   user "root"
@@ -206,29 +165,7 @@ for python in python_versions
   end
 
   Chef::Log.info "Environment creation for: python#{python}"
-  rt1 = python.gsub(".", "")
-  if rt1 == "36"
-    rt1 = "35"
-  end
-  # assume that is python 2.7
-  rt2 = "27mu"
-  if python == "3.6"
-    rt2 = "35m"
-  end
-  customTf=0
-  if node['tensorflow']['custom_url'].start_with?("http://", "https://", "file://")
-    begin
-      uri = URI.parse(node['tensorflow']['custom_url'])
-      %w( http https ).include?(uri.scheme)
-      customTf=1
-    rescue URI::BadURIError
-      Chef::Log.warn "BadURIError custom_url for tensorflow: #{node['tensorflow']['custom_url']}"
-      customTf=0
-    rescue URI::InvalidURIError
-      Chef::Log.warn "InvalidURIError custom_url for tensorflow: #{node['tensorflow']['custom_url']}"
-      customTf=0
-    end
-  end
+
 
 
   bash "create_base_env-#{envName}" do
@@ -242,26 +179,16 @@ for python in python_versions
     export CONDA_DIR=#{node['conda']['base_dir']}
     export PY=`echo #{python} | sed -e "s/\.//"`
     export ENV=#{envName}
-    export MPI=#{node['tensorflow']['need_mpi']}
-    export CUSTOM_TF=#{customTf}
 
     ${CONDA_DIR}/bin/conda create -n $ENV python=#{python} -y -q
 
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade requests
 
-    if [ "#{python}" == "2.7" ] ; then
-        # See HOPSWORKS-870 for an explanation about this line
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install ipykernel==#{node['python2']['ipykernel_version']} ipython==#{node['python2']['ipython_version']} jupyter_console==#{node['python2']['jupyter_console_version']} hops-ipython-sql
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install matplotlib==#{node['matplotlib']['python2']['version']}
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install nvidia-ml-py==#{node['conda']['nvidia-ml-py']['version']}
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install avro
-
-    else
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade ipykernel hops-ipython-sql
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade matplotlib
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install nvidia-ml-py3==#{node['conda']['nvidia-ml-py']['version']}
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install avro-python3
-    fi
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade ipykernel hops-ipython-sql
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade matplotlib
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install nvidia-ml-py3==#{node['conda']['nvidia-ml-py']['version']}
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install pycodestyle==#{node['pycodestyle']['version']}
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install avro-python3==#{node['avro-python3']['version']}
 
     # Install hops-apache-beam and tfx
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tfx==#{node['tfx']['version']}
@@ -290,9 +217,10 @@ for python in python_versions
         TENSORFLOW_LIBRARY_SUFFIX="-rocm"
       fi
     fi
+    export CUSTOM_TF_URL=#{node['tensorflow']['custom_url']}
    # Install a custom build of tensorflow with this line.
-    if [ $CUSTOM_TF -eq 1 ] ; then
-      yes | #{node['conda']['base_dir']}/envs/${ENV}/bin/pip install --upgrade #{node['tensorflow']['custom_url']}/tensorflow${TENSORFLOW_LIBRARY_SUFFIX}-#{node['tensorflow']['version']}-cp${PY}-cp${PY}mu-manylinux1_x86_64.whl --force-reinstall
+    if [ ! -z $CUSTOM_TF_URL ] ; then
+      yes | #{node['conda']['base_dir']}/envs/${ENV}/bin/pip install --upgrade $CUSTOM_TF_URL --force-reinstall
     else
       if [ $TENSORFLOW_LIBRARY_SUFFIX == "-rocm" ] ; then
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tensorflow${TENSORFLOW_LIBRARY_SUFFIX}==#{node['tensorflow']['rocm']['version']}
@@ -329,13 +257,9 @@ for python in python_versions
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade tqdm
 
     if [ $TENSORFLOW_LIBRARY_SUFFIX == "-gpu" ] ; then
-      if [ "#{python}" == "2.7" ] ; then
-        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python2"]["build"]} torchvision=#{node['torchvision']['version']} 
-      else
-        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python3"]["build"]} torchvision=#{node['torchvision']['version']} 
-      fi
+      ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python3"]["build"]} torchvision=#{node['torchvision']['version']}
     else
-        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch==#{node['pytorch']['version']} torchvision==#{node['torchvision']['version']} cpuonly
+      ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch==#{node['pytorch']['version']} torchvision==#{node['torchvision']['version']} cpuonly
     fi
 
     # for sklearn serving
@@ -363,11 +287,7 @@ for python in python_versions
     EOF
   end
 
-  if python.split(".")[0].eql? "3"
-    JUPYTERLAB_VERSION = node['conda']['jupyter']['version']['py3']
-  else
-    JUPYTERLAB_VERSION = node['conda']['jupyter']['version']['py2']
-  end
+  JUPYTERLAB_VERSION = node['conda']['jupyter']['version']['py3']
 
   bash "jupyter_sparkmagic_base_env-#{envName}" do
     user node['conda']['user']
@@ -418,7 +338,7 @@ for python in python_versions
   end
 
   # Install Hopsworks jupyterlab-git plugin
-  if node['install']['enterprise']['install'].casecmp? "true" and python.start_with? "3."
+  if node['install']['enterprise']['install'].casecmp? "true"
     # Fourth digit of the version is Hopsworks versioning
     upstream_extension_version = node['conda']['jupyter']['jupyterlab-git']['version'].split(".")[0...3].join(".")
     bash "install jupyterlab-git python#{python}" do
@@ -477,54 +397,15 @@ for python in python_versions
                   'JAVA_HOME' => node['java']['java_home'],
                   'CONDA_DIR' => node['conda']['base_dir'],
                   'HADOOP_HOME' => node['hops']['base_dir'],
-                  'ENV' => envName,
-                  'MPI' => node['tensorflow']['need_mpi']
+                  'ENV' => envName
                   })
         code <<-EOF
-    cd $HOME
-    export PY=`echo #{python} | sed -e "s/\.//"`
-    export CUSTOM_TF=#{customTf}
+      cd $HOME
       yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade #{lib}
     EOF
       end
     end
-
   end
-
-
-  if node['tensorflow']['need_tensorrt'] == 1 && node['cuda']['accept_nvidia_download_terms'] == "true"
-
-    case node['platform_family']
-    when "debian"
-
-      bash "tensorrt_py#{python}_env" do
-        user "root"
-        umask "022"
-        code <<-EOF
-        set -e
-        if [ -f /usr/local/cuda/version.txt ]  ; then
-          nvidia-smi -L | grep -i gpu
-          if [ $? -eq 0 ] ; then
-
-
-          export CONDA_DIR=#{node['conda']['base_dir']}
-          export ENV=#{envName}
-          su #{node['conda']['user']} -c "cd #{tensorrt_dir}/python ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tensorrt-#{node['cuda']['tensorrt']}"-cp#{rt1}-cp#{rt2}-linux_x86_64.whl"
-
-          su #{node['conda']['user']} -c "cd #{tensorrt_dir}/uff ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install uff-0.2.0-py2.py3-none-any.whl"
-
-#         su #{node['conda']['user']} -c "cd #{tensorrt_dir}/graphsurgeon ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:#{tensorrt_dir}/lib ; yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install graphsurgeon-0.2.0-py2.py3-none-any.whl"
-
-          fi
-        fi
-
-        EOF
-      end
-
-    end
-  end
-
-
 end
 
 #
