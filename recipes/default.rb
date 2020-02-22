@@ -391,6 +391,10 @@ for python in python_versions
 
       yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade ./hdijupyterutils ./autovizwidget ./sparkmagic
 
+      if [ "#{python}" == "2.7" ] ; then
+        ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade enum34==1.1.6
+      fi
+
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter nbextension enable --py --sys-prefix widgetsnbextension
 
       yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade hdfscontents urllib3 requests pandas
