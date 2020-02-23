@@ -182,9 +182,9 @@ when "rhel"
   # We can install the specific version and if that fails, then install the kernel devel package without
   # specifying a version
   package 'kernel-devel' do
-    version node['kernel']['release']
+    version node['kernel']['release'].sub(/\.#{node['kernel']['machine']}/, "")
+    arch node['kernel']['machine']
     action :install
-    ignore_failure true
   end
 
   package 'kernel-devel' do
