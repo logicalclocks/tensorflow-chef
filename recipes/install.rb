@@ -185,6 +185,7 @@ when "rhel"
     version node['kernel']['release'].sub(/\.#{node['kernel']['machine']}/, "")
     arch node['kernel']['machine']
     action :install
+    ignore_failure true
   end
 
   package 'kernel-devel' do
