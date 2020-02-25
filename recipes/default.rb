@@ -187,7 +187,6 @@ for python in python_versions
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade ipykernel hops-ipython-sql
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade matplotlib
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install nvidia-ml-py3==#{node['conda']['nvidia-ml-py']['version']}
-    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install pycodestyle==#{node['pycodestyle']['version']}
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install avro-python3==#{node['avro-python3']['version']}
 
     # Install hops-apache-beam and tfx
@@ -287,8 +286,6 @@ for python in python_versions
     EOF
   end
 
-  JUPYTERLAB_VERSION = node['conda']['jupyter']['version']['py3']
-
   bash "jupyter_sparkmagic_base_env-#{envName}" do
     user node['conda']['user']
     group node['conda']['group']
@@ -303,10 +300,11 @@ for python in python_versions
                   'ENV' => envName})
     code <<-EOF
       set -e
-      # Install packages
-      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade jupyterlab==#{JUPYTERLAB_VERSION}
-      # Downgrade notebook to 5.7.8 (HOPSWORKS-1251)
-      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade notebook==5.7.8
+      # Install packages and pin working versions
+      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade jupyterlab==#{node['conda']['jupyter']['version']['py3']}
+      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade notebook==#{node['conda']['jupyter']['notebook']['version']}
+      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade tornado==#{node['conda']['jupyter']['tornado']['version']}
+      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade prompt-toolkit==#{node['conda']['jupyter']['prompt-toolkit']['version']}
 
       yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade ./hdijupyterutils ./autovizwidget ./sparkmagic
 
@@ -323,15 +321,11 @@ for python in python_versions
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter labextension install --no-build nbdime-jupyterlab
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter lab build
 
-      # DO NOT TOUCH THIS! Bad things are about to happen
-      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade prompt-toolkit==1.0.16
-
       # Enable kernels
       cd ${CONDA_DIR}/envs/${ENV}/lib/python#{python}/site-packages
 
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter-kernelspec install sparkmagic/kernels/sparkkernel --sys-prefix
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter-kernelspec install sparkmagic/kernels/pysparkkernel --sys-prefix
-      ${CONDA_DIR}/envs/${ENV}/bin/jupyter-kernelspec install sparkmagic/kernels/pyspark3kernel --sys-prefix
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter-kernelspec install sparkmagic/kernels/sparkrkernel --sys-prefix
       
     EOF
