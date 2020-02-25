@@ -180,9 +180,11 @@ when "rhel"
   # returned by uname-r.
   # It works in AWS CentOS Linux release 7.6.1810 (Core) though.
   # We can install the specific version and if that fails, then install the kernel devel package without
-  # specifying a version
+  # specifying a version. In our current Centos box bento/centos-7.5 this fails as the kernel-devel package is not
+  # available
   package 'kernel-devel' do
-    version node['kernel']['release']
+    version node['kernel']['release'].sub(/\.#{node['kernel']['machine']}/, "")
+    arch node['kernel']['machine']
     action :install
     ignore_failure true
   end
