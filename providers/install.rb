@@ -57,7 +57,7 @@ action :driver do
       package 'epel-release'
     end
 
-    package ['kernel-devel', 'kernel-headers', 'libglvnd-glx', 'dkms', 'rpm-build', 'redhat-rpm-config', 'asciidoc', 'hmaccalc', 'perl-ExtUtils-Embed', 'pesign', 'xmlto', 'bison', 'bc', 'audit-libs-devel', 'binutils-devel', 'elfutils-devel', 'elfutils-libelf-devel', 'ncurses-devel', 'newt-devel', 'numactl-devel', 'pciutils-devel', 'python-devel', 'zlib-devel']
+    package ['kernel-headers', 'libglvnd-glx', 'dkms', 'rpm-build', 'redhat-rpm-config', 'asciidoc', 'hmaccalc', 'perl-ExtUtils-Embed', 'pesign', 'xmlto', 'bison', 'bc', 'audit-libs-devel', 'binutils-devel', 'elfutils-devel', 'elfutils-libelf-devel', 'ncurses-devel', 'newt-devel', 'numactl-devel', 'pciutils-devel', 'python-devel', 'zlib-devel']
 
     bash "install_driver_centos" do
       user "root"
@@ -194,7 +194,7 @@ action :cudnn do
     retries 2
     not_if { cudnn_version_installed }
   end
-  
+
   bash "unpack_install_cudnn-#{base_cudnn_file}" do
     user "root"
     cwd Chef::Config['file_cache_path']
