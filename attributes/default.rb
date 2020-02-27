@@ -10,7 +10,9 @@ default["tensorflow"]["version"]                 = "1.14.0"
 # tensorflow-rocm version
 default['tensorflow']['rocm']['version']         = "1.14.0"
 
-default["tensorflow"]['serving']["version"]      = "1.14.0"
+default['tensorflow']['serving']['version']      = "1.14.0"
+default['tensorflow']['serving']['url']          = "#{node['download_url']}/serving/tensorflow-model-server_#{node['tensorflow']['serving']['version']}_all.deb"
+
 default["cudatoolkit"]["version"]                = "10.0"
 default["pytorch"]["version"]                    = "1.4.0"
 default["pytorch"]["python2"]["build"]           = "py2.7_cuda10.0.130_cudnn7.6.3_0"
