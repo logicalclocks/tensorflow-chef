@@ -56,12 +56,7 @@ action :install_rocm do
     end
 
   when "rhel"
-
-      package 'dkms'
-
-      package "kernel-headers"
-
-      package "kernel-devel"
+      package ['dkms', 'kernel-headers']
 
       cached_file="#{new_resource.rocm_home}/rocm_#{node['rocm']['rhel']['version']}.tar.gz"
       remote_file cached_file do
@@ -88,7 +83,7 @@ action :install_rocm do
         gpgcheck false
         action :create
       end
-      
+
       package "rocm-dkms" do
         version node['rocm']['rhel']['version']
       end
@@ -109,5 +104,5 @@ action :install_rocm do
   magic_shell_environment 'PATH' do
     value "$PATH:/opt/rocm/bin:/opt/rocm/profiler/bin:/opt/rocm/opencl/bin/x86_64"
   end
-  
+
 end
