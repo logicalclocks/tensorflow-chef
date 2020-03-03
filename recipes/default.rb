@@ -202,30 +202,15 @@ for python in python_versions
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip uninstall tensorflow-estimator
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip uninstall tensorflow-serving-api
 
-    # Takes on the value "" for CPU machines, "-gpu" for Nvidia GPU machines, "-rocm" for ROCm GPU machines
-    TENSORFLOW_LIBRARY_SUFFIX=
-    if [ -f /usr/local/cuda/version.txt ]  ; then
-      nvidia-smi -L | grep -i gpu
-      if [ $? -eq 0 ] ; then
-        TENSORFLOW_LIBRARY_SUFFIX="-gpu"
-      fi
-    # If system is setup for rocm already or we are installing it
-    else
-      export ROCM=#{node['rocm']['install']}
-      if [ -f /opt/rocm/bin/rocminfo ] || [ $ROCM == "true" ]  ; then
-        TENSORFLOW_LIBRARY_SUFFIX="-rocm"
-      fi
-    fi
+    export ROCM=#{node['rocm']['install']}
     export CUSTOM_TF_URL=#{node['tensorflow']['custom_url']}
-   # Install a custom build of tensorflow with this line.
+    # Install a custom build of tensorflow with this line.
     if [ ! -z $CUSTOM_TF_URL ] ; then
-      yes | #{node['conda']['base_dir']}/envs/${ENV}/bin/pip install --upgrade $CUSTOM_TF_URL --force-reinstall
+      yes | #{node['conda']['base_dir']}/envs/${ENV}/bin/pip install $CUSTOM_TF_URL --upgrade --force-reinstall
+    elif [ -f /opt/rocm/bin/rocminfo ] || [ $ROCM == "true" ]  ; then
+      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tensorflow-rocm==#{node['tensorflow']['rocm']['version']}
     else
-      if [ $TENSORFLOW_LIBRARY_SUFFIX == "-rocm" ] ; then
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tensorflow${TENSORFLOW_LIBRARY_SUFFIX}==#{node['tensorflow']['rocm']['version']}
-      else
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tensorflow${TENSORFLOW_LIBRARY_SUFFIX}==#{node['tensorflow']["version"]} --upgrade --force-reinstall
-      fi
+      yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install tensorflow==#{node['tensorflow']["version"]} --upgrade --force-reinstall
     fi
 
     export HOPS_UTIL_PY_VERSION=#{node['conda']['hops-util-py']['version']}
@@ -246,17 +231,22 @@ for python in python_versions
 
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade opencv-python
 
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install maggy==#{node['maggy']['version']}
+
+    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade tqdm
+
     export PYTORCH_CHANNEL=#{node['conda']['channels']['pytorch']}
     if [ "${PYTORCH_CHANNEL}" == "" ] ; then
       PYTORCH_CHANNEL="pytorch"
     fi
 
-    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install maggy==#{node['maggy']['version']}
-
-    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade tqdm
-
-    if [ $TENSORFLOW_LIBRARY_SUFFIX == "-gpu" ] ; then
-      ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python3"]["build"]} torchvision=#{node['torchvision']['version']}
+    if [ -f /usr/local/cuda/version.txt ]  ; then
+      nvidia-smi -L | grep -i gpu
+      if [ $? -eq 0 ] ; then
+        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch=#{node['pytorch']['version']}=#{node["pytorch"]["python3"]["build"]} torchvision=#{node['torchvision']['version']}
+      else
+        ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch==#{node['pytorch']['version']} torchvision==#{node['torchvision']['version']} cpuonly
+      fi
     else
       ${CONDA_DIR}/bin/conda install -y -n ${ENV} -c ${PYTORCH_CHANNEL} pytorch==#{node['pytorch']['version']} torchvision==#{node['torchvision']['version']} cpuonly
     fi
@@ -269,8 +259,6 @@ for python in python_versions
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade seaborn
 
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade pyopenssl
-
-    yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade numpy==#{node['numpy']['version']}
 
     EOF
   end

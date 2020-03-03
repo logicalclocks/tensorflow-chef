@@ -1,20 +1,15 @@
 include_attribute "conda"
 include_attribute "kagent"
 
-# tensorflow and tensorflow-gpu version
-default["tensorflow"]["version"]                 = "1.14.0"
-
-# tensorflow-rocm version
-default['tensorflow']['rocm']['version']         = "1.14.0"
-
-default['tensorflow']['serving']['version']      = "1.14.0"
+default["tensorflow"]["version"]                 = "1.15.0"
+default['tensorflow']['rocm']['version']         = "1.15.0"
+default['tensorflow']['serving']['version']      = "1.15.0"
 default['tensorflow']['serving']['url']          = "#{node['download_url']}/serving/tensorflow-model-server_#{node['tensorflow']['serving']['version']}_all.deb"
 
 default["cudatoolkit"]["version"]                = "10.0"
 default["pytorch"]["version"]                    = "1.4.0"
 default["pytorch"]["python3"]["build"]           = "py3.6_cuda10.0.130_cudnn7.6.3_0"
 default["torchvision"]["version"]                = "0.5.0"
-default["numpy"]["version"]                      = "1.16.5"
 
 #Beam/TFX
 default['pyspark']['version']                    = "2.4.3"
