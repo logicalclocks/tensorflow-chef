@@ -140,4 +140,6 @@ attribute "torchvision/version",
           :description => "Torchvision version to install in python base environments",
           :type => "string"
 
-
+attribute "maggy/version",
+          :description => "Maggy version to install",
+          :type => "string"
