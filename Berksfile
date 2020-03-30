@@ -7,7 +7,7 @@ source 'https://supermarket.chef.io'
 metadata
 
 cookbook 'kagent', github: 'logicalclocks/kagent-chef', branch: 'master'
-cookbook 'java'
+cookbook 'java', '~> 7.0.0'
 cookbook 'magic_shell'
 cookbook 'build-essential'
 cookbook 'zip'
