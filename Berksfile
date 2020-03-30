@@ -7,11 +7,6 @@ source 'https://supermarket.chef.io'
 metadata
 
 cookbook 'kagent', github: 'logicalclocks/kagent-chef', branch: '1.1'
-cookbook 'java'
-cookbook 'magic_shell'
-cookbook 'build-essential'
-cookbook 'zip'
-cookbook 'apt'
-cookbook 'homebrew'
 cookbook 'ndb', github: "logicalclocks/ndb-chef", branch: "1.1"
 cookbook 'hops', github: "logicalclocks/hops-hadoop-chef", branch: "1.1"
+cookbook 'conda', github: 'logicalclocks/conda-chef', branch: '1.1'
