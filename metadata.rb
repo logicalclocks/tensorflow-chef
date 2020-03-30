@@ -9,11 +9,13 @@ recipe            "tensorflow::install", "Install NVIDIA or AMD drivers"
 recipe            "tensorflow::default",  "Create Anaconda base environments"
 recipe            "tensorflow::serving",  "Install TensorFlow Model Serving server"
 
-depends "kagent"
-depends "java"
-depends "magic_shell"
-depends "ndb"
-depends "hops"
+
+depends "java", '~> 7.0.0'
+depends "magic_shell", '~> 1.0.0'
+depends 'build-essential', '~> 8.2.1'
+depends 'zip', '~> 1.1.0'
+depends 'apt', '~> 7.2.0'
+depends 'homebrew', '~> 5.0.8'
 
 %w{ ubuntu debian rhel centos }.each do |os|
   supports os
