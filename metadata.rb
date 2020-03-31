@@ -18,6 +18,10 @@ depends 'build-essential', '~> 8.2.1'
 depends 'zip', '~> 1.1.0'
 depends 'apt', '~> 7.2.0'
 depends 'homebrew', '~> 5.0.8'
+depends 'kagent'
+depends 'ndb'
+depends 'hops'
+depends 'conda'
 
 %w{ ubuntu debian rhel centos }.each do |os|
   supports os
