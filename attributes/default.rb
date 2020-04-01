@@ -97,5 +97,6 @@ default['featurestore']['hops_featurestore_demo_dir'] = "featurestore_demo"
 default['featurestore']['hops_featurestore_demo_url'] = "#{node['download_url']}/featurestore/#{node['featurestore']['examples_version']}/featurestore.tar.gz"
 
 # Maggy - dist optimization for TensorFlow/Spark
+# The Maggy version can also be a git branch, like: git+https://github.com/ssheikholeslami/maggy@ablation_custom_models
 #
 default['maggy']['version']                           = "0.4.*"
