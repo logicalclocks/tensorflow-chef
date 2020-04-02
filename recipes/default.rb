@@ -219,6 +219,8 @@ for python in python_versions
     export HOPS_UTIL_PY_INSTALL_MODE=#{node['conda']['hops-util-py']['install-mode']}
     if [ $HOPS_UTIL_PY_INSTALL_MODE == "git" ] ; then
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install git+https://github.com/${HOPS_UTIL_PY_REPO}/hops-util-py@$HOPS_UTIL_PY_BRANCH
+    elif [[ $HOPS_UTIL_PY_VERSION =~ ^git.* ]] ; then
+        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install $HOPS_UTIL_PY_VERSION
     else
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install hops==$HOPS_UTIL_PY_VERSION
     fi
@@ -231,7 +233,7 @@ for python in python_versions
 
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade opencv-python
 
-    if [[ "#{node['maggy']['version']}" =~ ^git.* ]]; then
+    if [[ "#{node['maggy']['version']}" =~ ^git.* ]] ; then
       yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install #{node['maggy']['version']}
     else
       yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install maggy==#{node['maggy']['version']}
