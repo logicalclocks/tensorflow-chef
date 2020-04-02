@@ -231,7 +231,7 @@ for python in python_versions
 
     yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --upgrade opencv-python
 
-    if [[ "#{node['maggy']['version']}" == "git*" ]]; then
+    if [[ "#{node['maggy']['version']}" =~ ^git.* ]]; then
       yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install #{node['maggy']['version']}
     else
       yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install maggy==#{node['maggy']['version']}
