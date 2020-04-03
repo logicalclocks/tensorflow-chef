@@ -219,8 +219,6 @@ for python in python_versions
     export HOPS_UTIL_PY_INSTALL_MODE=#{node['conda']['hops-util-py']['install-mode']}
     if [ $HOPS_UTIL_PY_INSTALL_MODE == "git" ] ; then
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install git+https://github.com/${HOPS_UTIL_PY_REPO}/hops-util-py@$HOPS_UTIL_PY_BRANCH
-    elif [[ $HOPS_UTIL_PY_VERSION =~ ^git.* ]] ; then
-        yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install $HOPS_UTIL_PY_VERSION
     else
         yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install hops==$HOPS_UTIL_PY_VERSION
     fi
