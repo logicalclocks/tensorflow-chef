@@ -168,7 +168,12 @@ end
 case node['platform_family']
 when "debian"
 
-  package ["pkg-config", "zip", "g++", "zlib1g-dev", "unzip", "swig", "git", "build-essential", "cmake", "unzip", "libopenblas-dev", "liblapack-dev", "linux-image-#{node['kernel']['release']}", "linux-headers-#{node['kernel']['release']}", "python2.7", "python2.7-numpy", "python2.7-dev", "python-pip", "python2.7-lxml", "python-pillow", "libcupti-dev", "libcurl3-dev", "python-wheel", "python-six", "pciutils"]
+
+  if node['cuda']['accept_nvidia_download_terms'].eql? "true"
+    package ["pkg-config", "zip", "g++", "zlib1g-dev", "swig", "git", "build-essential", "cmake", "libopenblas-dev", "liblapack-dev", "linux-image-#{node['kernel']['release']}", "linux-headers-#{node['kernel']['release']}", "pciutils"]
+  end    
+
+    package ["zip", "zlib1g-dev", "unzip", "swig", "git",  "unzip", "libopenblas-dev", "liblapack-dev", "linux-image-#{node['kernel']['release']}", "python-pip", "python-pillow", "libcupti-dev", "libcurl3-dev", "python-wheel", "python-six", "pciutils"]  
 
 when "rhel"
   if node['rhel']['epel'].downcase == "true"
@@ -182,19 +187,22 @@ when "rhel"
   # We can install the specific version and if that fails, then install the kernel devel package without
   # specifying a version. In our current Centos box bento/centos-7.5 this fails as the kernel-devel package is not
   # available
-  package 'kernel-devel' do
-    version node['kernel']['release'].sub(/\.#{node['kernel']['machine']}/, "")
-    arch node['kernel']['machine']
-    action :install
-    ignore_failure true
-  end
+  if node['cuda']['accept_nvidia_download_terms'].eql? "true"
+    package 'kernel-devel' do
+      version node['kernel']['release'].sub(/\.#{node['kernel']['machine']}/, "")
+      arch node['kernel']['machine']
+      action :install
+      ignore_failure true
+    end
 
-  package 'kernel-devel' do
-    action :install
-    not_if  "ls -l /usr/src/kernels/$(uname -r)"
-  end
+    package 'kernel-devel' do
+      action :install
+      not_if  "ls -l /usr/src/kernels/$(uname -r)"
+    end
 
-  package ['pciutils', 'python-pip', 'mlocate', 'gcc', 'gcc-c++', 'openssl', 'openssl-devel', 'python', 'python-devel', 'python-lxml', 'python-pillow', 'libcurl-devel', 'python-wheel', 'python-six']
+    package ['pciutils', 'gcc', 'gcc-c++']
+  end
+  package ['python-pip', 'mlocate', 'openssl', 'openssl-devel', 'python', 'python-devel', 'python-lxml', 'python-pillow', 'libcurl-devel', 'python-wheel', 'python-six']
 end
 
 include_recipe "java"
