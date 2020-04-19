@@ -225,7 +225,7 @@ action :nccl do
   url_nccl_file = "#{node['nccl']['base_url']}/#{nccl_file_name_ext}"
 
   # if the file is being downloaded from a s3 bucket, we need to change the '+' in the URL to '%2B'
-  if url_ncc_file.include? ".s3-"
+  if url_nccl_file.include? ".s3-"
     url_nccl_file["+"]="%2B"
   end
   
