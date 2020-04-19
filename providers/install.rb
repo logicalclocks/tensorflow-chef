@@ -224,24 +224,17 @@ action :nccl do
   cached_nccl_file = "#{Chef::Config['file_cache_path']}/#{nccl_file_name_ext}"
   url_nccl_file = "#{node['nccl']['base_url']}/#{nccl_file_name_ext}"
 
-  begin
-    remote_file cached_nccl_file do
-      source url_nccl_file
-      mode 755
-      action :create
-      retries 2
-      not_if { nccl_version_installed }
-    end
-  rescue
-    # If we download binaries from S3, it replaces "+" in the URL with "%2B"
+  # if the file is being downloaded from a s3 bucket, we need to change the '+' in the URL to '%2B'
+  if url_ncc_file.include? ".s3-"
     url_nccl_file["+"]="%2B"
-    remote_file cached_nccl_file do
-      source url_nccl_file
-      mode 755
-      action :create
-      retries 2
-      not_if { nccl_version_installed }
-    end
+  end
+  
+  remote_file cached_nccl_file do
+    source url_nccl_file
+    mode 755
+    action :create
+    retries 2
+    not_if { nccl_version_installed }
   end
 
   bash "install-#{nccl_dir_name}" do
