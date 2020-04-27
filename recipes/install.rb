@@ -294,7 +294,6 @@ remote_file "#{Chef::Config['file_cache_path']}/sparkmagic-#{node['jupyter']['sp
   action :create
 end
 
-
 #
 # ROCm
 #
