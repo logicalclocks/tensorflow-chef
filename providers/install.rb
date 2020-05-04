@@ -59,6 +59,10 @@ action :driver do
 
     package ['kernel-headers', 'libglvnd-glx', 'dkms', 'rpm-build', 'redhat-rpm-config', 'asciidoc', 'hmaccalc', 'perl-ExtUtils-Embed', 'pesign', 'xmlto', 'bison', 'bc', 'audit-libs-devel', 'binutils-devel', 'elfutils-devel', 'elfutils-libelf-devel', 'ncurses-devel', 'newt-devel', 'numactl-devel', 'pciutils-devel', 'python-devel', 'zlib-devel']
 
+    tensorflow_install "kernel_devel" do
+      action :kerneldevel
+    end
+    
     bash "install_driver_centos" do
       user "root"
       timeout 72000
@@ -248,4 +252,27 @@ action :nccl do
     EOF
     not_if { nccl_version_installed }
   end
+end
+
+
+action :kerneldevel do
+
+      bash "test_broken_centos_kernel_devel" do
+      user "root"
+      timeout 60
+      code <<-EOF
+        F=/lib/modules/$(uname -r)/build
+        if [ ! -e "$F" ] ; then
+          version=$(yum info kernel-devel | grep Version | awk '{ print $3 }')
+          release=$(yum info kernel-devel | grep Release | awk '{ print $3 }')
+          arch=$(yum info kernel-devel | grep Arch | awk '{ print $3 }')
+          link="${version}-${release}.${arch}"
+          if [ -d /usr/src/kernels/${link} ] ; then
+            rm -f $F
+            ln -s /usr/src/kernels/${link} $F
+          fi
+        fi
+      EOF
+    end
+
 end
