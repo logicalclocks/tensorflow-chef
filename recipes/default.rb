@@ -84,28 +84,35 @@ if private_ip.eql? node['tensorflow']['default']['private_ips'][0]
 
 end
 
-# Install nvm to manage different Node.js versions
-bash "install nvm" do
-  user "root"
-  group "root"
-  environment ({ 'NVM_DIR' => '/usr/local/nvm'})
-  code <<-EOF
-       mkdir -p /usr/local/nvm
-       curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
-       chgrp -R #{node['hops']['group']} /usr/local/nvm
-       chmod -R g+w /usr/local/nvm
-  EOF
-  not_if { ::File.exists?("/usr/local/nvm/nvm.sh") }
+cached_file = "node-v"+ node['node']['version'] + "-linux-x64.tar.xz"
+remote_file "#{::Dir.home(node['conda']['user'])}/#{cached_file}" do
+  user node['conda']['user']
+  group node['conda']['group']
+  source node['node']['url']
+  mode 0750
+  action :create
 end
 
-bash "install Node.js v10.16.0" do
+bash 'extract Node.js' do
   user node['conda']['user']
-  group node['hops']['group']
-  cwd "/home/#{node['conda']['user']}"
-  environment ({ 'NVM_DIR' => '/usr/local/nvm'})
+  group node['conda']['group']
+  cwd "#{::Dir.home(node['conda']['user'])}"
   code <<-EOF
-       source /usr/local/nvm/nvm.sh
-       nvm install 10.16.0
+    set -e
+    rm -rf "node-v#{node['node']['version']}-linux-x64"
+    tar -xf "node-v#{node['node']['version']}-linux-x64.tar.xz"
+    rm -rf "node-v#{node['node']['version']}-linux-x64.tar.xz"
+  EOF
+end
+
+bash 'install Node.js' do
+  user "root"
+  group "root"
+  code <<-EOF
+    set -e
+    cp #{::Dir.home(node['conda']['user'])}/node-v#{node['node']['version']}-linux-x64/bin/node /usr/local/bin/node
+    ln -sf #{::Dir.home(node['conda']['user'])}/node-v#{node['node']['version']}-linux-x64/bin/npm /usr/local/bin/npm
+    ln -sf #{::Dir.home(node['conda']['user'])}/node-v#{node['node']['version']}-linux-x64/bin/npx /usr/local/bin/npx
   EOF
 end
 
@@ -292,6 +299,7 @@ for python in python_versions
                   'ENV' => envName})
     code <<-EOF
       set -e
+      export PATH=$PATH:/usr/local/bin
       # Install packages and pin working versions
       yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade jupyterlab==#{node['conda']['jupyter']['version']['py3']}
       yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade notebook==#{node['conda']['jupyter']['notebook']['version']}
@@ -304,15 +312,6 @@ for python in python_versions
 
       yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade hdfscontents urllib3 requests pandas
 
-      # Install wit-widget JupyterLab extension
-      source /usr/local/nvm/nvm.sh
-      nvm use 10.16.0
-      ${CONDA_DIR}/envs/${ENV}/bin/jupyter labextension install --no-build wit-widget
-      ${CONDA_DIR}/envs/${ENV}/bin/jupyter labextension install --no-build @jupyter-widgets/jupyterlab-manager
-      # Enable nbdime
-      ${CONDA_DIR}/envs/${ENV}/bin/jupyter labextension install --no-build nbdime-jupyterlab
-      ${CONDA_DIR}/envs/${ENV}/bin/jupyter lab build
-
       # Enable kernels
       cd ${CONDA_DIR}/envs/${ENV}/lib/python#{python}/site-packages
 
@@ -322,6 +321,31 @@ for python in python_versions
       
     EOF
   end
+
+    bash "witwidget-base_env-#{envName}" do
+      user node['conda']['user']
+      group node['conda']['group']
+      umask "022"
+      retries 1
+      cwd "#{node['conda']['dir']}/sparkmagic"
+      environment ({ 'HOME' => ::Dir.home(node['conda']['user']),
+                    'USER' => node['conda']['user'],
+                    'JAVA_HOME' => node['java']['java_home'],
+                    'CONDA_DIR' => node['conda']['base_dir'],
+                    'ENV' => envName})
+      code <<-EOF
+        set -e
+        export PATH=$PATH:/usr/local/bin
+        # Install packages and pin working versions
+           # Install wit-widget JupyterLab extension
+           ${CONDA_DIR}/envs/${ENV}/bin/jupyter labextension install --no-build wit-widget
+           ${CONDA_DIR}/envs/${ENV}/bin/jupyter labextension install --no-build @jupyter-widgets/jupyterlab-manager
+           # Enable nbdime
+           ${CONDA_DIR}/envs/${ENV}/bin/jupyter labextension install --no-build nbdime-jupyterlab
+           ${CONDA_DIR}/envs/${ENV}/bin/jupyter lab build
+
+      EOF
+    end
 
   # Install Hopsworks jupyterlab-git plugin
   if node['install']['enterprise']['install'].casecmp? "true"
@@ -336,8 +360,7 @@ for python in python_versions
                      'ENV' => envName,
                      'GIT_PYTHON_REFRESH' => 's'})
       code <<-EOF
-      source /usr/local/nvm/nvm.sh
-      nvm use 10.16.0      
+      export PATH=$PATH:/usr/local/bin
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter labextension install @jupyterlab/git@#{upstream_extension_version}
       yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade #{::Dir.home(node['conda']['user'])}/jupyterlab_git-#{node['conda']['jupyter']['jupyterlab-git']['version']}-py3-none-any.whl
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter serverextension enable --sys-prefix --py jupyterlab_git
