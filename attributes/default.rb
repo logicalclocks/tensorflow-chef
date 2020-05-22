@@ -90,6 +90,9 @@ default['tensorflow']['need_rdma']     = 0
 default['jupyter']['sparkmagic']['version']            = "0.15.0"
 default['jupyter']['sparkmagic']['url']                = node['download_url'] + "/sparkmagic-" + node['jupyter']['sparkmagic']['version'] + ".tar.gz"
 
+default['node']['version']            = "10.16.0"
+default['node']['url']                = node['download_url'] + "/node/node-v"+ node['node']['version'] + "-linux-x64.tar.xz"
+
 # Feature Store example notebooks and datasets
 #
 default['featurestore']['examples_version']           = node['install']['version']
