@@ -279,21 +279,6 @@ if node['cuda']['accept_nvidia_download_terms'].eql?("true")
   end
 end
 
-# Delete SparkMagic
-file "#{Chef::Config['file_cache_path']}/sparkmagic-#{node['jupyter']['sparkmagic']['version']}.tar.gz" do
-  action :delete
-  only_if { File.exist? "#{Chef::Config['file_cache_path']}/sparkmagic-#{node['jupyter']['sparkmagic']['version']}.tar.gz" }
-end
-
-# Download SparkMagic
-remote_file "#{Chef::Config['file_cache_path']}/sparkmagic-#{node['jupyter']['sparkmagic']['version']}.tar.gz" do
-  user "root"
-  group "root"
-  source node['jupyter']['sparkmagic']['url']
-  mode 0755
-  action :create
-end
-
 #
 # ROCm
 #
