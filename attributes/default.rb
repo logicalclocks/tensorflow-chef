@@ -3,8 +3,6 @@ include_attribute "kagent"
 
 default["tensorflow"]["version"]                 = "1.15.0"
 default['tensorflow']['serving']['version']      = "1.15.0"
-default['tensorflow']['serving']['url']          = "#{node['download_url']}/serving/tensorflow-model-server_#{node['tensorflow']['serving']['version']}_all.deb"
-
 
 #
 # TensorFlow/PyTorch example notebooks and datasets
@@ -13,12 +11,6 @@ default['tensorflow']['examples_version']  = node['install']['version']
 default['tensorflow']['hopstfdemo_dir'] = "tensorflow_demo"
 default['tensorflow']['hopstfdemo_url'] = "#{node['download_url']}/tensorflow/#{node['tensorflow']['examples_version']}/demo.tar.gz"
 
-# Comma separated list of supported cuda versions (~ # of patches )
-default['cuda']['versions']            = "9.0.176_384.81~2,10.0.130_410.48~1"
-default['cuda']['base_url']            = "#{node['download_url']}/cuda"
-
-default['cuda']['base_dir']                 = "/usr/local"
-
 default['cuda']['accept_nvidia_download_terms']        = "false"
 default['cuda']['skip_test']           = "false"
 default['cuda']['skip_stop_xserver']   = "false"
@@ -26,19 +18,6 @@ default['cuda']['skip_stop_xserver']   = "false"
 # Nvidia driver
 default['nvidia']['driver_version']      = "430.26"
 default['nvidia']['driver_url']          = "#{node['download_url']}/NVIDIA-Linux-x86_64-#{node['nvidia']['driver_version']}.run"
-
-# Each cudnn version is compiled for a specific cuda version
-# Comma separated list of mappings between cuda versions and cudnn versions
-
-# EXAMPLE: cuda version 9.0 cudnn version 7 will be written with 7+9.0
-# which will download a file named cudnn-9.0-linux-x64-v7.tgz
-default['cudnn']['version_mapping']         = "7+9.0,7.3.0+9.0,7.6.0.64+10.0"
-default['cudnn']['base_url']                = "#{node['download_url']}/cudnn"
-
-# As for nccl comma separated list of mapping nccl version + cuda version
-default['nccl']['version_mapping']          = "2.2.13-1+9.0,2.3.5-2+10.0"
-default['nccl']['base_url']         = "#{node['download_url']}/nccl"
-
 #
 # AMD - ROCm dist found at http://repo.radeon.com/rocm/
 #
@@ -63,13 +42,6 @@ default['rocm']['dist']['debian']        = "#{node['download_url']}/rocm/debian/
 #
 default['rocm']['dir']           = node['install']['dir'].empty? ? "/srv/hops" : node['install']['dir']
 default['rocm']['base_dir']      = node['rocm']['dir'] + "/rocm"
-
-default['tensorflow']['mkl']           = "false"
-default['tensorflow']['rdma']          = "false"
-
-default['tensorflow']['need_cuda']     = 0
-default['tensorflow']['need_mkl']      = 0
-default['tensorflow']['need_rdma']     = 0
 
 # Feature Store example notebooks and datasets
 #
