@@ -405,7 +405,7 @@ for python in python_versions
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter labextension install --no-build wit-widget
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter labextension install --no-build @jupyter-widgets/jupyterlab-manager
       # Enable nbdime
-      ${CONDA_DIR}/envs/${ENV}/bin/jupyter labextension install --no-build nbdime-jupyterlab
+      ${CONDA_DIR}/envs/${ENV}/bin/jupyter labextension install --no-build nbdime-jupyterlab@1.0
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter lab build
 
       # DO NOT TOUCH THIS! Bad things are about to happen
