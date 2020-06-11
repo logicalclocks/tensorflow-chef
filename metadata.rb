@@ -6,8 +6,7 @@ description      'Installs/Configures/Runs tensorflow'
 version          "1.4.0"
 
 recipe            "tensorflow::install", "Install NVIDIA or AMD drivers"
-recipe            "tensorflow::default",  "Create Anaconda base environments"
-recipe            "tensorflow::serving",  "Install TensorFlow Model Serving server"
+recipe            "tensorflow::default",  "Upload Hopsworks tour examples"
 
 
 depends "java", '~> 7.0.0'
@@ -27,14 +26,6 @@ end
 
 attribute "download_url",
           :description => "url for binaries",
-          :type => "string"
-
-attribute "tensorflow/mkl",
-          :description => "'true' to install Intel MKL support, 'false' (default) for no support. ",
-          :type => "string"
-
-attribute "tensorflow/rdma",
-          :description => "Used by TensorflowOnSpark. 'true' to install rdma (infiniband) support, 'false' (default) for no rdma support. ",
           :type => "string"
 
 attribute "install/dir",
@@ -83,13 +74,6 @@ attribute "miopen-hip/version",
 attribute "cxlactivitylogger/version",
           :description => "Version of cxlactivitylogger to install",
           :type => "string"
-
-#
-# Jupyter
-#
-attribute "jupyter/sparkmagic/version",
-          :description => "Version of sparkmagic for Jupyter to install. ",
-          :type => 'string'
 
 #
 # Feature Store examples
