@@ -52,6 +52,12 @@ magic_shell_environment 'HADOOP_HDFS_HOME' do
   value "#{node['hops']['base_dir']}"
 end
 
+group node['hops']['group'] do
+  gid node['hops']['group_id']
+  action :create
+  not_if "getent group #{node['hops']['group']}"
+  not_if { node['install']['external_users'].casecmp("true") == 0 }
+end
 
 if node['cuda']['accept_nvidia_download_terms'].eql?("true")
 
