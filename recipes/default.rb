@@ -361,9 +361,11 @@ for python in python_versions
                      'GIT_PYTHON_REFRESH' => 's'})
       code <<-EOF
       export PATH=$PATH:/usr/local/bin
-      ${CONDA_DIR}/envs/${ENV}/bin/jupyter labextension install @jupyterlab/git@#{upstream_extension_version}
+      ${CONDA_DIR}/envs/${ENV}/bin/jupyter labextension install --no-build @jupyterlab/git@#{upstream_extension_version}
       yes | ${CONDA_DIR}/envs/${ENV}/bin/pip install --no-cache-dir --upgrade #{::Dir.home(node['conda']['user'])}/jupyterlab_git-#{node['conda']['jupyter']['jupyterlab-git']['version']}-py3-none-any.whl
       ${CONDA_DIR}/envs/${ENV}/bin/jupyter serverextension enable --sys-prefix --py jupyterlab_git
+      # jupyterlab/git installs nbdime@2.0.0 which is incompatible with our version of JupyterLab (1.1.4) Until we upgrade JupyterLab this is a work-around...
+      ${CONDA_DIR}/envs/${ENV}/bin/jupyter labextension install nbdime-jupyterlab@1.0
     EOF
    end
   end
