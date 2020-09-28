@@ -3,7 +3,7 @@ maintainer       "Jim Dowling"
 maintainer_email "jdowling@kth.se"
 license          "Apache v2.0"
 description      'Installs/Configures/Runs tensorflow'
-version          "2.0.0"
+version          "1.4.0"
 
 recipe            "tensorflow::install", "Install NVIDIA or AMD drivers"
 recipe            "tensorflow::default",  "Upload Hopsworks tour examples"
