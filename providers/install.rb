@@ -45,7 +45,7 @@ action :driver do
       cwd Chef::Config['file_cache_path']
       code <<-EOF
         set -e
-        ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s --ui=none
+        ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s --ui=none --no-cc-version-check
       EOF
       only_if  "[ \"$(modinfo nvidia | grep \"^version:\" | awk '{split($0,a,\" \"); print a[2]}')\" != \"#{new_resource.driver_version}\" ]"
     end
@@ -77,7 +77,7 @@ action :driver do
         # ln -s /usr/src/kernels/3.10.0-693.21.1.el7.x86_64/ build
         #  --kernel-source-path=/lib/modules/3.10.0-514.el7.x86_64/build
         #
-        ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s --ui=none
+        ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s --ui=none --no-cc-version-check
       EOF
       only_if  "[ \"$(modinfo nvidia | grep \"^version:\" | awk '{split($0,a,\" \"); print a[2]}')\" != \"#{new_resource.driver_version}\" ]"
     end
