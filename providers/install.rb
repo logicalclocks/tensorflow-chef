@@ -45,7 +45,7 @@ action :driver do
       cwd Chef::Config['file_cache_path']
       code <<-EOF
         set -e
-        ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s --ui=none
+        ./#{driver} -a --install-libglvnd --force-libglx-indirect -q --dkms --compat32-libdir -s --ui=none --no-cc-version-check
       EOF
       only_if  "[ \"$(modinfo nvidia | grep \"^version:\" | awk '{split($0,a,\" \"); print a[2]}')\" != \"#{new_resource.driver_version}\" ]"
     end
