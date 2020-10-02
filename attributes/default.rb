@@ -1,7 +1,7 @@
 include_attribute "conda"
 include_attribute "kagent"
 
-default["tensorflow"]["version"]                 = "2.3.0"
+default["tensorflow"]["version"]                 = "2.3.1"
 default['tensorflow']['serving']['version']      = "2.3.0"
 
 #
