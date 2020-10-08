@@ -7,7 +7,7 @@ default['tensorflow']['serving']['version']      = "2.3.0"
 #
 # TensorFlow/PyTorch example notebooks and datasets
 #
-default['tensorflow']['examples_version']  = node['install']['version']
+default['tensorflow']['examples_version']  = "1.4.1"
 default['tensorflow']['hopstfdemo_dir'] = "tensorflow_demo"
 default['tensorflow']['hopstfdemo_url'] = "#{node['download_url']}/tensorflow/#{node['tensorflow']['examples_version']}/demo.tar.gz"
 
@@ -45,6 +45,6 @@ default['rocm']['base_dir']      = node['rocm']['dir'] + "/rocm"
 
 # Feature Store example notebooks and datasets
 #
-default['featurestore']['examples_version']           = node['install']['version']
+default['featurestore']['examples_version']           = "1.4.1"
 default['featurestore']['hops_featurestore_demo_dir'] = "featurestore_demo"
 default['featurestore']['hops_featurestore_demo_url'] = "#{node['download_url']}/featurestore/#{node['featurestore']['examples_version']}/featurestore.tar.gz"
