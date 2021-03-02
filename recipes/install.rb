@@ -13,7 +13,7 @@ end
 case node['platform_family']
 when "debian"
 
-  package ["pkg-config", "zip", "g++", "zlib1g-dev", "unzip", "swig", "git", "build-essential", "cmake", "unzip", "libopenblas-dev", "liblapack-dev", "linux-image-#{node['kernel']['release']}", "linux-headers-#{node['kernel']['release']}", "python2.7", "python2.7-numpy", "python2.7-dev", "python-pip", "python2.7-lxml", "python-pillow", "libcupti-dev", "libcurl3-dev", "python-wheel", "python-six", "pciutils"]
+  package ["pkg-config", "zip", "g++", "zlib1g-dev", "unzip", "swig", "git", "build-essential", "cmake", "unzip", "libopenblas-dev", "liblapack-dev", "linux-image-#{node['kernel']['release']}", "linux-headers-#{node['kernel']['release']}", "python3", "python3-numpy", "python3-dev", "python3-pip", "python3-lxml", "python3-pillow", "libcupti-dev", "libcurl3-dev", "python3-wheel", "python3-six", "pciutils"]
 
 when "rhel"
   if node['rhel']['epel'].downcase == "true"
@@ -39,7 +39,7 @@ when "rhel"
     not_if  "ls -l /usr/src/kernels/$(uname -r)"
   end
 
-  package ['pciutils', 'python-pip', 'mlocate', 'gcc', 'gcc-c++', 'openssl', 'openssl-devel', 'python', 'python-devel', 'python-lxml', 'python-pillow', 'libcurl-devel', 'python-wheel', 'python-six']
+  package ['pciutils', 'python3-pip', 'mlocate', 'gcc', 'gcc-c++', 'openssl', 'openssl-devel', 'python3', 'python3-devel', 'python3-lxml', 'python3-pillow', 'libcurl-devel', 'python3-wheel', 'python36-six']
 end
 
 include_recipe "java"
