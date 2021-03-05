@@ -1,6 +1,14 @@
 private_ip = my_private_ip()
 
-is_head_node = exists_local("hopsworks", "default") && !node['install']['cloud'].empty?
+is_head_node = false
+if exists_local("hopsworks", "default") and exists_local("cloud", "default")
+  unmanaged = false
+  if node.attribute? 'cloud' and node['cloud'].attribute? 'init' and node['cloud']['init'].attribute? 'config' and node['cloud']['init']['config'].attribute? 'unmanaged'
+    unmanaged = node['cloud']['init']['config']['unmanaged'].casecmp? 'true'
+  end
+  is_head_node = !unmanaged
+end
+
 is_first_tf_default_tor_run = private_ip.eql? node['tensorflow']['default']['private_ips'][0]
 
 demo_owner = node['hops']['hdfs']['user']
