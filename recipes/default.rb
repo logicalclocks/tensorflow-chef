@@ -111,8 +111,8 @@ end
 if is_head_node
   hops_tours "Cache demo notebooks locally" do
     action :update_local_cache
-    rel_paths [cached_hopstfdemo_dir, cached_hops_featurestore_demo_dir]
-    rel_tours_info [hdfs_hopstf_demo_dir, hdfs_hops_featurestore_demo_dir]
+    paths [cached_hopstfdemo_dir, cached_hops_featurestore_demo_dir]
+    hdfs_paths [hdfs_hopstf_demo_dir, hdfs_hops_featurestore_demo_dir]
     owner demo_owner
     group demo_group
     mode demo_mode
