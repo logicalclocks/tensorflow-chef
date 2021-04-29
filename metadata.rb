@@ -11,10 +11,7 @@ recipe            "tensorflow::default",  "Upload Hopsworks tour examples"
 
 depends "java", '~> 7.0.0'
 depends "magic_shell", '~> 1.0.0'
-depends 'build-essential', '~> 8.2.1'
-depends 'zip', '~> 1.1.0'
 depends 'apt', '~> 7.2.0'
-depends 'homebrew', '~> 5.0.8'
 depends 'kagent'
 depends 'ndb'
 depends 'hops'
