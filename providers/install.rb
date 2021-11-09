@@ -70,7 +70,7 @@ action :driver do
         # The 'ks=...' tries to resolve the directory where they should be installed inside /lib/modules/...
         # ks=$(rpm -qa | grep kernel | head -1 | sed -e 's/kernel-//' | sed -e 's/\.x86_64//')
         # ksl=$(rpm -qa | grep kernel | head -1 | sed -e 's/kernel-//')
-        # --kernel-source-path==/home/#{node['kagent']['user']}/rpmbuild/BUILD/kernel-${ks}/linux-${ksl}/
+        # --kernel-source-path==#{::Dir.home(node['kagent']['user'])}/rpmbuild/BUILD/kernel-${ks}/linux-${ksl}/
         #
         # rm -f /lib/modules/3.10.0-514.el7.x86_64/build
         # cd /lib/modules/3.10.0-514.el7.x86_64/build
