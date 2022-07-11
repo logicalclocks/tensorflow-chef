@@ -1,8 +1,8 @@
 include_attribute "conda"
 include_attribute "kagent"
 
-default["tensorflow"]["version"]                 = "2.4.1"
-default['tensorflow']['serving']['version']      = "2.4.0"
+default["tensorflow"]["version"]                 = "2.9.1"
+default['tensorflow']['serving']['version']      = "2.9.0"
 
 #
 # TensorFlow/PyTorch example notebooks and datasets
@@ -16,7 +16,7 @@ default['cuda']['skip_test']           = "false"
 default['cuda']['skip_stop_xserver']   = "false"
 
 # Nvidia driver
-default['nvidia']['driver_version']      = "450.102.04"
+default['nvidia']['driver_version']      = "515.48.07"
 default['nvidia']['driver_url']          = "#{node['download_url']}/NVIDIA-Linux-x86_64-#{node['nvidia']['driver_version']}.run"
 #
 # AMD - ROCm dist found at http://repo.radeon.com/rocm/
