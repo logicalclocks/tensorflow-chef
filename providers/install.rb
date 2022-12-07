@@ -37,7 +37,10 @@ action :driver do
   case node['platform_family']
   when "debian"
 
-    package 'dkms'
+    package 'dkms' do
+      retries 10
+      retry_delay 30
+    end
 
     bash "install_driver_ubuntu" do
       user "root"
@@ -54,10 +57,16 @@ action :driver do
 
     # Obs! Versioned header install doesn't work [Jim]
     if node['rhel']['epel'].downcase == "true"
-      package 'epel-release'
+      package 'epel-release' do
+        retries 10
+        retry_delay 30
+      end
     end
 
-    package ['kernel-headers', 'libglvnd-glx', 'dkms', 'rpm-build', 'redhat-rpm-config', 'asciidoc', 'hmaccalc', 'perl-ExtUtils-Embed', 'pesign', 'xmlto', 'bison', 'bc', 'audit-libs-devel', 'binutils-devel', 'elfutils-devel', 'elfutils-libelf-devel', 'ncurses-devel', 'newt-devel', 'numactl-devel', 'pciutils-devel', 'python-devel', 'zlib-devel']
+    package ['kernel-headers', 'libglvnd-glx', 'dkms', 'rpm-build', 'redhat-rpm-config', 'asciidoc', 'hmaccalc', 'perl-ExtUtils-Embed', 'pesign', 'xmlto', 'bison', 'bc', 'audit-libs-devel', 'binutils-devel', 'elfutils-devel', 'elfutils-libelf-devel', 'ncurses-devel', 'newt-devel', 'numactl-devel', 'pciutils-devel', 'python-devel', 'zlib-devel'] do
+      retries 10
+      retry_delay 30
+    end
 
     bash "install_driver_centos" do
       user "root"

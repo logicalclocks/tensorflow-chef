@@ -13,11 +13,17 @@ end
 case node['platform_family']
 when "debian"
 
-  package ["pkg-config", "zip", "g++", "zlib1g-dev", "unzip", "swig", "git", "build-essential", "cmake", "libopenblas-dev", "liblapack-dev", "linux-image-#{node['kernel']['release']}", "linux-headers-#{node['kernel']['release']}", "libcupti-dev", "libcurl3-dev", "pciutils"]
+  package ["pkg-config", "zip", "g++", "zlib1g-dev", "unzip", "swig", "git", "build-essential", "cmake", "libopenblas-dev", "liblapack-dev", "linux-image-#{node['kernel']['release']}", "linux-headers-#{node['kernel']['release']}", "libcupti-dev", "libcurl3-dev", "pciutils"] do
+    retries 10
+    retry_delay 30
+  end
 
 when "rhel"
   if node['rhel']['epel'].downcase == "true"
-    package 'epel-release'
+    package 'epel-release' do
+      retries 10
+      retry_delay 30
+    end
   end
 
   # With our current CentOS box "CentOS Linux release 7.5.1804 (Core)",
@@ -35,11 +41,16 @@ when "rhel"
   end
 
   package 'kernel-devel' do
+    retries 10
+    retry_delay 30
     action :install
     not_if  "ls -l /usr/src/kernels/$(uname -r)"
   end
 
-  package ['pciutils', 'mlocate', 'gcc', 'gcc-c++', 'openssl', 'openssl-devel', 'libcurl-devel']
+  package ['pciutils', 'mlocate', 'gcc', 'gcc-c++', 'openssl', 'openssl-devel', 'libcurl-devel'] do
+    retries 10
+    retry_delay 30
+  end
 end
 
 include_recipe "java"
@@ -55,7 +66,10 @@ end
 
 if node['cuda']['accept_nvidia_download_terms'].eql?("true")
 
-  package "clang"
+  package "clang" do
+    retries 10
+    retry_delay 30
+  end
 
   # Check to see if i can find a cuda card. If not, fail with an error
   bash "test_nvidia" do
