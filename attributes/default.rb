@@ -1,8 +1,8 @@
 include_attribute "conda"
 include_attribute "kagent"
 
-default["tensorflow"]["version"]                 = "2.9.1"
-default['tensorflow']['serving']['version']      = "2.9.0"
+default["tensorflow"]["version"]                 = "2.11.0"
+default['tensorflow']['serving']['version']      = "2.11.0"
 
 #
 # TensorFlow/PyTorch example notebooks and datasets
