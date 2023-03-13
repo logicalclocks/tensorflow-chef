@@ -54,21 +54,6 @@ attribute "cuda/skip_stop_xserver",
           :type => "string"
 
 #
-# Deep Learning examples
-#
-attribute "tensorflow/examples_version",
-          :description => "Version of deep learning tour artifacts.",
-          :type => 'string'
-
-attribute "tensorflow/hopstfdemo_dir",
-          :description => "Directory to put deep learning tour artifacts",
-          :type => 'string'
-
-attribute "tensorflow/hopstfdemo_url",
-          :description => "URL to download deep learning tour artifacts",
-          :type => 'string'
-
-#
 #
 # Python library versions
 #
